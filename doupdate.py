@@ -247,22 +247,31 @@ def installed_here():
     return os.path.normcase(os.path.normpath(where)) == os.path.normcase(os.path.normpath(here))
 
 
+DOWNLOADS = "divinum-officium-update-"
+
+
 def clean_old_downloads():
-    """Remove the Setups earlier updates downloaded (the Setup cannot delete itself)."""
-    for name in os.listdir(tempfile.gettempdir()):
-        path = os.path.join(tempfile.gettempdir(), name)
-        if name.startswith("do-update-") and os.path.isdir(path):
-            try:
-                if time.time() - os.path.getmtime(path) > 3600:
-                    shutil.rmtree(path, ignore_errors=True)
-            except OSError:
-                pass
+    """Remove the Setups earlier updates downloaded (the Setup cannot delete
+    itself): folders of this module's own naming that hold nothing but one."""
+    temp = tempfile.gettempdir()
+    for name in os.listdir(temp):
+        path = os.path.join(temp, name)
+        try:
+            if not (name.startswith(DOWNLOADS) and os.path.isdir(path)
+                    and all(SETUP_NAME.match(f) for f in os.listdir(path))
+                    and time.time() - os.path.getmtime(path) > 3600):
+                continue
+            for f in os.listdir(path):
+                os.remove(os.path.join(path, f))
+            os.rmdir(path)
+        except OSError:
+            pass
 
 
 def download(manifest, progress=None, cancelled=None):
     """Download the release's Setup; its path, once its size and SHA-256 match."""
     clean_old_downloads()
-    folder = tempfile.mkdtemp(prefix="do-update-")
+    folder = tempfile.mkdtemp(prefix=DOWNLOADS)
     path = os.path.join(folder, manifest["setup"])
     digest, done = hashlib.sha256(), 0
     try:
@@ -502,37 +511,37 @@ class UpdatePanel:
 # without the window: DivinumOfficium.exe --check-update / --update
 
 
-def run_cli(install, before_install=lambda: None):
+def run_cli(install, before_install=lambda: None, say=print):
     current = current_version()
-    print("this copy: %s" % (current or "development copy"))
+    say("this copy: %s" % (current or "development copy"))
     try:
         m = fetch_manifest()
     except UpdateError as exc:
-        print("error: %s" % exc)
+        say("error: %s" % exc)
         return 1
-    print("newest release: %s (%s, %d bytes; signature checks)" % (m["version"], m["setup"], m["size"]))
+    say("newest release: %s (%s, %d bytes; signature checks)" % (m["version"], m["setup"], m["size"]))
     if not newer(m, current):
-        print("up to date")
+        say("up to date")
         return 0
     if not install:
-        print("an update is available: DivinumOfficium.exe --update installs it")
+        say("an update is available: DivinumOfficium.exe --update installs it")
         return 0
     if not installed_here():
-        print("error: this copy was not installed by the Setup; download it from %s" % RELEASES_PAGE)
+        say("error: this copy was not installed by the Setup; download it from %s" % RELEASES_PAGE)
         return 1
     last = [0]
 
     def progress(done, total):
         if done - last[0] >= 8 << 20 or done == total:
             last[0] = done
-            print("  %d of %d MB" % (done // 1048576, round(total / 1048576)), flush=True)
+            say("  %d of %d MB" % (done // 1048576, round(total / 1048576)))
 
     try:
         path = download(m, progress)
     except UpdateError as exc:
-        print("error: %s" % exc)
+        say("error: %s" % exc)
         return 1
-    print("verified %s; starting it" % path)
+    say("verified %s; starting it" % path)
     before_install()
     launch_setup(path)
     return 0

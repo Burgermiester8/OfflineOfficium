@@ -104,6 +104,7 @@ Divine Office/
   do-serve.py               command-line server
   build-exe.py              rebuilds the app from the repo; --installer makes the Setup
   installer.iss             the Setup's script (Inno Setup 6)
+  doupdate.py               updates: checks GitHub's newest release, verifies, installs
   licenses/                 the licences of the parts, installed with the app
   perl-lib/                 vendored pure-Perl CGI.pm 4.68 + URI 5.31 (0.6 MB)
   tools/engine-probe.pl     breviary-builder research: the engine's loader, standalone
@@ -115,8 +116,9 @@ Divine Office/
 `dist/DivinumOfficium/DivinumOfficium.exe` is a self-contained desktop build.
 Double-click it: a small window appears and the server starts; *Open the
 Office* (or *Open the Mass*) then opens it in your default browser -- the
-app no longer opens the browser by itself at every start. Nothing is installed, and no network
-connection is used at any point.
+app no longer opens the browser by itself at every start. This folder build
+installs nothing (the Setup, below, installs a copy). No network connection is
+used, except to check for updates when asked.
 
 It carries its own Perl, so it does not depend on Git for Windows, Python, or
 anything else being present. Verified by launching it with `PATH` cut down to
@@ -244,11 +246,101 @@ On the other person's side:
   (which runs x64 programs by emulation), untested. There is no Mac version.
 - **Sending it:** 69 MB is too large to attach to an email (Gmail takes 25 MB),
   so share a link instead. This folder is in OneDrive: right-click the Setup,
-  *Share*.
+  *Share*. Or send the releases page (below), which always has the newest.
+
+#### Updates
+
+Installed copies update themselves from the project's GitHub releases,
+<https://github.com/Burgermiester8/OfflineOfficium/releases>. To publish one:
+
+```bash
+python build-exe.py --quick --release --notes "The hymns in two columns."
+```
+
+This updates the folder build and makes the Setup. Its version is the date,
+plus `.2` for a second release the same day. It then signs the Setup and
+publishes it as the release `v<version>`, with two files: the Setup and
+`latest.json`. The notes are what the app shows when it offers the update.
+Commit and push the code first: GitHub tags the release on its newest commit,
+and `--release` warns about changes not yet committed.
+
+In the app, under the four tiles, there is the version, *Check for updates…*,
+and *Check when the app starts*. That box is off until ticked; when ticked, the
+check runs at most once a day. The check reads the newest release's
+`latest.json` (`releases/latest/download/latest.json`). If that release is
+newer, the app asks. On *Yes* it:
+
+1. downloads the Setup, with a progress bar and *Cancel*;
+2. checks it against the signed size and SHA-256;
+3. closes itself;
+4. runs the Setup with `/SILENT`, which shows only its progress, replaces the
+   app whole and keeps the settings;
+5. reopens the app (`/relaunch=1`, in `installer.iss`).
+
+A copy that the Setup did not install (this folder's build, a development
+copy) cannot replace itself, so it is offered the download page instead.
+Without a connection the check says so; nothing else in the app needs one.
+From a command line, `DivinumOfficium.exe --check-update` checks and `--update`
+installs, writing what they do to the log as well.
+
+**Signed releases.** `latest.json` names the Setup with its size and SHA-256,
+and carries an Ed25519 signature over those and the notes. The private key is
+`%USERPROFILE%\.offline-officium\release-signing-key.txt`, outside the project
+and outside OneDrive, so it never reaches git. The app has the public half
+(`doupdate.PUBLIC_KEY`). It ignores a `latest.json` that key did not sign, and
+it never runs a download whose size or hash differs. So someone who got into
+the GitHub account still could not send a program to the installed copies.
+Python's standard library has no Ed25519, so `doupdate.py` carries RFC 8032's
+reference code: checked against that RFC's test vectors, about 4 ms per check.
+
+**Keep a copy of that key file somewhere safe** (a USB stick, a password
+manager). Without it no update can be published that installed copies
+accept, and everyone would have to install a new Setup by hand once.
+`--new-signing-key` made it and refuses to make another while it exists.
+
+| Check | Result |
+|---|---|
+| RFC 8032 test vectors 1–3 | key, signature and verification right; an altered message or signature refused |
+| A release signed with the key (a local test server) | accepted: *Version 2026.10.08 is available (you have 2026.10.07)* |
+| The same `latest.json` with its notes changed after signing | refused: *not signed by this app's publisher* |
+| Signed, but naming the wrong hash | downloaded (69 MB), refused to run, deleted |
+| The whole update, in an installed 2026.10.07 | *Yes*, then the download; the app closed 3 s later; the Setup ran and the app reopened 85 s after; the files were replaced |
+| The manual check, in a copy the Setup did not install | offers the download page |
+
+The installed copy was driven through *Check when the app starts*: Tk ignores
+simulated clicks, because it reads where the real pointer is. The button runs
+the same code with `manual=True`, which was tested from the source.
+
+### The code on GitHub
+
+<https://github.com/Burgermiester8/OfflineOfficium> is public. It holds
+everything in this folder except `dist/` (the releases carry the built app)
+and the signing key. `repo/` is a submodule: the upstream project, at the
+commit this is built against. Its local changes are the ones `datafixes.py`
+writes from `data-fixes.txt`, so git ignores them there. `.gitattributes`
+keeps every file byte for byte, line endings included.
+
+To set up a working copy somewhere else, such as another PC or a cloud
+session:
+
+```bash
+git clone --recurse-submodules https://github.com/Burgermiester8/OfflineOfficium.git
+cd OfflineOfficium
+python datafixes.py
+```
+
+A cloud session runs on Linux. It can change the code and the data and run the
+Python and the Perl; the engine is upstream's, which runs on Linux, and
+`perl-lib/` supplies CGI.pm. That has not been tried yet. It cannot build the
+Windows app or the Setup, and the signing key stays on this PC, so releases are
+made here: pull the session's changes, then run `python build-exe.py --quick
+--release --notes "…"`.
 
 ### Is it fully offline?
 
-Yes — and one thing had to be fixed to make that true.
+Yes — and one thing had to be fixed to make that true. The one exception is
+the update check (see *Updates*), which reaches github.com only when
+*Check for updates…* is clicked, or at start if its box is ticked.
 
 Measured with the browser's network inspector against the running app: loading
 the index, Matins, Lauds, Vespers, Compline, the Mass and the Ordo produces

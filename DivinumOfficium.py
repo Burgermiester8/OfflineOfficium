@@ -240,7 +240,7 @@ def run_gui():
     )
     if icon:
         try:
-            root.iconbitmap(icon)
+            root.iconbitmap(default=icon)  # every window's, the dialogs' too
         except tk.TclError:
             pass
     doui.install(root)
@@ -600,7 +600,11 @@ def main():
         attach_console()
         import doupdate
 
-        return doupdate.run_cli("--update" in sys.argv, before_install=release_app_mutex)
+        def say(msg):  # to the console and to last-run.log
+            print(msg, flush=True)
+            write_log(msg)
+
+        return doupdate.run_cli("--update" in sys.argv, before_install=release_app_mutex, say=say)
     if "--console" in sys.argv:
         return run_console()
     try:
