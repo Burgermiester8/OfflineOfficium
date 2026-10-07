@@ -167,6 +167,29 @@ second (seen in a screen recording, October 2026); applying the theme also
 made a hidden drop-down list for every combo box, which it no longer does.
 The breviary window is now ready in about a quarter of a second.
 
+**Windows stay above the taskbar.** A window is placed wholly inside the
+screen's work area (the screen less the taskbar, on whichever monitor it
+opens), title bar and border included. Placed by its inside alone, with a guess
+of 48 px for the taskbar, the breviary window hung about 30 px below the
+taskbar on a 1920×1080 screen (October 2026). On a smaller screen, such as a
+1366×768 laptop or 1080p at 125% scaling, the PDF and breviary windows are too
+tall to fit at all. Their choices then scroll, with the wheel or a scroll bar
+that appears only when needed, and the row with *Make PDF…* stays in view
+below them (`doui.ScrollArea`). Measured from the source:
+
+| Window, screen | Result |
+|---|---|
+| Breviary, 1920×1080 (taskbar from 1,032 px) | 1314×922, bottom edge at 1,007 px; no scroll bars |
+| Breviary, 1366×768 | 1326×708, inside; a vertical bar; the buttons in view |
+| Breviary, 1280×720 | inside; both bars; the buttons in view |
+| PDF, 1920×1080 and 1366×768 | inside; on the smaller, a vertical bar |
+
+The wheel scrolls the choices, but not over the parts list, which scrolls by
+itself, nor over the buttons below. The app does not declare itself DPI-aware,
+so with scaling Windows gives it a smaller screen in scaled units. The calls
+used for the placement (`GetMonitorInfo`, `GetWindowRect`) answer in those
+same units.
+
 If a launch misbehaves, the app writes a log to
 `%LOCALAPPDATA%\DivinumOfficium\last-run.log` (a windowed app has no console,
 so without that there is nothing to look at). `DivinumOfficium.exe --console`

@@ -537,10 +537,10 @@ def install(window):
 
 def present(window, over=None, size=None, fade=True):
     """Show a window that was built withdrawn, all at once: placed (centred on
-    `over`, else on the screen, and kept on it), its title bar in the mode
-    while it is still invisible, then faded in. A window that draws itself in
-    view -- widget by widget, the empty frame first, in the corner where
-    Windows puts it -- looks unfinished; this shows it finished."""
+    `over`, else on the screen) wholly inside the screen's work area, its title
+    bar in the mode while it is still invisible, then faded in. A window that
+    draws itself in view -- widget by widget, the empty frame first, in the
+    corner where Windows puts it -- looks unfinished; this shows it finished."""
     window.update_idletasks()
     w, h = size or (window.winfo_reqwidth(), window.winfo_reqheight())
     sw, sh = window.winfo_screenwidth(), window.winfo_screenheight()
@@ -549,8 +549,9 @@ def present(window, over=None, size=None, fade=True):
         cy = over.winfo_rooty() + over.winfo_height() // 2
     else:
         cx, cy = sw // 2, sh // 2
-    x = max(0, min(cx - w // 2, sw - w))
-    y = max(0, min(cy - h // 2, sh - h - 48))  # above the taskbar
+    area = work_area(cx, cy) or (0, 0, sw, sh - 48)
+    x = max(area[0], min(cx - w // 2, area[2] - w))
+    y = max(area[1], min(cy - h // 2, area[3] - h))
     window.geometry(("%dx%d" % (w, h) if size else "") + "+%d+%d" % (x, y))
     try:
         window.attributes("-alpha", 0.0)
@@ -559,6 +560,7 @@ def present(window, over=None, size=None, fade=True):
     window.deiconify()
     _title_bar(window, mode() == "dark")
     window.update_idletasks()
+    _fit(window, area, (cx, cy))  # now that its frame can be measured
     if not fade:
         window.attributes("-alpha", 1.0)
         return
@@ -573,6 +575,174 @@ def present(window, over=None, size=None, fade=True):
             window.after(28, step, k + 1)
 
     window.after(10, step)
+
+
+# --------------------------------------------------------------------------
+# keeping windows on the screen: inside its work area (the screen less the
+# taskbar), title bar and border included. The windows were placed by their
+# inside alone, with a guess of 48 pixels for the taskbar, and the breviary's,
+# 960 pixels tall with its title bar, hung below the taskbar on a 1080-pixel
+# screen; on a smaller one it cannot fit at all, so it scrolls (ScrollArea).
+#
+# The app does not declare itself DPI-aware, so with Windows' scaling at 125%
+# Windows gives it a screen of 1536 x 864 and scales the picture up. The calls
+# here (GetMonitorInfo, GetWindowRect) answer in the same scaled units as Tk.
+
+
+def _win32():
+    import ctypes
+
+    class RECT(ctypes.Structure):
+        _fields_ = [("left", ctypes.c_long), ("top", ctypes.c_long),
+                    ("right", ctypes.c_long), ("bottom", ctypes.c_long)]
+
+    class MONITORINFO(ctypes.Structure):
+        _fields_ = [("cbSize", ctypes.c_ulong), ("rcMonitor", RECT), ("rcWork", RECT),
+                    ("dwFlags", ctypes.c_ulong)]
+
+    return ctypes, RECT, MONITORINFO
+
+
+def work_area(x, y):
+    """(left, top, right, bottom): the work area of the monitor at (x, y) -- the
+    screen less the taskbar, wherever it is docked -- or None off Windows."""
+    if os.name != "nt":
+        return None
+    try:
+        ctypes, _RECT, MONITORINFO = _win32()
+        user32 = ctypes.windll.user32
+        user32.MonitorFromPoint.restype = ctypes.c_void_p
+        monitor = user32.MonitorFromPoint(ctypes.c_longlong((int(y) << 32) | (int(x) & 0xFFFFFFFF)), 2)
+        info = MONITORINFO()
+        info.cbSize = ctypes.sizeof(info)
+        if not user32.GetMonitorInfoW(ctypes.c_void_p(monitor), ctypes.byref(info)):
+            return None
+        r = info.rcWork
+        return r.left, r.top, r.right, r.bottom
+    except Exception:
+        return None
+
+
+def _outer(window):
+    """The window's rectangle on the screen with its title bar and border."""
+    if os.name != "nt":
+        return None
+    try:
+        ctypes, RECT, _MONITORINFO = _win32()
+        r = RECT()
+        if ctypes.windll.user32.GetWindowRect(ctypes.c_void_p(int(window.wm_frame(), 16)), ctypes.byref(r)):
+            return r.left, r.top, r.right, r.bottom
+    except Exception:
+        pass
+    return None
+
+
+def _fit(window, area, centre):
+    """Move a window just shown (still invisible) so that all of it is inside
+    `area`, centred on `centre` where it fits. One too large even so is made
+    smaller: its ScrollArea scrolls, or a window given a size is shrunk."""
+    outer = _outer(window)
+    if not outer:
+        return
+    left, top, right, bottom = area
+    over_w = (outer[2] - outer[0]) - (right - left)  # negative: room to spare
+    over_h = (outer[3] - outer[1]) - (bottom - top)
+    if over_w > 0 or over_h > 0:
+        scroll = getattr(window, "_doui_scroll", None)
+        if scroll is not None:
+            scroll.limit(over_w, over_h)
+        else:
+            window.geometry("%dx%d" % (window.winfo_width() - max(0, over_w),
+                                       window.winfo_height() - max(0, over_h)))
+        window.update_idletasks()
+        outer = _outer(window) or outer
+    ow, oh = outer[2] - outer[0], outer[3] - outer[1]
+    nx = max(left, min(centre[0] - ow // 2, right - ow))
+    ny = max(top, min(centre[1] - oh // 2, bottom - oh))
+    # Tk places a window by its own origin; move that by what the frame must move.
+    import re
+
+    m = re.search(r"([+-]-?\d+)([+-]-?\d+)$", window.wm_geometry())
+    if m:
+        gx, gy = int(m.group(1)), int(m.group(2))
+        window.geometry("+%d+%d" % (gx + nx - outer[0], gy + ny - outer[1]))
+        window.update_idletasks()
+
+
+class ScrollArea:
+    """A frame (.inner) that scrolls when its window is too large for the
+    screen: a small one, or a large scaling. Its canvas asks for the whole
+    frame, so the window opens at its natural size wherever that fits, and the
+    bars show only when needed; present() calls limit() when it does not fit.
+    What should stay in view (the buttons) goes outside it."""
+
+    def __init__(self, window, padding=0):
+        self.window = window
+        self.box = ttk.Frame(window, style="Window.TFrame")
+        self.box.rowconfigure(0, weight=1)
+        self.box.columnconfigure(0, weight=1)
+        self.canvas = role(tk.Canvas(self.box, highlightthickness=0, borderwidth=0,
+                                     yscrollincrement=24, xscrollincrement=24), "window-bg")
+        self.vbar = ttk.Scrollbar(self.box, orient="vertical", command=self.canvas.yview)
+        self.hbar = ttk.Scrollbar(self.box, orient="horizontal", command=self.canvas.xview)
+        self.canvas.configure(yscrollcommand=lambda lo, hi: self._bar(self.vbar, lo, hi),
+                              xscrollcommand=lambda lo, hi: self._bar(self.hbar, lo, hi))
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.inner = ttk.Frame(self.canvas, style="Window.TFrame", padding=padding)
+        self.canvas.create_window(0, 0, window=self.inner, anchor="nw")
+        self.cut = (0, 0)  # how much narrower and shorter than the frame the canvas is
+        self.inner.bind("<Configure>", lambda _e: self._size())
+        window._doui_scroll = self
+        window.bind("<MouseWheel>", self._wheel, add="+")
+        window.bind("<Shift-MouseWheel>", lambda e: self._wheel(e, across=True), add="+")
+
+    def pack(self, **kw):
+        self.box.pack(**kw)
+
+    def _size(self):
+        w, h = self.inner.winfo_reqwidth(), self.inner.winfo_reqheight()
+        self.canvas.configure(width=max(1, w - self.cut[0]), height=max(1, h - self.cut[1]),
+                              scrollregion=(0, 0, w, h))
+
+    def limit(self, over_w, over_h):
+        """Fit the window to the screen: it is `over_w` pixels too wide and
+        `over_h` too tall (negative: that much room to spare). A bar, once
+        shown, takes room of its own, from the spare room first."""
+        thick_v, thick_h = self.vbar.winfo_reqwidth(), self.hbar.winfo_reqheight()
+        cut_w, cut_h = max(0, over_w), max(0, over_h)
+        for _ in range(2):  # a horizontal bar can make a vertical one needed, and back
+            if cut_h:
+                cut_w = max(cut_w, over_w + thick_v)
+            if cut_w:
+                cut_h = max(cut_h, over_h + thick_h)
+        self.cut = (max(0, cut_w), max(0, cut_h))
+        self._size()
+
+    def _bar(self, bar, lo, hi):
+        bar.set(lo, hi)
+        needed = float(lo) > 0.0 or float(hi) < 1.0
+        if needed and not bar.winfo_ismapped():
+            if bar is self.vbar:
+                bar.grid(row=0, column=1, sticky="ns")
+            else:
+                bar.grid(row=1, column=0, sticky="ew")
+        elif not needed and bar.winfo_ismapped():
+            bar.grid_remove()
+
+    def _wheel(self, e, across=False):
+        bar = self.hbar if across else self.vbar
+        if not bar.winfo_ismapped():
+            return
+        w = e.widget
+        while w is not None and w is not self.canvas:
+            if isinstance(w, str) or isinstance(w, (tk.Canvas, tk.Text, tk.Listbox, ttk.Combobox,
+                                                    ttk.Spinbox, tk.Spinbox)):
+                return  # it scrolls, or changes, by the wheel itself (the parts list, a number)
+            w = w.master
+        if w is None:
+            return  # outside the area: the buttons below it
+        step = -1 if e.delta > 0 else 1
+        (self.canvas.xview_scroll if across else self.canvas.yview_scroll)(step * 2, "units")
 
 
 def busy(window, on):
@@ -660,6 +830,8 @@ def _recolour_one(w, c):
             w.configure(background=c["canvas"])
         elif r == "card-bg":
             w.configure(background=c["card"])
+        elif r == "window-bg":
+            w.configure(background=c["bg"])
         elif isinstance(w, ttk.Combobox):
             # Only a list already opened: one not yet made takes the colours
             # of the option database when it is (making each here was slow).

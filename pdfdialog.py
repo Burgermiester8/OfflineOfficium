@@ -199,10 +199,19 @@ class PdfDialog:
 
     # -- layout --------------------------------------------------------------
 
+    def _body(self):
+        """Where the choices go: a frame that scrolls if the screen is too small
+        for the window (doui.ScrollArea), with the footer below it, always in
+        view. Returns the frame."""
+        self.foot_box = ttk.Frame(self.win, style="Window.TFrame", padding=(12, 0, 12, 12))
+        self.foot_box.pack(side="bottom", fill="x")
+        self.scroll = doui.ScrollArea(self.win, padding=(12, 12, 12, 0))
+        self.scroll.pack(fill="both", expand=True)
+        return self.scroll.inner
+
     def _build(self):
         pad = {"padx": 10, "pady": 3}
-        outer = ttk.Frame(self.win, padding=12, style="Window.TFrame")
-        outer.pack(fill="both", expand=True)
+        outer = self._body()
 
         # Days
         days = ttk.LabelFrame(outer, text="Days", padding=8)
@@ -304,7 +313,7 @@ class PdfDialog:
 
         self._build_page(outer, row=2)
         self._build_type(outer, row=3)
-        self._build_footer(outer, row=4)
+        self._build_footer(self.foot_box)
 
 
     def _build_page(self, outer, row, per_page_label="Start each day on a new page",
@@ -449,9 +458,9 @@ class PdfDialog:
             if isinstance(s.get(key), str):
                 choice.set(s[key])
 
-    def _build_footer(self, outer, row):
-        foot = ttk.Frame(outer, style="Card.TFrame", padding=(12, 6))
-        foot.grid(row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 0))
+    def _build_footer(self, parent):
+        foot = ttk.Frame(parent, style="Card.TFrame", padding=(12, 6))
+        foot.pack(fill="x", padx=10, pady=(10, 0))
         self.estimate = ttk.Label(foot, style="Strong.TLabel")
         self.estimate.pack(anchor="w")
         self.bar = ttk.Progressbar(foot, length=560, mode="determinate")
@@ -900,8 +909,7 @@ class BreviaryDialog(PdfDialog):
 
     def _build(self):
         pad = {"padx": 10, "pady": 3}
-        outer = ttk.Frame(self.win, padding=12, style="Window.TFrame")
-        outer.pack(fill="both", expand=True)
+        outer = self._body()
 
         office = ttk.LabelFrame(outer, text="Office", padding=8)
         office.grid(row=0, column=0, sticky="nsew", **pad)
@@ -965,7 +973,7 @@ class BreviaryDialog(PdfDialog):
         self._build_type(outer, row=1, preview=True, column=1, span=1)
         self._build_spacing(outer, row=2, column=1)
         self._build_volumes(outer, row=3, column=0)
-        self._build_footer(outer, row=4)
+        self._build_footer(self.foot_box)
 
     def _build_volumes(self, outer, row, column=0):
         """One book, or two to four divided by the liturgical year (dovolumes.py)."""
