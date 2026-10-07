@@ -306,6 +306,7 @@ accept, and everyone would have to install a new Setup by hand once.
 | Signed, but naming the wrong hash | downloaded (69 MB), refused to run, deleted |
 | The whole update, in an installed 2026.10.07 | *Yes*, then the download; the app closed 3 s later; the Setup ran and the app reopened 85 s after; the files were replaced |
 | The manual check, in a copy the Setup did not install | offers the download page |
+| The real release, v2026.10.07, in an installed copy marked 2026.10.06 | `--update`: downloaded from GitHub, verified, installed; the Setup reopened the app, now 2026.10.07 |
 
 The installed copy was driven through *Check when the app starts*: Tk ignores
 simulated clicks, because it reads where the real pointer is. The button runs
