@@ -1,0 +1,1835 @@
+# Corrections to the Divinum Officium data (repo/web/www/horas).
+#
+# They are kept here, outside repo/, so that no git pull, checkout or fresh
+# download can lose them. `python datafixes.py` writes them into repo/ and the
+# built app; build-exe.py (full and --quick) writes them into the app.
+# `python datafixes.py --pull` updates repo/ from GitHub and keeps them.
+#
+# Each entry: "== FILE [Section]", notes ("why:", "source:"), "---", then the
+# section's text, which replaces the file's own.
+
+== Latin/Sancti/04-23.txt [Lectio94]
+replaces: 704247eac0d2
+why: the Latin file had the English lesson in place of the Latin (St George, ninth lesson)
+source: Gueranger, The Liturgical Year, 23 April: the historical lesson approved for the dioceses of England; "fuisset." printed there made "fuisset,"
+---
+Georgius, inter orientales Martyres Magni nomine commendatus, in persecutione Diocletiani gloriosam pro Christo mortem subiit. Quum paulo post sub Constantino pax Ecclesiæ data fuisset, Martyris memoria celebrari cœpit, erectis sub ejus invocatione templis in Palæstina prope Liddam et Constantinopoli; deinceps autem in aliis partibus Orientis, et postea in Occidente celebris fuit erga illum fidelium devotio. Ab antiquis temporibus christiani exercitus contra hostes pugnaturi sanctos Georgium, Mauritium et Sebastianum patronos invocaverunt. Porro sanctum Georgium Martyrem jamdudum in Anglia specialiter cultum Benedictus decimus quartus Pontifex Maximus totius Regni Protectorem declaravit.
+
+== horas.dialog [languages]
+replaces: 51b6b9a02a8e
+why: adds the language English - Coverdale psalter: English with the Prayer Book's psalter (Coverdale), whose files are in data-additions/English-Coverdale (made by tools/make_coverdale.py); the engine accepts only the languages listed here
+---
+Latin,Cantilenæ/Latin-gabc,English,English - Coverdale psalter/English-Coverdale,Čeština/Bohemice,Čeština - Schaller/Cesky-Schaller,Dansk,Deutsch,Español/Espanol,Français/Francais,Italiano,Magyar,Magyar-Káldi/Magyar-Kaldi,Nederlands,Polski,Português/Portugues,Tiếng Việt/Vietnamice,Latin-Bea,Polski-Newer,עברית/Hebrew
+
+== Latin/Sancti/04-28n.txt [Officium]
+replaces: 08a087a9d033
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Peter Chanel, priest and martyr)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+S. Petri Chanel Martyris
+
+== Latin/Sancti/05-21n.txt [Officium]
+replaces: d73d6fd50f09
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Christopher Magallanes and companions, martyrs)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+Ss. Christophori Magallanes et Sociorum Martyrum
+
+== Latin/Sancti/06-22n.txt [Officium]
+replaces: 0c60ce1c6f16
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (Ss. John Fisher and Thomas More, martyrs)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+Ss. Joannis Fisher Episcopi et Thomæ More Martyrum
+
+== Latin/Sancti/07-09n.txt [Officium]
+replaces: 51eabbbb1f49
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Augustine Zhao Rong and companions, martyrs)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+Ss. Augustini Zhao Rong et Sociorum Martyrum
+
+== Latin/Sancti/07-24n.txt [Officium]
+replaces: f40aa1ed772d
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Sharbel Makhluf, hermit)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+S. Sarbelii Makhluf Confessoris
+
+== Latin/Sancti/09-20n.txt [Officium]
+replaces: 657c2c59fa16
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Andrew Kim Tægon, priest, and Paul Chong Hasang and companions, martyrs)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+Ss. Andreæ Kim Taegon, Pauli Chong Hasang et Sociorum Martyrum
+
+== Latin/Sancti/09-23n.txt [Officium]
+replaces: 55f7dbf85e03
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Pio of Pietrelcina (Padre Pio), priest)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+S. Pii de Pietrelcina Confessoris
+
+== Latin/Sancti/11-03n.txt [Officium]
+replaces: 0d2c43b466cd
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Martin de Porres, Confessoris)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+S. Martini de Porres Confessoris
+
+== Latin/Sancti/12-09n.txt [Officium]
+replaces: f0c2850cef0d
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (S. Juan Diego)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+S. Joannis Didaci Cuauhtlatoatzin Confessoris
+
+== Latin/Sancti/05-13n.txt [Rank]
+replaces: 0a59e6305214
+why: the Latin file of this feast of the Rubrics 1960 - 2020 USA calendar had its title in English (Our Lady of Fatima)
+source: the Latin names as the Roman Missal's calendar and the Holy See's Latin acts give them; the title (Confessoris, Martyris, Martyrum) after the Common the feast takes, in the style of this calendar's other Latin titles (S. Petri Claver Confessoris; Ss. Caroli Lwanga, Matthiæ Murumba et Sociorum Martyrum)
+---
+Beatæ Mariæ Virginis de Fatima;;Duplex optional;;2;;vide Sancti/02-11
+
+== Latin/Sancti/05-21n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Christóphori Magallanes et Sociórum
+
+== English/Sancti/05-21n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Christopher Magallanes and his companions
+
+== English/Sancti/06-03n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Charles Lwanga and his companions
+
+== Latin/Sancti/06-22n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Joannis Fisher et Thomæ More
+
+== English/Sancti/06-22n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+John Fisher and Thomas More
+
+== Latin/Sancti/07-09n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Augustíni Zhao Rong et Sociórum
+
+== English/Sancti/07-09n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Augustine Zhao Rong and his companions
+
+== Latin/Sancti/07-24n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Sarbélii
+
+== English/Sancti/07-24n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Sharbel
+
+== Latin/Sancti/09-20n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Andréæ Kim Taegon, Pauli Chong Hasang et Sociórum
+
+== English/Sancti/09-20n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Andrew Kim Taegon, Paul Chong Hasang and their companions
+
+== Latin/Sancti/09-23n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Pii
+
+== English/Sancti/09-23n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Pio
+
+== Latin/Sancti/11-03n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Martíni
+
+== English/Sancti/11-03n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Martin
+
+== Latin/Sancti/12-09n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the genitive the Common's Latin needs (beáti N. Confessóris tui; Mártyrum N. et N.), the names as in the feast's Latin title
+---
+Joannis Dídaci
+
+== English/Sancti/12-09n.txt [Name]
+replaces: none
+adds: the section, which the file lacks
+why: this feast of the Rubrics 1960 - 2020 USA calendar takes its prayers from the Common, whose "N." stood unfilled: the file had no [Name]
+source: the name as the English Common's prayers take it (thy blessed confessor N.; the blessed Martyrs N. and N.)
+---
+Juan Diego
+
+== Latin/Sancti/05-21n.txt [Rank]
+replaces: 4bf09dc6127e
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); none of them was a bishop
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+;;Duplex optional;;2;;vide C3a
+
+== Latin/Sancti/05-21n.txt [Rule]
+replaces: 65bff75f4703
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); none of them was a bishop
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+vide C3a;
+
+== Latin/Sancti/06-22n.txt [Rank]
+replaces: 3af5eeaf5cd9
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); St Thomas More was not a bishop
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+;;Duplex;;3;;vide C3a
+
+== Latin/Sancti/06-22n.txt [Rule]
+replaces: 65bff75f4703
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); St Thomas More was not a bishop
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+vide C3a;
+
+== Latin/Sancti/07-09n.txt [Rank]
+replaces: 4bf09dc6127e
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); St Augustine Zhao Rong was a priest; most were lay
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+;;Duplex optional;;2;;vide C3a
+
+== Latin/Sancti/07-09n.txt [Rule]
+replaces: 65bff75f4703
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); St Augustine Zhao Rong was a priest; most were lay
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+vide C3a;
+
+== Latin/Sancti/09-20n.txt [Rank]
+replaces: 018db59eb196
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); St Andrew Kim was a priest, St Paul Chong a layman
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+;;Duplex memorial;;3;;vide C3a
+
+== Latin/Sancti/09-20n.txt [Rule]
+replaces: 65bff75f4703
+why: this feast of the Rubrics 1960 - 2020 USA calendar took the Common of several Martyrs and Bishops (C3), whose collect calls them all bishops ("Beatórum Mártyrum paritérque Pontíficum"); St Andrew Kim was a priest, St Paul Chong a layman
+source: the Common of several Martyrs (C3a, "Deus, qui nos concédis sanctórum Mártyrum tuórum N. et N. natalítia cólere"), as the calendar's other feasts of martyrs who were not bishops take it (Ss. Faustinus and Jovita, Gervase and Protase, Symphorosa)
+---
+vide C3a;
+
+== English/Sancti/06-03n.txt [Oratio]
+replaces: d836009e7979
+why: the English took the Common's collect for martyrs and bishops ("May the feast of the blessed Martyrs and Bishops N. and N.") where the Latin has the feast's own ("Omnípotens et miséricors Deus, qui univérsum mundum lúmine veritátis illústras")
+source: translated for this project by AI, literally, from the Latin collect (Latin/Sancti/06-03n.txt [Oratio]), in the English of the other prayers
+---
+Almighty and merciful God, who dost enlighten the whole world with the light of truth, and through the glorious Martyrs Matthias, Charles and their companions hast vouchsafed to renew the wonders of faith in the lands of Africa: grant unto thy suppliants that, by their intercession, thou mayest keep in us the gifts of thy grace, and that among all nations the people that serveth thee may increase in merit and in number.
+$Per Dominum
+
+== English/CommuneM/C2.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio4:s/Quod autem .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quod autem…” → “But touching the patience…”
+---
+@Commune/C2:Lectio4:s/But touching the patience .*//s
+
+== English/CommuneM/C2.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio4:s/.* Quod autem /Quod autem /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quod autem…” → “But touching the patience…”
+---
+@Commune/C2:Lectio4:s/.* But touching the patience /But touching the patience /s s/$/~/
+
+== English/CommuneM/C2.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio5:s/.* Quod enim /Quod enim /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quod enim…” → “He had drunk…”
+---
+@Commune/C2:Lectio5:s/.* He had drunk /He had drunk /s
+
+== English/CommuneM/C2.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio7:s/Quæ autem .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quæ autem…” → “But what tongue…”
+---
+@Commune/C2:Lectio7:s/But what tongue .*//s
+
+== English/CommuneM/C2.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio7:s/.* Quæ autem /Quæ autem /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quæ autem…” → “But what tongue…”
+---
+@Commune/C2:Lectio7:s/.* But what tongue /But what tongue /s
+
+== English/CommuneM/C2p.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2p:Lectio5:s/Éadem .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Éadem…” → “That power which…”
+---
+@Commune/C2p:Lectio5:s/That power which .*//s
+
+== English/CommuneM/C2p.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2p:Lectio5:s/.* Éadem /Éadem /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Éadem…” → “That power which…”
+---
+@Commune/C2p:Lectio5:s/.* That power which /That power which /s
+
+== English/CommuneM/C2p.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2p:Lectio8:s/Sed cum .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed cum…” → “For when He saith…”
+---
+@Commune/C2p:Lectio8:s/For when He saith.*//s
+
+== English/CommuneM/C2p.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2p:Lectio8:s/.* Sed cum /Sed cum /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed cum…” → “For when He saith…”; “Numquid…” → “Is the vine one…”
+---
+@Commune/C2p:Lectio8:s/.* For when He saith/For when He saith/s s/$/~/
+@Commune/C2p:Lectio9:s/Is the vine one .*//s
+
+== English/CommuneM/C2p.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2p:Lectio9:s/.* Numquid /Numquid /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Numquid…” → “Is the vine one…”
+---
+@Commune/C2p:Lectio9:s/.* Is the vine one /Is the vine one /s
+
+== English/CommuneM/C3.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio4:s/Solemnitátes .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Solemnitátes…” → “These Feasts of the Martyrs…”
+---
+@Commune/C3:Lectio4:s/These Feasts of the Martyrs .*//s
+
+== English/CommuneM/C3.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio4:s/.* Solemnitátes /Solemnitátes /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Solemnitátes…” → “These Feasts of the Martyrs…”; “Sed et Paulus…” → “Thus preacheth…”
+---
+@Commune/C3:Lectio4:s/.* These Feasts of the Martyrs /These Feasts of the Martyrs /s s/$/~/
+@Commune/C3:Lectio5:s/Thus preacheth .*//s
+
+== English/CommuneM/C3.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio5:s/.* Sed et Paulus /Sed et Paulus /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed et Paulus…” → “Thus preacheth…”
+---
+@Commune/C3:Lectio5:s/.* Thus preacheth /Thus preacheth /s
+
+== English/CommuneM/C3.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio7:s/Pensánda .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Pensánda…” → “It behoveth us to ponder…”
+---
+@Commune/C3:Lectio7:s/It behoveth us to ponder .*//s
+
+== English/CommuneM/C3.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio7:s/.* Pensánda /Pensánda /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Pensánda…” → “It behoveth us to ponder…”; “Última…” → “Before the last tribulation…”
+---
+@Commune/C3:Lectio7:s/.* It behoveth us to ponder /It behoveth us to ponder /s s/$/~/
+@Commune/C3:Lectio8:s/Before the last tribulation .*//s
+
+== English/CommuneM/C3.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio8:s/.* Última /Última /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Última…” → “Before the last tribulation…”; “Ait…” → “For where He saith…”
+---
+@Commune/C3:Lectio8:s/.* Before the last tribulation /Before the last tribulation /s s/$/~/
+@Commune/C3:Lectio9:s/For where He saith .*//s
+
+== English/CommuneM/C3.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio9:s/.* Ait /Ait /s s/\&teDeum .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ait…” → “For where He saith…”
+---
+@Commune/C3:Lectio9:s/.* For where He saith /For where He saith /s s/\&teDeum .*//s
+
+== English/CommuneM/C4.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio6:s/ Dúplici .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Dúplici…” → “For there are two main reasons…”
+---
+@Commune/C4:Lectio6:s/ For there are two main reasons.*//s
+
+== English/CommuneM/C4.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio6:s/.* Dúplici /Dúplici /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Dúplici…” → “For there are two main reasons…”
+---
+@Commune/C4:Lectio6:s/.* For there are two main reasons/For there are two main reasons/s s/$/~/
+Lauda ergo post perículum, prǽdica secúrum. Lauda navigántis felicitátem, sed cum pervénit ad portum; lauda ducis virtútem, sed cum perdúctus est ad triúmphum.
+
+== English/CommuneM/C4.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio7:s/ Ecce .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ecce…” → “Behold, a man…”
+---
+@Commune/C4:Lectio7:s/ Behold, a man.*//s
+
+== English/CommuneM/C4.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio7:s/.* Ecce /Ecce /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ecce…” → “Behold, a man…”; “Sed homo…” → “But that man travelling…”
+---
+@Commune/C4:Lectio7:s/.* Behold, a man/Behold, a man/s s/$/~/
+@Commune/C4:Lectio8:s/ But that man travelling .*//s
+
+== English/CommuneM/C4.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio8:s/.* Sed homo /Sed homo /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed homo…” → “But that man travelling…”
+---
+@Commune/C4:Lectio8:s/.* But that man travelling /But that man travelling /s
+
+== English/CommuneM/C4a.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio9:s/Et hic mundum .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et hic mundum…” → “And so by the world…”
+---
+@Commune/C4a:Lectio9:s/And so by the world .*//s
+
+== English/CommuneM/C4a.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio9:s/.* Et hic mundum /Et hic mundum /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et hic mundum…” → “And so by the world…”
+---
+@Commune/C4a:Lectio9:s/.* And so by the world /And so by the world /s
+
+== English/CommuneM/C5.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio6:s/ Étenim .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Étenim…” → “And what be that city…”
+---
+@Commune/C5:Lectio6:s/ And what be that city.*//s
+
+== English/CommuneM/C5.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio6:s/.* Étenim /Étenim /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Étenim…” → “And what be that city…”
+---
+@Commune/C5:Lectio6:s/.* And what be that city/And what be that city/s
+
+== English/CommuneM/C5b.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C1:Lectio8:s/ Locus .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Locus…” → “This place agreeth…”
+---
+@Commune/C1:Lectio8:s/ This place agreeth.*//s
+
+== English/CommuneM/C5b.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C1:Lectio8:s/.* Locus /Locus /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Locus…” → “This place agreeth…”
+---
+@Commune/C1:Lectio8:s/.* This place agreeth /This place agreeth /s
+
+== English/CommuneM/C6.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C6:Lectio4:s/ E c.*/ /); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “E c…” → “It is a reflection…”
+---
+@Commune/C6:Lectio4:s/ It is a reflection.*/ /
+
+== English/CommuneM/C6.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C6:Lectio4:s/.* E c/E c/s s/$/~/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “E c…” → “It is a reflection…”; “. Nam…” → “For who, that hath…”
+---
+@Commune/C6:Lectio4:s/.* It is a reflection/It is a reflection/s s/$/~/s
+@Commune/C6:Lectio5:s/ For who, that hath.*//
+
+== English/CommuneM/C6.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C6:Lectio5:s/.* Nam /Nam /); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nam…” → “For who, that hath…”
+---
+@Commune/C6:Lectio5:s/.* For who, that hath /For who, that hath /
+
+== English/CommuneM/C6.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C6:Lectio7:s/. Ecce.*/. /); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “. Ecce…” → “Behold how the Redeemer…”
+---
+@Commune/C6:Lectio7:s/ Behold how the Redeemer.*//
+
+== English/CommuneM/C6.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C6:Lectio7:s/.*vacuétur. Ecce /Ecce /s s/$/~/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “vacuétur. Ecce…” → “Behold how the Redeemer…”; “Sed sc…” → “But we must know…”
+---
+@Commune/C6:Lectio7:s/.* Behold how the Redeemer/Behold how the Redeemer/s s/$/~/s
+@Commune/C6:Lectio8:s/ But we must know.*//
+
+== English/CommuneM/C6.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C6:Lectio8:s/.* Sed sc/Sed sc/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed sc…” → “But we must know…”
+---
+@Commune/C6:Lectio8:s/.* But we must know/But we must know/
+
+== English/CommuneM/C7.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C7:Lectio5:s/ Agrícola.*/ /); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Agrícola…” → “So also the aged labourer…”
+---
+@Commune/C7:Lectio5:s/ So also the aged labourer.*/ /
+
+== English/CommuneM/C7.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C7:Lectio5:s/.* Agrícola/Agrícola/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Agrícola…” → “So also the aged labourer…”
+---
+@Commune/C7:Lectio5:s/.* So also the aged labourer/So also the aged labourer/
+
+== English/CommuneM/C7.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C7:Lectio8:s/ Hoc autem.*/ /); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hoc autem…” → “Doubtless our neighbour…”
+---
+@Commune/C7:Lectio8:s/ Doubtless our neighbour.*/ /
+
+== English/CommuneM/C7.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C7:Lectio8:s/.* Hoc autem/Hoc autem/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hoc autem…” → “Doubtless our neighbour…”
+---
+@Commune/C7:Lectio8:s/.* Doubtless our neighbour/Doubtless our neighbour/
+
+== English/SanctiM/01-05.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/01-05:Lectio4: s/Factus.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factus…” → “God is made man…”
+---
+@Sancti/01-05:Lectio4: s/God is made man.*//s
+
+== English/SanctiM/01-05.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/01-05:Lectio4: s/.*(Factus)/$1/s s/$/~/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factus…” → “God is made man…”; “Factus…” → “He who made all things…”
+---
+@Sancti/01-05:Lectio4: s/.*(God is made man)/$1/s s/$/~/s
+@Sancti/01-05:Lectio5: s/He who made all things.*//s
+
+== English/SanctiM/01-05.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/01-05:Lectio5: s/.*(Factus)/$1/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factus…” → “He who made all things…”
+---
+@Sancti/01-05:Lectio5: s/.*(He who made all things)/$1/s
+
+== English/SanctiM/01-05.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/01-05:Lectio9: s/Nazarǽus sanctus.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nazarǽus sanctus…” → “He seemeth to refer…”
+---
+@Sancti/01-05:Lectio9: s/ He seemeth to refer.*//s
+
+== English/SanctiM/01-05.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/01-05:Lectio9: s/.*(Nazarǽus sanctus)/$1/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nazarǽus sanctus…” → “He seemeth to refer…”
+---
+@Sancti/01-05:Lectio9: s/.*(He seemeth to refer)/$1/s s/$/~/
+@:Lectio12_
+
+== English/SanctiM/05-01r.txt [Lectio3]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc2-3::s/49/45/ s/ Egréssus.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Egréssus…” → “Then Joseph went out…”
+---
+@Tempora/Pasc2-3::s/49/45/ s/ Then Joseph went out.*//s
+
+== English/SanctiM/05-01r.txt [Lectio4]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc2-3:Lectio3:s/44-49/45-49/ s/44.* (Egréssus)/45 $1/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: 
+---
+@Tempora/Pasc2-3:Lectio3:s/44-49/45-49/ s/44.* (Then Joseph went out)/45 $1/s
+
+== English/SanctiM/05-01r.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc2-3:Lectio6:s/Mem.nto.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Mem.nto…” → “Therefore, O thou blessed Joseph…”
+---
+@Tempora/Pasc2-3:Lectio6:s/Therefore, O thou blessed Joseph.*//s
+
+== English/SanctiM/05-01r.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc2-3:Lectio6:s/.*(Mem.nto)/$1/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Mem.nto…” → “Therefore, O thou blessed Joseph…”
+---
+@Tempora/Pasc2-3:Lectio6:s/.*(Therefore, O thou blessed Joseph)/$1/s
+
+== English/SanctiM/05-01r.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc2-3:Lectio9:s/Neque.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Neque…” → “It is not an outrageous…”
+---
+@Tempora/Pasc2-3:Lectio9:s/It is not an outrageous.*//s
+
+== English/SanctiM/05-01r.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc2-3:Lectio9:s/.*(Neque)/$1/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Neque…” → “It is not an outrageous…”
+---
+@Tempora/Pasc2-3:Lectio9:s/.*(It is not an outrageous)/$1/s
+
+== English/SanctiM/05-11r.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/05-01:Lectio5:s/Cum autem .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Cum autem…” → “When in the Council…”
+---
+@Sancti/05-01:Lectio5:s/When in the Council .*//s
+
+== English/SanctiM/05-11r.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/05-01:Lectio5:s/.* Cum autem /Cum autem /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Cum autem…” → “When in the Council…”
+---
+@Sancti/05-01:Lectio5:s/.* When in the Council /When in the Council /s
+
+== English/SanctiM/05-11r.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/05-01:Lectio7:s/Créditis, .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Créditis,…” → “He saith:…”
+---
+@Sancti/05-01:Lectio7:s/He saith: .*//s
+
+== English/SanctiM/05-11r.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/05-01:Lectio7:s/.* Créditis, /Créditis, /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Créditis,…” → “He saith:…”; “Sed quid…” → “But what signifieth…”
+---
+@Sancti/05-01:Lectio7:s/.* He saith: /He saith: /s s/$/~/
+@Sancti/05-01:Lectio8:s/But what signifieth .*//s
+
+== English/SanctiM/05-11r.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/05-01:Lectio8:s/.* Sed quid /Sed quid /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed quid…” → “But what signifieth…”
+---
+@Sancti/05-01:Lectio8:s/.* But what signifieth /But what signifieth /s
+
+== English/SanctiM/07-01.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-01:Lectio5:s/ Si enim.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Si enim…” → “If the Angel let the type be…”
+---
+@Sancti/07-01:Lectio5:s/ If the Angel let the type be.*//
+
+== English/SanctiM/07-01.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-01:Lectio5:s/.* (?=Si enim)// s/ Latus.*// s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Si enim…” → “If the Angel let the type be…”
+---
+@Sancti/07-01:Lectio5:s/.* (?=If the Angel let the type be)// s/$/~/
+@Sancti/07-01:Lectio6:s/ For from these, holy Church.*//
+
+== English/SanctiM/07-01.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-01:Lectio6:s/.*(?=Ex his)// s/ - Recurrénte.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ex his…” → “For from these, holy Church…”; “- Recurrénte…” → “-On the occasion…”
+---
+@Sancti/07-01:Lectio6:s/.*(?=For from these, holy Church)// s/ -On the occasion.*//
+
+== English/SanctiM/07-01.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-01:Lectio9:s/ Hoc.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hoc…” → “This is a great thing…”
+---
+@Sancti/07-01:Lectio9:s/ This is a great thing.*//
+
+== English/SanctiM/07-01.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-01:Lectio9:s/.* (?=Hoc)//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hoc…” → “This is a great thing…”
+---
+@Sancti/07-01:Lectio9:s/.* (?=This is a great thing)//
+
+== English/SanctiM/07-16.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-16:Lectio5:s/ Nec.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nec…” → “Her name and protection…”
+---
+@Sancti/07-16:Lectio5:s/ Her name and protection.*//
+
+== English/SanctiM/07-16.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/07-16:Lectio5:s/.* (?=Nec)//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nec…” → “Her name and protection…”
+---
+@Sancti/07-16:Lectio5:s/.* (?=Her name and protection)//
+
+== English/SanctiM/08-21bmv.txt [Lectio1]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@CommuneM/C10:Lectio M083:s/ Quidni.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quidni…” → “Why should I not call…”
+---
+@CommuneM/C10:Lectio M083:s/ Why should I not call.*//
+
+== English/SanctiM/08-28.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-28:Lectio4:s/Sed.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed…” → “The Manichaean heresy flaming…”
+---
+@Sancti/08-28:Lectio4:s/The Manichaean heresy flaming.*//s
+
+== English/SanctiM/08-28.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-28:Lectio4:s/.*(Sed)/$1/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed…” → “The Manichaean heresy flaming…”; “Nullum…” → “He never ceased to preach…”
+---
+@Sancti/08-28:Lectio4:s/.*(The Manichaean heresy flaming)/$1/s s/$/~/
+@Sancti/08-28:Lectio5:s/He never ceased to preach.*//s
+
+== English/SanctiM/08-28.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-28:Lectio5:s/.*(Nullum)/$1/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nullum…” → “He never ceased to preach…”; “Itaque…” → “When he understood that his departure…”
+---
+@Sancti/08-28:Lectio5:s/.*(He never ceased to preach)/$1/s s/$/~/
+@Sancti/08-28:Lectio6:s/When he understood that his departure.*//s
+
+== English/SanctiM/08-28.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-28:Lectio6:s/.*(Itaque)/$1/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Itaque…” → “When he understood that his departure…”
+---
+@Sancti/08-28:Lectio6:s/.*(When he understood that his departure)/$1/s
+
+== English/SanctiM/08-29.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio5:s/Rápitur .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Rápitur…” → “While the banquet was going on…”
+---
+@Sancti/08-29:Lectio5:s/While the banquet was going on.*//
+
+== English/SanctiM/08-29.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio5:s/.* (?=Rápitur)// s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Rápitur…” → “While the banquet was going on…”; “Et,…” → “Thine hunger the dinner…”
+---
+@Sancti/08-29:Lectio5:s/.* (?=While the banquet was going on)// s/$/~/
+@Sancti/08-29:Lectio6:s/ Thine hunger the dinner.*//
+
+== English/SanctiM/08-29.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio6:s/.* (?=Et,)//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et,…” → “Thine hunger the dinner…”
+---
+@Sancti/08-29:Lectio6:s/.* (?=Thine hunger the dinner)//
+
+== English/SanctiM/08-29.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio7:s/ Factum .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factum…” → “It befell unto John…”
+---
+@Sancti/08-29:Lectio7:s/ It befell unto John.*//
+
+== English/SanctiM/08-29.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio7:s/.* (?=Factum)//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factum…” → “It befell unto John…”
+---
+@Sancti/08-29:Lectio7:s/.* (?=It befell unto John)//s
+
+== English/SanctiM/08-29.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio8:s/ Vincebat .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Vincebat…” → “Lust had got the better…”
+---
+@Sancti/08-29:Lectio8:s/ Lust had got the better.*//
+
+== English/SanctiM/08-29.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/08-29:Lectio8:s/.* (?=Vincebat)//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Vincebat…” → “Lust had got the better…”
+---
+@Sancti/08-29:Lectio8:s/.* (?=Lust had got the better)//
+
+== English/SanctiM/09-15b.txt [Lectio94]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Quad5-5:Lectio4:s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sed…” → “But some man perchance…”
+---
+@Tempora/Quad5-5:Lectio4:s/$/~/
+@Tempora/Quad5-5:Lectio6:s/But some man perchance.*//s
+
+== English/SanctiM/10-07.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/10-07:Lectio6:s/ Quam .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quam…” → “, and that the memory…”
+---
+@Sancti/10-07:Lectio6:s/, and that the memory.*/./
+
+== English/SanctiM/10-07.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/10-07:Lectio6:s/.* (?=Quam)//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quam…” → “, and that the memory…”
+---
+@Sancti/10-07:Lectio6:s/.*, and that the memory/And that the memory/
+
+== English/SanctiM/10-07.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/10-07:Lectio7:s/ Heva .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Heva…” → “Eve was a thorn, Mary…”
+---
+@Sancti/10-07:Lectio7:s/ Eve was a thorn, Mary.*//
+
+== English/SanctiM/10-07.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/10-07:Lectio7:s/.*? (?=Heva)//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Heva…” → “Eve was a thorn, Mary…”
+---
+@Sancti/10-07:Lectio7:s/.*? (?=Eve was a thorn, Mary)//s
+
+== English/SanctiM/10-17b.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/02-24:Lectio7:s/Tóllite.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Tóllite…” → “Take My yoke…”
+---
+@Sancti/02-24:Lectio7:s/Take My yoke.*//
+
+== English/SanctiM/10-17b.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/02-24:Lectio7:s/.* Tóllite/Tóllite/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Tóllite…” → “Take My yoke…”; “Et quantam…” → “The greater soever…”
+---
+@Sancti/02-24:Lectio7:s/.* Take My yoke/Take My yoke/s s/$/~/
+@Sancti/02-24:Lectio8:s/The greater soever.*//s
+
+== English/SanctiM/10-17b.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/02-24:Lectio8:s/.* Et quantam/Et quantam/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et quantam…” → “The greater soever…”
+---
+@Sancti/02-24:Lectio8:s/.* The greater soever/The greater soever/s
+
+== English/SanctiM/11-22.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio4:s/ Cui.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Cui…” → “Cecilia answered him…”
+---
+@Sancti/11-22:Lectio4:s/ Cecilia answered him.*//
+
+== English/SanctiM/11-22.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio4:s/.* Cui/Cui/ s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Cui…” → “Cecilia answered him…”; “Quo…” → “As soon as he had recovered…”
+---
+@Sancti/11-22:Lectio4:s/.* Cecilia answered him/Cecilia answered him/ s/$/~/
+@Sancti/11-22:Lectio5:s/ As soon as he had recovered.*//
+
+== English/SanctiM/11-22.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio5:s/.* Quo/Quo/ s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quo…” → “As soon as he had recovered…”; “Quo…” → “She was in that place…”
+---
+@Sancti/11-22:Lectio5:s/.* As soon as he had recovered/As soon as he had recovered/ s/$/~/
+@Sancti/11-22:Lectio6:s/ She was in that place.*//
+
+== English/SanctiM/11-22.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio6:s/.* Quo/Quo/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quo…” → “She was in that place…”
+---
+@Sancti/11-22:Lectio6:s/.* She was in that place/She was in that place/
+
+== English/SanctiM/11-22.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio8:s/ Non est.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Non est…” → “The lust for bodies…”
+---
+@Sancti/11-22:Lectio8:s/ The lust for bodies.*//
+
+== English/SanctiM/11-22.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio8:s/.* Non est/Non est/ s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Non est…” → “The lust for bodies…”; “Tardante…” → “While the Bridegroom tarried…”
+---
+@Sancti/11-22:Lectio8:s/.* The lust for bodies/The lust for bodies/ s/$/~/
+@Sancti/11-22:Lectio9:s/ While the Bridegroom tarried.*//
+
+== English/SanctiM/11-22.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-22:Lectio9:s/.* Tardante/Tardante/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Tardante…” → “While the Bridegroom tarried…”
+---
+@Sancti/11-22:Lectio9:s/.* While the Bridegroom tarried/While the Bridegroom tarried/
+
+== English/SanctiM/11-23.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-23:Lectio6:s/est\..*//s ); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “est\.…” → “The body of Clement…”
+---
+@Sancti/11-23:Lectio6:s/ The body of Clement.*//s
+
+== English/SanctiM/11-23.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (Ejus corpus postea Romam Nicolao Primo Pontifice translatum, in Ecclesia ipsius sancti Cle); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: 
+---
+@Sancti/11-23:Lectio6:s/.*(The body of Clement)/$1/s
+
+== English/SanctiM/11-26.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-26:Lectio5:s/Ut autem.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ut autem…” → “In order, however,…”
+---
+@Sancti/11-26:Lectio5:s/In order, however, .*//s
+
+== English/SanctiM/11-26.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-26:Lectio5:s/.*(Ut autem)/$1/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ut autem…” → “In order, however,…”; “Spíritu…” → “He shone with the spirit…”
+---
+@Sancti/11-26:Lectio5:s/.*(In order, however, )/$1/s s/$/~/
+@Sancti/11-26:Lectio6:s/He shone with the spirit.*//s
+
+== English/SanctiM/11-26.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/11-26:Lectio6:s/.*(Spíritu)/$1/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Spíritu…” → “He shone with the spirit…”
+---
+@Sancti/11-26:Lectio6:s/.*(He shone with the spirit)/$1/s
+
+== English/SanctiM/12-06.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-06:Lectio5: s/In episcopatu.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “In episcopatu…” → “In his great office…”
+---
+@Sancti/12-06:Lectio5: s/In his great office.*//s
+
+== English/SanctiM/12-06.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-06:Lectio5: s/.* In episcopatu/In episcopatu/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “In episcopatu…” → “In his great office…”; “Cum vero…” → “When the Emperors Diocletian…”
+---
+@Sancti/12-06:Lectio5: s/.* In his great office/In his great office/s s/$/~/
+@Sancti/12-06:Lectio6: s/When the Emperors Diocletian.*//s
+
+== English/SanctiM/12-06.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-06:Lectio6: s/.* Cum vero/Cum vero/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Cum vero…” → “When the Emperors Diocletian…”
+---
+@Sancti/12-06:Lectio6: s/.* When the Emperors Diocletian/When the Emperors Diocletian/s
+
+== English/SanctiM/12-07.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-07:Lectio5: s/Factus epíscopus.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factus epíscopus…” → “Being made Bishop…”
+---
+@Sancti/12-07:Lectio5: s/Being made Bishop.*//s
+
+== English/SanctiM/12-07.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-07:Lectio5: s/.* Factus/Factus/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Factus…” → “Being made Bishop…”; “Ergo sanctus…” → “At length the Saint…”
+---
+@Sancti/12-07:Lectio5: s/.* Being made Bishop/Being made Bishop/s s/$/~/
+@Sancti/12-07:Lectio6: s/At length the Saint.*//s
+
+== English/SanctiM/12-07.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-07:Lectio6: s/.* Ergo sanctus/Ergo sanctus/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ergo sanctus…” → “At length the Saint…”
+---
+@Sancti/12-07:Lectio6: s/.* At length the Saint/At length the Saint/s
+
+== English/SanctiM/12-08o.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-08o:Lectio4:s/Primus .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Primus…” → “The first thing which kindles…”
+---
+@Sancti/12-08o:Lectio4:s/The first thing which kindles .*//s
+
+== English/SanctiM/12-08o.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-08o:Lectio5:s/.* Corde/Corde/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Corde…” → “, who was humble in heart…”
+---
+@Sancti/12-08o:Lectio5:s/.*, who was humble in heart/Humble in heart/s
+
+== English/SanctiM/12-08o.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-13bmv:Lectio7:s/Nam illa .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nam illa…” → “As to His higher…”
+---
+@Sancti/09-13bmv:Lectio7:s/As to His higher .*//s
+
+== English/SanctiM/12-08o.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-13bmv:Lectio7:s/.* Nam illa/Nam illa/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nam illa…” → “As to His higher…”; “Neque…” → “That it was not from lying…”
+---
+@Sancti/09-13bmv:Lectio7:s/.* As to His higher/As to His higher/s s/$/~/
+@Sancti/09-13bmv:Lectio8:s/That it was not from lying .*//s
+
+== English/SanctiM/12-08o.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-13bmv:Lectio8:s/.* Neque/Neque/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Neque…” → “That it was not from lying…”
+---
+@Sancti/09-13bmv:Lectio8:s/.* That it was not from lying/That it was not from lying/s
+
+== English/SanctiM/12-13.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-13:Lectio6:s/ Quam ob.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quam ob…” → “Whereupon, being inflamed…”
+---
+@Sancti/12-13:Lectio6:s/ Whereupon, being inflamed.*//
+
+== English/SanctiM/12-13.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-13:Lectio6:s/.*Quam ob/Quam ob/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quam ob…” → “Whereupon, being inflamed…”
+---
+@Sancti/12-13:Lectio6:s/.*Whereupon, being inflamed/Whereupon, being inflamed/
+
+== English/SanctiM/12-29o.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio5: s/Quid dum .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quid dum…” → “He was quietly continuing…”
+---
+@Sancti/12-29:Lectio5: s/He was quietly continuing.*//s
+
+== English/SanctiM/12-29o.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio5: s/.* Quid dum/Quid dum/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quid dum…” → “He was quietly continuing…”; “Qui cléricis…” → “The clergy in attendance…”
+---
+@Sancti/12-29:Lectio5: s/.* He was quietly continuing/He was quietly continuing/s s/$/~/
+@Sancti/12-29:Lectio6: s/The clergy in attendance.*//s
+
+== English/SanctiM/12-29o.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio6: s/.* Qui cléricis/Qui cléricis/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Qui cléricis…” → “The clergy in attendance…”
+---
+@Sancti/12-29:Lectio6: s/.* The clergy in attendance/The clergy in attendance/s
+
+== English/SanctiM/12-29o.txt [Lectio9]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio7: s/Pastóris .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Pastóris…” → “Christ then having given…”
+---
+@Sancti/12-29:Lectio7: s/Christ then having given.*//s
+
+== English/SanctiM/12-29o.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio7: s/.* Pastóris/Pastóris/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Pastóris…” → “Christ then having given…”; “Idcírco…” → “Therefore, he saith…”
+---
+@Sancti/12-29:Lectio7: s/.* Christ then having given/Christ then having given/s s/$/~/
+@Sancti/12-29:Lectio8: s/Therefore, he saith.*//s
+
+== English/SanctiM/12-29o.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio8: s/.* Idcírco/Idcírco/s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Idcírco…” → “Therefore, he saith…”; “Nam cum…” → “When then the Jews…”
+---
+@Sancti/12-29:Lectio8: s/.* Therefore, he saith/Therefore, he saith/s s/$/~/
+@Sancti/12-29:Lectio9: s/When then the Jews.*//s
+
+== English/SanctiM/12-29o.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-29:Lectio9: s/.* Nam cum/Nam cum/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nam cum…” → “When then the Jews…”
+---
+@Sancti/12-29:Lectio9: s/.* When then the Jews/When then the Jews/s
+
+== English/SanctiM/12-31o.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-31:Lectio5: s/Multa item.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Multa item…” → “This Pope issued many…”
+---
+@Sancti/12-31:Lectio5: s/This Pope issued many.*//
+
+== English/SanctiM/12-31o.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-31:Lectio5: s/.* Multa item/Multa item/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Multa item…” → “This Pope issued many…”; “Huic…” → “The heavenly wisdom with which…”
+---
+@Sancti/12-31:Lectio5: s/.* This Pope issued many/This Pope issued many/
+@Sancti/12-31:Lectio6: s/The heavenly wisdom with which.*//
+
+== English/SanctiM/12-31o.txt [Lectio8]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/12-31:Lectio6: s/.* Huic/Huic/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Huic…” → “The heavenly wisdom with which…”
+---
+@Sancti/12-31:Lectio6: s/.* The heavenly wisdom with which/The heavenly wisdom with which/
+
+== English/TemporaM/095-0.txt [Lectio2]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/095-0::s/ Léctuli.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Léctuli…” → “The beds also…”
+---
+@Tempora/095-0::s/ The beds also.*//
+
+== English/TemporaM/095-0.txt [Lectio3]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/095-0:Lectio2:s/5-6/6-7/ s/5 .* Léctuli /6 Léctuli /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: 
+---
+@Tempora/095-0:Lectio2:s/5-6/6-7/ s/5 .* The beds also /6 The beds also /s
+@Tempora/095-0:Lectio3:s/!.*// s/8.*//s
+
+== English/TemporaM/Epi1-0a.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Epi1-0a:Lectio5:s/Hoc enim .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hoc enim…” → “For this is that which…”
+---
+@Tempora/Epi1-0a:Lectio5:s/For this is that which .*//s
+
+== English/TemporaM/Epi1-0a.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Epi1-0a:Lectio5:s/.* Hoc enim /Hoc enim /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hoc enim…” → “For this is that which…”
+---
+@Tempora/Epi1-0a:Lectio5:s/.* For this is that which /For this is that which /s
+
+== English/TemporaM/Epi1-0a.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Epi1-0a:Lectio8:s/Alibi .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Alibi…” → “On another occasion…”
+---
+@Tempora/Epi1-0a:Lectio8:s/On another occasion .*//s
+
+== English/TemporaM/Epi1-0a.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Epi1-0a:Lectio8:s/.* Alibi /Alibi /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Alibi…” → “On another occasion…”
+---
+@Tempora/Epi1-0a:Lectio8:s/.* On another occasion /On another occasion /s
+
+== English/TemporaM/Nat2-0.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Nat2-0:Lectio5:s/ Quómodo.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quómodo…” → “How did that Name…”
+---
+@Tempora/Nat2-0:Lectio5:s/ How did that Name.*//
+
+== English/TemporaM/Nat2-0.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Nat2-0:Lectio5:s/.*(Quómodo)/$1/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quómodo…” → “How did that Name…”
+---
+@Tempora/Nat2-0:Lectio5:s/.*(How did that Name)/$1/
+
+== English/TemporaM/Nat2-0.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Nat2-0:Lectio8:s/ Vocátum.*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Vocátum…” → “His Name, saith the Evangelist…”
+---
+@Tempora/Nat2-0:Lectio8:s/ His Name, saith the Evangelist.*//
+
+== English/TemporaM/Nat2-0r.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/01-05:Lectio9:s/Nazarǽus sanctus .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nazarǽus sanctus…” → “He seemeth to refer…”
+---
+@Sancti/01-05:Lectio9:s/He seemeth to refer .*//s
+
+== English/TemporaM/Pasc0-2.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc0-2:Lectio3: s/Et vidétur.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et vidétur…” → “Indeed, to me it seemeth…”
+---
+@Tempora/Pasc0-2:Lectio3: s/Indeed, to me it seemeth.*//s
+
+== English/TemporaM/Pasc0-2.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc0-2:Lectio3: s/.* Et vidétur/Et vidétur/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et vidétur…” → “Indeed, to me it seemeth…”
+---
+@Tempora/Pasc0-2:Lectio3: s/.* Indeed, to me it seemeth/Indeed, to me it seemeth/s
+
+== English/TemporaM/Pasc3-3.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc3-3:Lectio5:s/ Et rursum.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et rursum…” → “And, as a set-off…”
+---
+@Tempora/Pasc3-3:Lectio5:s/ And, as a set-off.*//s
+
+== English/TemporaM/Pasc3-3.txt [Lectio7]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc3-3:Lectio5:s/.* Et rursum/Et rursum/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et rursum…” → “And, as a set-off…”
+---
+@Tempora/Pasc3-3:Lectio5:s/.* And, as a set-off/And, as a set-off/s
+
+== English/TemporaM/Pasc3-3.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc3-3:Lectio8:s/ Joseph ergo.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Joseph ergo…” → “Therefore Joseph the workman…”
+---
+@Tempora/Pasc3-3:Lectio8:s/ Therefore Joseph the workman.*//s
+
+== English/TemporaM/Pasc3-3.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc3-3:Lectio8:s/.* Joseph ergo/Joseph ergo/s s/$/~/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Joseph ergo…” → “Therefore Joseph the workman…”; “\; tamquam…” → “Like a wise architect…”
+---
+@Tempora/Pasc3-3:Lectio8:s/.* Therefore Joseph the workman/Therefore Joseph the workman/s s/$/~/s
+@Tempora/Pasc3-3:Lectio9:s/ Like a wise architect.*//s
+
+== English/TemporaM/Pasc3-3.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc3-3:Lectio9:s/.* tamquam/Tamquam/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “tamquam…” → “Like a wise architect…”
+---
+@Tempora/Pasc3-3:Lectio9:s/.* Like a wise architect/Like a wise architect/s
+
+== English/TemporaM/Pasc6-4.txt [Lectio5]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc6-4:Lectio4: s/Ascénsio .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ascénsio…” → “Therefore, the ascension of the Lord…”
+---
+@Tempora/Pasc6-4:Lectio4: s/Therefore, the ascension of the Lord.*//
+
+== English/TemporaM/Pasc6-4.txt [Lectio6]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc6-4:Lectio4: s/.* Ascénsio/Ascénsio/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ascénsio…” → “Therefore, the ascension of the Lord…”
+---
+@Tempora/Pasc6-4:Lectio4: s/.* Therefore, the ascension of the Lord/Therefore, the ascension of the Lord/s
+
+== English/TemporaM/Pasc6-4.txt [Lectio10]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc6-4:Lectio8: s/Ecce, .*//); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ecce,…” → “Lo, how the Truth…”
+---
+@Tempora/Pasc6-4:Lectio8: s/Lo, how the Truth.*//
+
+== English/TemporaM/Pasc6-4.txt [Lectio11]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc6-4:Lectio8: s/.* Ecce,/Ecce,/ s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ecce,…” → “Lo, how the Truth…”; “Desidéria…” → “Let us fly earthly lusts…”
+---
+@Tempora/Pasc6-4:Lectio8: s/.* Lo, how the Truth/Lo, how the Truth/ s/$/~/
+@Tempora/Pasc6-4:Lectio9: s/Let us fly earthly lusts.*//
+
+== English/TemporaM/Pasc6-4.txt [Lectio12]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Tempora/Pasc6-4:Lectio9: s/.* Desidéria/Desidéria/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Desidéria…” → “Let us fly earthly lusts…”
+---
+@Tempora/Pasc6-4:Lectio9: s/.* Let us fly earthly lusts/Let us fly earthly lusts/
+
+== English/CommuneM/C2.txt [Lectio9 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio7 in 2 loco:s/Nam .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nam…” → “For, even, as by the art…”
+---
+@Commune/C2:Lectio7 in 2 loco:s/For, even, as by the art .*//s
+
+== English/CommuneM/C2.txt [Lectio10 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio7 in 2 loco:s/.* Nam /Nam /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nam…” → “For, even, as by the art…”; “Quid vero…” → “But let us hear again…”
+---
+@Commune/C2:Lectio7 in 2 loco:s/.* For, even, as by the art /For, even, as by the art /s s/$/~/
+@Commune/C2:Lectio8 in 2 loco:s/But let us hear again .*//s
+
+== English/CommuneM/C2.txt [Lectio11 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio8 in 2 loco:s/.* Quid vero /Quid vero /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Quid vero…” → “But let us hear again…”
+---
+@Commune/C2:Lectio8 in 2 loco:s/.* But let us hear again /But let us hear again /s
+
+== English/CommuneM/C2.txt [Lectio9 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-28:Lectio7:s/Ubíque .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ubíque…” → “&#8213;hatred everywhere…”
+---
+@Sancti/09-28:Lectio7:s/&#8213;hatred everywhere.*/./s
+
+== English/CommuneM/C2.txt [Lectio10 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-28:Lectio7:s/.* Ubíque /Ubíque /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ubíque…” → “&#8213;hatred everywhere…”; “Dei ígitur…” → “Ye are to understand, then,…”
+---
+@Sancti/09-28:Lectio7:s/.*&#8213;hatred everywhere/Hatred everywhere/s s/$/~/
+@Sancti/09-28:Lectio8:s/Ye are to understand, then, .*//s
+
+== English/CommuneM/C2.txt [Lectio11 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-28:Lectio8:s/.* Dei ígitur /Dei ígitur /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Dei ígitur…” → “Ye are to understand, then,…”
+---
+@Sancti/09-28:Lectio8:s/.* Ye are to understand, then, /Ye are to understand, then, /s
+
+== English/CommuneM/C2.txt [Lectio9 in 4 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio7 in 4 loco:s/Et quod .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et quod…” → ““And what I tell you…”
+---
+@Commune/C2:Lectio7 in 4 loco:s/“And what I tell you .*//s
+
+== English/CommuneM/C2.txt [Lectio10 in 4 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C2:Lectio7 in 4 loco:s/.* Et quod /Et quod /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et quod…” → ““And what I tell you…”
+---
+@Commune/C2:Lectio7 in 4 loco:s/.* “And what I tell you /“And what I tell you /s
+
+== English/CommuneM/C3.txt [Lectio9 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio7 in 2 loco:s/Hinc .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hinc…” → “Hence also Matthew…”
+---
+@Commune/C3:Lectio7 in 2 loco:s/Hence also Matthew .*//s
+
+== English/CommuneM/C3.txt [Lectio10 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C3:Lectio7 in 2 loco:s/.* Hinc /Hinc /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Hinc…” → “Hence also Matthew…”
+---
+@Commune/C3:Lectio7 in 2 loco:s/.* Hence also Matthew /Hence also Matthew /s
+
+== English/CommuneM/C3.txt [Lectio10 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/06-26:Lectio8:s/Ne terreámini .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ne terreámini…” → “Be not afraid of them…”
+---
+@Sancti/06-26:Lectio8:s/Be not afraid of them .*//s
+
+== English/CommuneM/C3.txt [Lectio11 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/06-26:Lectio8:s/.* Ne terreámini /Ne terreámini /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ne terreámini…” → “Be not afraid of them…”
+---
+@Sancti/06-26:Lectio8:s/.* Be not afraid of them /Be not afraid of them /s
+
+== English/CommuneM/C3.txt [Lectio9 in 4 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-19:Lectio7:s/Respondétur .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Respondétur…” → ““When shall these things be.” And herein…”
+---
+@Sancti/09-19:Lectio7:s/ “When shall these things be.” And herein .*//s
+
+== English/CommuneM/C3.txt [Lectio10 in 4 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/09-19:Lectio7:s/.* Respondétur /Respondétur /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Respondétur…” → ““When shall these things be.” And herein…”
+---
+@Sancti/09-19:Lectio7:s/.* (“When shall these things be.” And herein )/$1/s
+
+== English/CommuneM/C3.txt [Lectio9 in 5 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/06-05:Lectio7:s/Beáti pacífici.*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Beáti pacífici…” → “Blessed are the peacemakers…”
+---
+@Sancti/06-05:Lectio7:s/Blessed are the peacemakers.*//s
+
+== English/CommuneM/C3.txt [Lectio10 in 5 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/06-05:Lectio7:s/.* Beáti pacífici/Beáti pacífici/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Beáti pacífici…” → “Blessed are the peacemakers…”
+---
+@Sancti/06-05:Lectio7:s/.* Blessed are the peacemakers/Blessed are the peacemakers/s
+
+== English/CommuneM/C4a.txt [Lectio9 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio7 in 2 loco:s/ Sal est .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sal est…” → “Now, salt is a compound…”
+---
+@Commune/C4a:Lectio7 in 2 loco:s/ Now, salt is a compound.*//s
+
+== English/CommuneM/C4a.txt [Lectio10 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio7 in 2 loco:s/.* Sal est /Sal est /s s/$/~/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sal est…” → “Now, salt is a compound…”; “Apóstoli…” → “And thus are the Apostles…”
+---
+@Commune/C4a:Lectio7 in 2 loco:s/.* Now, salt is a compound/Now, salt is a compound/s s/$/~/s
+@Commune/C4a:Lectio8 in 2 loco:s/ And thus are the Apostles.*//s
+
+== English/CommuneM/C4a.txt [Lectio11 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio8 in 2 loco:s/.* Apóstoli /Apóstoli /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Apóstoli…” → “And thus are the Apostles…”
+---
+@Commune/C4a:Lectio8 in 2 loco:s/.* And thus are the Apostles/And thus are the Apostles/s
+
+== English/CommuneM/C4a.txt [Lectio10 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio8 in 3 loco:s/ Igitur .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Igitur…” → “He whose heart is pure…”
+---
+@Commune/C4a:Lectio8 in 3 loco:s/ He whose heart is pure.*//s
+
+== English/CommuneM/C4a.txt [Lectio11 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio8 in 3 loco:s/.* Igitur /Igitur /s s/$/~/s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Igitur…” → “He whose heart is pure…”; “Non ergo…” → “This it is not asked…”
+---
+@Commune/C4a:Lectio8 in 3 loco:s/.* He whose heart is pure/He whose heart is pure/s s/$/~/s
+@Commune/C4a:Lectio9 in 3 loco:s/ This it is not asked.*//s
+
+== English/CommuneM/C4a.txt [Lectio12 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4a:Lectio9 in 3 loco:s/.* Non ergo /Non ergo /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Non ergo…” → “This it is not asked…”
+---
+@Commune/C4a:Lectio9 in 3 loco:s/.* This it is not asked/This it is not asked/s
+
+== English/CommuneM/C5.txt [Lectio9 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio7 in 2 loco:s/ Ideóque .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ideóque…” → “That kingdom He promiseth…”
+---
+@Commune/C5:Lectio7 in 2 loco:s/ That kingdom He promiseth.*//s
+
+== English/CommuneM/C5.txt [Lectio10 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio7 in 2 loco:s/.* Ideóque /Ideóque /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Ideóque…” → “That kingdom He promiseth…”; “Unde gloriátur…” → “In this doth the Apostle boast…”
+---
+@Commune/C5:Lectio7 in 2 loco:s/.* That kingdom He promiseth/That kingdom He promiseth/s s/$/~/
+@Commune/C5:Lectio8 in 2 loco:s/ In this doth the Apostle boast.*//s
+
+== English/CommuneM/C5.txt [Lectio11 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio8 in 2 loco:s/.* Unde gloriátur /Unde gloriátur /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Unde gloriátur…” → “In this doth the Apostle boast…”
+---
+@Commune/C5:Lectio8 in 2 loco:s/.* In this doth the Apostle boast/In this doth the Apostle boast/s
+
+== English/CommuneM/C5.txt [Lectio9 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/02-24:Lectio7:s/ Tóllite .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Tóllite…” → “Take My yoke…”
+---
+@Sancti/02-24:Lectio7:s/ Take My yoke.*//s
+
+== English/CommuneM/C5.txt [Lectio10 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/02-24:Lectio7:s/.* Tóllite /Tóllite /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Tóllite…” → “Take My yoke…”; “Et quantam…” → “The greater soever…”
+---
+@Sancti/02-24:Lectio7:s/.* Take My yoke/Take My yoke/s s/$/~/
+@Sancti/02-24:Lectio8:s/ The greater soever.*//s
+
+== English/CommuneM/C5.txt [Lectio11 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Sancti/02-24:Lectio8:s/.* Et quantam /Et quantam /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Et quantam…” → “The greater soever…”
+---
+@Sancti/02-24:Lectio8:s/.* The greater soever/The greater soever/s
+
+== English/CommuneM/C5.txt [Lectio11 in 4 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio9 in 3 loco:s/ Bene .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Bene…” → “Meet also is it…”
+---
+@Commune/C5:Lectio9 in 3 loco:s/ Meet also is it.*//s
+
+== English/CommuneM/C5.txt [Lectio12 in 4 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C5:Lectio9 in 3 loco:s/.* Bene /Bene /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Bene…” → “Meet also is it…”
+---
+@Commune/C5:Lectio9 in 3 loco:s/.* Meet also is it/Meet also is it/s
+
+== English/CommuneM/C5b.txt [Lectio10 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio8 in 4 loco:s/ Alterum .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Alterum…” → “The other class are they…”
+---
+@Commune/C4:Lectio8 in 4 loco:s/ The other class are they.*//s
+
+== English/CommuneM/C5b.txt [Lectio11 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio8 in 4 loco:s/.* Alterum /Alterum /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Alterum…” → “The other class are they…”; “Videámus…” → “Let us look what His so great…”
+---
+@Commune/C4:Lectio8 in 4 loco:s/.* The other class are they/The other class are they/s s/$/~/
+@Commune/C4:Lectio9 in 4 loco:s/ Let us look what His so great.*//s
+
+== English/CommuneM/C5b.txt [Lectio12 in 2 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C4:Lectio9 in 4 loco:s/.* Videámus /Videámus /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Videámus…” → “Let us look what His so great…”
+---
+@Commune/C4:Lectio9 in 4 loco:s/.* Let us look what His so great/Let us look what His so great/s
+
+== English/CommuneM/C5b.txt [Lectio9 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C1:Lectio7 in 2 loco:s/ In hac .*//s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “In hac…” → “He taught them, which work…”
+---
+@Commune/C1:Lectio7 in 2 loco:s/ He taught them, which work.*//s
+
+== English/CommuneM/C5b.txt [Lectio10 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C1:Lectio7 in 2 loco:s/.* In hac /In hac /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “In hac…” → “He taught them, which work…”; “Nemo…” → “Nevertheless, let there be no man…”
+---
+@Commune/C1:Lectio7 in 2 loco:s/.* He taught them, which work/He taught them, which work/s s/$/~/
+@Commune/C1:Lectio8 in 2 loco:s/ Nevertheless, let there be no man.*//s
+
+== English/CommuneM/C5b.txt [Lectio11 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C1:Lectio8 in 2 loco:s/.* Nemo /Nemo /s s/$/~/); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Nemo…” → “Nevertheless, let there be no man…”; “Sciéndum…” → “But it behoveth us to know…”
+---
+@Commune/C1:Lectio8 in 2 loco:s/.* Nevertheless, let there be no man/Nevertheless, let there be no man/s s/$/~/
+@Commune/C1:Lectio9 in 2 loco:s/ But it behoveth us to know.*//s
+
+== English/CommuneM/C5b.txt [Lectio12 in 3 loco]
+replaces: none
+adds: the section, which the file lacks
+why: the monastic Latin makes this lesson by cutting a Roman lesson at Latin words (@Commune/C1:Lectio9 in 2 loco:s/.* Sciéndum /Sciéndum /s); the English file had no section of its own, so the engine cut the English at those Latin words too, never found them, and printed the whole Roman lesson -- the Latin looked cut short beside it
+source: the English cut where the English translation begins the same sentence: “Sciéndum…” → “But it behoveth us to know…”
+---
+@Commune/C1:Lectio9 in 2 loco:s/.* But it behoveth us to know/But it behoveth us to know/s
+
+== English/SanctiM/01-01.txt [Lectio7]
+replaces: e16b1c556ccd
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Et simíliter…” → “True…”; “Déitas…” → “That Godhead which…”
+---
+@Sancti/01-01:Lectio5:s/.* True /True /s s/$/~/
+@Sancti/01-01:Lectio6:s/That Godhead which.*//s
+
+== English/SanctiM/01-01.txt [Lectio8]
+replaces: bfcc038fa2d3
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Déitas…” → “That Godhead which…”
+---
+@Sancti/01-01:Lectio6:s/.* That Godhead which/That Godhead which/s
+
+== English/SanctiM/03-19.txt [Lectio6]
+replaces: 03a41ea3c25b
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Illi…” → “To that first Joseph…”
+---
+@Sancti/03-19:Lectio5:s/To that first Joseph.*//s
+
+== English/SanctiM/03-19.txt [Lectio7]
+replaces: 1e8d533658c7
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Illi…” → “To that first Joseph…”; “Non est…” → “We cannot…”
+---
+@Sancti/03-19:Lectio5:s/.* To that first Joseph/To that first Joseph/s s/$/~/
+@Sancti/03-19:Lectio6:s/We cannot .*//s
+
+== English/SanctiM/12-27.txt [Lectio9]
+replaces: e992e992faf9
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Una declínat…” → “The one escheweth…”
+---
+@Sancti/12-27:Lectio7:s/The one escheweth.*//s
+
+== English/SanctiM/12-27.txt [Lectio10]
+replaces: fcb1a49e783b
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Una declínat…” → “The one escheweth…”; “Una flagellátur…” → “The one is chastened…”
+---
+@Sancti/12-27:Lectio7:s/.* The one escheweth/The one escheweth/s s/$/~/
+@Sancti/12-27:Lectio8:s/The one is chastened.*//s
+
+== English/SanctiM/12-27.txt [Lectio11]
+replaces: 2ad7f49a9b6e
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Una flagellátur…” → “The one is chastened…”; “Tota…” → “The one laboureth…”
+---
+@Sancti/12-27:Lectio8:s/.* The one is chastened/The one is chastened/s s/$/~/
+@Sancti/12-27:Lectio9:s/The one laboureth.*//s
+
+== English/SanctiM/12-28.txt [Lectio11]
+replaces: 49af601b754c
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Respondébimus…” → “The plain answer…”
+---
+@Sancti/12-28:Lectio9:s/The plain answer .*//s
+
+== English/SanctiM/12-28.txt [Lectio12]
+replaces: 2a6074081a70
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Respondébimus…” → “The plain answer…”
+---
+@Sancti/12-28:Lectio9:s/.*The plain answer/The plain answer/s
+
+== English/TemporaM/Pent07-0.txt [Lectio11]
+replaces: 507dc0b81052
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “Multi…” → ““Many will say…”; “De nostro…” → “That…”
+---
+@Tempora/Pent07-0:Lectio8:s/.* (“Many will say)/$1/s s/$/~/
+@Tempora/Pent07-0:Lectio9:s/That .*//s
+
+== English/TemporaM/Pent05-0.txt [Lectio12]
+replaces: 5e346b4832c6
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “In concílio…” → “In the council, albeit…”
+---
+@Tempora/Pent05-0:Lectio9:s/.* In the council, albeit/In the council, albeit/s
+
+== English/TemporaM/Pent03-5.txt [Lectio5]
+replaces: cc5ba7e1f5ff
+why: the English file's own cut matched nothing in the English text (two dots for one space, a closing quotation mark for an opening one, a word not there), so it printed the whole Roman lesson beside the Latin's part of it
+source: the English cut where the English translation begins the Latin's sentence: “ígitur…” → “Therefore, even as…”
+---
+@Tempora/Pent03-2:Lectio4:1
+@Tempora/Pent03-2:Lectio5: s/Therefore, even as/Even as/ s/$/~/
+@Tempora/Pent03-2:Lectio6
+
+== Latin/SanctiM/01-05.txt [Lectio11]
+replaces: b5d36dca85ca
+why: the lesson took out only the words "Nazarǽus sanctus" where it means to end before them: the rest of the sentence was read again at the twelfth lesson, which begins there
+---
+@Sancti/01-05:Lectio9: s/Nazarǽus sanctus.*//s
+
+== Latin/SanctiM/12-06.txt [Lectio8]
+replaces: 4d1cbb0e558b
+why: the eighth lesson named the fifth Roman lesson, whose "Cum vero" is its first words, so it repeated the whole of it; the seventh lesson ends at the sixth's "Cum vero contra edictum", where this one begins
+---
+@Sancti/12-06:Lectio6: s/.* Cum vero/Cum vero/s

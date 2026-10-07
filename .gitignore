@@ -1,0 +1,6 @@
+# What the build makes: the app folder, the Setups, latest.json.
+# The GitHub releases carry those (python build-exe.py --release).
+dist/
+
+__pycache__/
+*.pyc

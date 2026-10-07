@@ -1,0 +1,36 @@
+# The Magnificat and the Benedictus in the Prayer Book's English, as given for
+# this project. Added to the text as given: the verse numbers (Luke 1, as the
+# Latin files number them), the * where the Prayer Book points the verse with a
+# colon, and the + where the sign of the cross is made (where the project's own
+# English files have it). A Prayer Book verse that holds two of Luke's is
+# numbered by the first (46 is 46-47, 54 is 54-55); one Luke divides in two
+# takes a and b (48a, 48b).
+#
+# tools/make_coverdale.py copies each [PsalmN] below into that psalm's file.
+
+[Psalm232]
+(Canticle of the Blessed Virgin * Luke 1:46-55)
+1:46 My soul + doth magnify the Lord * and my spirit hath rejoiced in God my Saviour.
+1:48a For he hath regarded * the lowliness of his handmaiden.
+1:48b For behold, from henceforth * all generations shall call me blessed.
+1:49 For he that is mighty hath magnified me * and holy is his Name.
+1:50 And his mercy is on them that fear him * throughout all generations.
+1:51 He hath shewed strength with his arm * he hath scattered the proud in the imagination of their hearts.
+1:52 He hath put down the mighty from their seat * and hath exalted the humble and meek.
+1:53 He hath filled the hungry with good things * and the rich he hath sent empty away.
+1:54 He remembering his mercy hath holpen his servant Israel * as he promised to our forefathers, Abraham and his seed for ever.
+
+[Psalm231]
+(Canticle of Zacharias * Luke 1:68-79)
+1:68 BLESSED be the Lord + God of Israel * for he hath visited and redeemed his people;
+1:69 And hath raised up a mighty salvation for us * in the house of his servant David;
+1:70 As he spake by the mouth of his holy Prophets * which have been since the world began;
+1:71 That we should be saved from our enemies * and from the hand of all that hate us.
+1:72 To perform the mercy promised to our forefathers * and to remember his holy Covenant;
+1:73 To perform the oath which he sware to our forefather Abraham * that he would give us;
+1:74 That we being delivered out of the hand of our enemies * might serve him without fear;
+1:75 In holiness and righteousness before him * all the days of our life.
+1:76 And thou, Child, shalt be called the Prophet of the Highest * for thou shalt go before the face of the Lord to prepare his ways;
+1:77 To give knowledge of salvation unto his people * for the remission of their sins,
+1:78 Through the tender mercy of our God * whereby the day-spring from on high hath visited us;
+1:79 To give light to them that sit in darkness, and in the shadow of death * and to guide our feet into the way of peace.
