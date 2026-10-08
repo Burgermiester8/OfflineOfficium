@@ -43,7 +43,7 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   echo "export PATH=\"$BIN:\$PATH\"" >> "$CLAUDE_ENV_FILE"
 fi
 
-if ! python3 -c "import pypdf, fitz" 2>/dev/null; then
+if ! python3 -c "import pypdf, pymupdf" 2>/dev/null; then
   python3 -m pip install --quiet --disable-pip-version-check pypdf pymupdf >&2 2>/dev/null \
     || python3 -m pip install --quiet --disable-pip-version-check --break-system-packages pypdf pymupdf >&2 \
     || problems+=("pip could not install pypdf and PyMuPDF")

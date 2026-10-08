@@ -374,6 +374,26 @@ or the Setup, and the signing key stays on this PC, so releases are made here:
 pull the session's changes, then run `python build-exe.py --quick --release
 --notes "…"`.
 
+The first cloud session (8 October 2026; Python 3.13, the system's Perl
+5.38) found it working as it stands:
+
+- **The setup** printed its one line, "ready", at the session's start. Run
+  again by hand, with everything already there, it takes 1.5 s.
+- **`datafixes.py --check`**: 228 lines, every correction in place, in 0.6 s.
+- **Vespers of 7 October 2026**: 5 pages in 2.8 s, Latin and English side by
+  side, with no word from Perl. Linux's Perl lacks CGI.pm too; `perl-lib/`
+  was all it needed.
+- **The Common of the Saints, Monastic 1963**: 50 offices, 144 pages, in
+  10.1 s. `tools/audit_references.py` verified 506 of its 506 references in
+  2.1 s, with no problems.
+- **Fonts.** With no Cambria, Typst sets the text in its own Libertinus
+  Serif and takes ℣ and ✠ from FreeSans (544 of the 782,000 characters in the
+  Common). The pages are right, but their breaks are not Windows's.
+
+The one change it needed: `tools/audit_references.py` and the setup now
+import PyMuPDF as `pymupdf`, not `fitz`, which PyMuPDF 1.28 warns is going
+away (on its standard output, so the setup's line had the warning before it).
+
 ### Is it fully offline?
 
 Yes — and one thing had to be fixed to make that true. The one exception is

@@ -33,7 +33,10 @@ import re
 import sys
 import unicodedata
 
-import fitz
+try:
+    import pymupdf as fitz  # PyMuPDF 1.24 and later
+except ImportError:
+    import fitz
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dobreviary import HEAD_SHORT, HOUR_SHORT  # the abbreviations a reference uses
