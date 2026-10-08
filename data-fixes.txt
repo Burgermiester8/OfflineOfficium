@@ -6434,10 +6434,10 @@ Quos ubi constantióres esse réperit, demítti jubet in ingens vas liquáto plu
 
 == Latin/SanctiCist/03-08C.txt [Lectio7]
 replaces: 60279672fa35
-why: slips in the Latin: in Temolo CathedráIis Cracoviénsis -> in Templo Cathedrális Cracoviénsis (OCR slips: 'Temolo' for 'Templo', capital I for l in 'Cathedralis')
-source: plain sense (the lamp in the cathedral church of Cracow)
+why: the data's reading differs from the printed books: "ita insectátus est, ut pravos populórum mores, et collápsam pietátem in pristínu" -> "ita insectátus est pravos populórum mores, ut collápsam pietátem in prístinum restitúerit"; and slips in the Latin: in Temolo CathedráIis Cracoviénsis -> in Templo Cathedrális Cracoviénsis (OCR slips: 'Temolo' for 'Templo', capital I for l in 'Cathedralis')
+source: Officia propria SS. Patronorum Regni Poloniæ et Sueciæ, Pars autumnalis, 1880, B. Vincentii Kadłubek, Lectio v: "ita insectátus est pravos populórum mores, ut collápsam pietátem in prístinum restitúerit" (https://archive.org/details/kpbc.umk.pl.Gromadzenie_POPC_022_71_246774); same in Breviarium Romanum 1931 (Radom) (https://archive.org/details/bc.radom.pl.Breviarium-romanum-1931, snippet: "prístinum"), and the monastic Officia propria Patronorum Regni Poloniæ 1770/1780 (https://archive.org/details/jbc.bj.uj.edu.pl.NDIGSTDR020287); plain sense (the lamp in the cathedral church of Cracow)
 ---
-In Episcopátu exémplum se præbuit bonórum óperum, et commíssum sibi gregem pascens mónitis, consíliis, sciéntia, verbo et exémplo ita insectátus est, ut pravos populórum mores, et collápsam pietátem in pristínum restitúerit. Cathólicae fídei insígnis Propagátor, et Ecclesiásticae jurisdictiónis vindex acérrimus. Exímia incláruit prudéntia, charitáte, mansuetúdine, et misericórdia in páuperes; zelus Domus Dei ita illum coméderat, ut reparatióni, et opportúnis Ecclesiárum provéntibus impénse cónsulens, nedum ex mensæ Episcopális reddítibus, sed et de hæreditário património illas dotáverit. Exímium vero ejus religiónis arguméntum fuit, dum insígne erogávit pecúlium; ut in Templo Cathedrális Cracoviénsis lampas accénsa coram Altáris Sacraménto perpétuo asservarétur. 
+In Episcopátu exémplum se præbuit bonórum óperum, et commíssum sibi gregem pascens mónitis, consíliis, sciéntia, verbo et exémplo ita insectátus est pravos populórum mores, ut collápsam pietátem in prístinum restitúerit. Cathólicae fídei insígnis Propagátor, et Ecclesiásticae jurisdictiónis vindex acérrimus. Exímia incláruit prudéntia, charitáte, mansuetúdine, et misericórdia in páuperes; zelus Domus Dei ita illum coméderat, ut reparatióni, et opportúnis Ecclesiárum provéntibus impénse cónsulens, nedum ex mensæ Episcopális reddítibus, sed et de hæreditário património illas dotáverit. Exímium vero ejus religiónis arguméntum fuit, dum insígne erogávit pecúlium; ut in Templo Cathedrális Cracoviénsis lampas accénsa coram Altáris Sacraménto perpétuo asservarétur. 
 
 == Latin/SanctiM/12-08o.txt [Responsory5]
 replaces: b8d50bee5713
@@ -6520,18 +6520,18 @@ Ordinem Visitationis Sanctae Mariæ, quo a propinquis abesset longius, Paredii i
 
 == Latin/SanctiM/10-17b.txt [Lectio7]
 replaces: 73056e01639e
-why: slips in the Latin: in sui conteraptum verterentur -> in sui contemptum verterentur (OCR 'ra' for 'm'); ob nobilern alumnam -> ob nobilem alumnam (OCR 'rn' for 'm')
-source: sense ('turned to her own contempt'); spelling
+why: the data's reading differs from the printed books: "Quod enixe à Domino petierat, illustria" -> "Quod enixe à Domino petierat, ut illustria"; and slips in the Latin: in sui conteraptum verterentur -> in sui contemptum verterentur (OCR 'ra' for 'm'); ob nobilern alumnam -> ob nobilem alumnam (OCR 'rn' for 'm')
+source: Breviarium Romanum, Pars autumnalis, Tournai 1902, 17 Oct. B. Margaritæ Mariæ Alacoque, Lectio vj: "Quod enixe a Domino petierat, ut illustria ejus dona in sui contemptum verterentur, abunde obtinuit" (https://archive.org/details/breviariumromanu04cath); same in Turin/Tournai 1904 (https://archive.org/details/breviariumromanu04turo), 1888 (https://archive.org/details/p4breviariumroma00cathuoft), 1850 (https://archive.org/details/breviariumromanu0000unse), and Breviarium Monasticum 1930 Pars II (https://archive.org/details/breviarium-monasticum-pars-ii); sense ('turned to her own contempt'); spelling
 ---
-Quod enixe à Domino petierat, illustria Eius dona in sui contemptum verterentur, abunde obtinuit. Nunquam enim defuere domi et foris qui illam misere illusam credentes, aut saltem dubitantes, eius spiritum dicteriis carperent, vel certe assiduis ac duris subiicerent experimentis : in quibus tamen mitissimæ Virginis humilitas, patientia, obedientia, et charitas magis semper eluxerunt. Contumelias quoque ac minas ab extraneis ob nobilem alumnam a tirocinio fortiter dimissam invicta constantia toleravit. Accessere morbi graves, et diuturni, quibus levandis remedia a medicis oblata nocebant. Inter hæc illa in divino Christi Corde absorpta, et igne charitatis eius incensa plura et graviora pati semper optabat. 
+Quod enixe à Domino petierat, ut illustria Eius dona in sui contemptum verterentur, abunde obtinuit. Nunquam enim defuere domi et foris qui illam misere illusam credentes, aut saltem dubitantes, eius spiritum dicteriis carperent, vel certe assiduis ac duris subiicerent experimentis : in quibus tamen mitissimæ Virginis humilitas, patientia, obedientia, et charitas magis semper eluxerunt. Contumelias quoque ac minas ab extraneis ob nobilem alumnam a tirocinio fortiter dimissam invicta constantia toleravit. Accessere morbi graves, et diuturni, quibus levandis remedia a medicis oblata nocebant. Inter hæc illa in divino Christi Corde absorpta, et igne charitatis eius incensa plura et graviora pati semper optabat. 
 
 == Latin/SanctiOP/07-22.txt [Ant Matutinum]
 replaces: d268f4ba95ef
-why: slips in the Latin: sacra in pace remíttito.;86 -> sacra in pace remíttito.;;86 (psalm reference needs ';;' like the other antiphons; ';86' is printed as text); Jesus, mundi glória, múlter, -> Jesus, mundi glória, múlier, ('multer' for 'mulier'); fragrâbat -> fragrábat (circumflex instead of acute accent)
-source: DO file format; the neighbouring antiphons ';;45', ';;95'; Luke 7:37 'mulier quæ erat in civitate peccatrix'; accentuation of the data
+why: the data's reading differs from the printed books: "astans, incessánte, crine" -> "astans, incessánter, crine"; and slips in the Latin: sacra in pace remíttito.;86 -> sacra in pace remíttito.;;86 (psalm reference needs ';;' like the other antiphons; ';86' is printed as text); Jesus, mundi glória, múlter, -> Jesus, mundi glória, múlier, ('multer' for 'mulier'); fragrâbat -> fragrábat (circumflex instead of acute accent)
+source: Breviarium juxta ritum S. Ordinis Prædicatorum 1962, Pars II, 22 Jul. Matins ant.: "Secus pedes Dómini astans, incessánter, crine solúto, diva vestígia osculabátur lácrimis plena" (https://archive.org/details/breviariumiuxtar0002cath, full-text search snippet); same in the 1909 edition (https://archive.org/details/BrevariumIuxtaRitumSacriOrdinisPraedicatorum) and 1894 edition (https://archive.org/details/BreviariumIuxtaRitum); DO file format; the neighbouring antiphons ';;45', ';;95'; Luke 7:37 'mulier quæ erat in civitate peccatrix'; accentuation of the data
 ---
 Cum discubuisset in domo Simónis Dóminus Jesus, mundi glória, múlier, quæ erat in civitáte peccátrix, nardi odorífera exhibuit unguénta.;;8
-Secus pedes Dómini astans, incessánte, crine solúto, diva vestigia osculabátur lácrimis plena.;;18
+Secus pedes Dómini astans, incessánter, crine solúto, diva vestigia osculabátur lácrimis plena.;;18
 Irrigábat igitur Domínicos Jesu pedes: fracto quoque alabástro, præcípui odóribus fragrábat domus omnis: atque capillórum officio detergébat.;;23
 Simon autem intra se inquit: Si esset prophéta, sciret profecto quæ et qualis est, quæ tangit eum: quia peccátrix est.;;44
 Et convérsus Dóminus, dixit: Postquam venit in domum tuam, non cessat, crine fuso, hæc meos osculári pedes.;;45
@@ -6589,12 +6589,12 @@ Dixit autem María * ad Angelum: Quómodo fiet istud, quóniam virum non cognós
 
 == Latin/Sancti/03-24.txt [Ant Laudes]
 replaces: c7794375ccf8
-why: slips in the Latin: Dixit autem María * Angelum: -> Dixit autem María * ad Angelum: ('ad' dropped); missus sum loqui te. -> missus sum loqui ad te. ('ad' dropped)
-source: Luke 1:34 'Dixit autem Maria ad angelum'; Luke 1:19 'missus sum loqui ad te'; the same antiphon in [Ant Vespera]
+why: the data's reading differs from the printed books: "qui asto ante Dóminum" -> "qui asto ante Deum"; and slips in the Latin: Dixit autem María * Angelum: -> Dixit autem María * ad Angelum: ('ad' dropped); missus sum loqui te. -> missus sum loqui ad te. ('ad' dropped)
+source: Le Bréviaire Romain, Propre des Saints, fascicule 4 (Desclée), 24 Mart. S. Gabrielis, Ad Laudes ant. 3 and Ad Sextam: "Ego sum Gábriel * Angelus, qui asto ante Deum, et missus sum loqui ad te" (https://archive.org/details/le-breviaire-romain-propre-des-saints-fascicule-4-000001197); same in Officia Sanctorum ... 1830 (https://archive.org/details/bub_gb_PS85gfPwFs8C) and Officia ecclesiæ Pistoriensis 1841 (https://archive.org/details/bub_gb_kSixaYg45-gC); Luke 1:34 'Dixit autem Maria ad angelum'; Luke 1:19 'missus sum loqui ad te'; the same antiphon in [Ant Vespera]
 ---
 Ingrésso Zacharía * templum Dómini, appáruit ei Gábriel Angelus, stans a dextris altáris incénsi.
 Ait autem Angelus: * Ne tímeas, Zacharía, quóniam exaudíta est deprecátio tua.
-Ego sum Gábriel * Angelus, qui asto ante Dóminum, et missus sum loqui ad te.
+Ego sum Gábriel * Angelus, qui asto ante Deum, et missus sum loqui ad te.
 Gábriel Angelus * locútus est Maríæ, dicens: Ecce concípies in útero, et páries fílium, et vocábis nomen ejus Jesum.
 Dixit autem María * ad Angelum: Quómodo fiet istud, quóniam virum non cognósco? Et respóndens Gábriel Angelus, dixit ei: Spíritus Sanctus supervéniet in te et virtus altíssimi obumbrábit tibi.
 
@@ -6735,10 +6735,10 @@ Bernárdus, ántea Amétus appellátus, Almanzórii, Réguli Carleténsis fíliu
 
 == Latin/SanctiCist/06-01C.txt [Lectio3]
 replaces: 320d923e45c2
-why: slips in the Latin: coram soróribusférreo clavo -> coram soróribus férreo clavo (missing space); in Christiánæ fídei præpósito immóbiles -> in Christiánæ fídei propósito immóbiles ('præposito' (overseer) for 'proposito' (resolve): immovable in their resolve of the faith)
-source: typography; sense; idiom 'in proposito immobilis'
+why: the data's reading differs from the printed books: "Cisterciénsi Ordini utrámque aggrehis compértis" -> "Cisterciénsi Ordini utrámque aggregávit. Impius vero frater his compértis"; and slips in the Latin: coram soróribusférreo clavo -> coram soróribus férreo clavo (missing space); in Christiánæ fídei præpósito immóbiles -> in Christiánæ fídei propósito immóbiles ('præposito' (overseer) for 'proposito' (resolve): immovable in their resolve of the faith)
+source: Officia propria sanctorum ... pro omnibus sanctimonialibus Ordinis Cisterciensis, Breviario Romano utentibus, 1703, Ss. Bernardi, Mariæ et Gratiæ, Lectio vj (https://archive.org/details/bub_gb_AM9brpYayUQC); typography; sense; idiom 'in proposito immobilis'
 ---
-Inde Almanzórii fratris domum pétiit, cui, cum advéntus sui causam exposuísset, ira infrémuit Régulus, ac mortem ipsi minátus est, si Christum prædicáre audéret. Bernárdus ínsuper hábitis Réguli minis, soróres Zoráidam et Záidam aggréssus, et mira eis de religióne divína annúntians, illas ad Catholicam fidem adduxit, ac rite instructas et sacro baptísmate expiátas, álteram Maríam, Grátiam álteram nuncupávit, et Cisterciénsi Ordini utrámque aggrehis compértis, statim Bernárdi frontem coram soróribus férreo clavo cónfodi jussit. Maríam autem et Grátiam in Christiánæ fídei propósito immóbiles gládio transfígi mandávit, anno millésimo centésimo octogésimo. Sanctórum Mártyrum córpora diútius ignóta, et tandem cœléstibus signis detecta, honorífice tumuláta sunt non procul ab Alzíra nóbili óppido, a quo gloriósus Martyr hodiéque Sanctus Bernárdus de Alzíra cognominátur et véluti loci Patrónus magna veneratióne cólitur.
+Inde Almanzórii fratris domum pétiit, cui, cum advéntus sui causam exposuísset, ira infrémuit Régulus, ac mortem ipsi minátus est, si Christum prædicáre audéret. Bernárdus ínsuper hábitis Réguli minis, soróres Zoráidam et Záidam aggréssus, et mira eis de religióne divína annúntians, illas ad Catholicam fidem adduxit, ac rite instructas et sacro baptísmate expiátas, álteram Maríam, Grátiam álteram nuncupávit, et Cisterciénsi Ordini utrámque aggregávit. Impius vero frater his compértis, statim Bernárdi frontem coram soróribus férreo clavo cónfodi jussit. Maríam autem et Grátiam in Christiánæ fídei propósito immóbiles gládio transfígi mandávit, anno millésimo centésimo octogésimo. Sanctórum Mártyrum córpora diútius ignóta, et tandem cœléstibus signis detecta, honorífice tumuláta sunt non procul ab Alzíra nóbili óppido, a quo gloriósus Martyr hodiéque Sanctus Bernárdus de Alzíra cognominátur et véluti loci Patrónus magna veneratióne cólitur.
 
 == Latin/SanctiCist/01-26C.txt [Lectio6]
 replaces: 4991448220ae
@@ -9942,3 +9942,96 @@ Firmans movénsque péctora,
 Contra malum certántibus
 Dona vigórem et prǽmium.
 Amen.
+
+== Latin/SanctiM/10-03b.txt [Hymnus Vespera]
+replaces: f4f50b92ba3b
+why: the data's reading differs from the printed books: "Quæ casta vir ut ángelus" -> "Quæ casta virgo, ut ángelus"
+source: Propre de Subiaco, province de France (Bréviaire), 1957, 3 Oct. Vespers hymn "Nomen decusque concinant": "Quæ casta virgo, ut ángelus / Immíssus e cælo, colit" (https://archive.org/details/off.-pr.-prov.-gallicae-congr.-cassinen.-p.-o.-1957); same in Propre de Lille 1950 (https://archive.org/details/propre-de-lille-1950-breviaire), Propre de Versailles 1962 (https://archive.org/details/propre-de-versailles-1962-1) and Misa i Večernja Svete Terezije 1928 (https://archive.org/details/misa_i_vecernja_svete_terezije_od_djeteta_isusa_1928)
+---
+v. Nomen decúsque cóncinant
+Terésiæ almæ vírginis
+Qui sancta divi párvuli
+Credunt amántque múnera.
+_
+Carméli summos vértices
+Patróna Mater déligit:
+Terési[a] illuc ádvolat,
+Sponsi premens vestígia.
+_
+Affláta Jesu númine,
+Secréta pandit grátiæ;
+Magístra mundo símplices
+Infántium docet vias.
+_
+Virtútis ipsa flósculos
+Olent sacráta límina,
+Quæ casta virgo, ut ángelus
+immíssus e cælo, colit.
+_
+At júbilum non éxprimit
+Omnes amóris ímpetus;
+Nec septa magnos cláudere
+Ejus valent anhélitus.
+_
+Jesu, tibi sit glória,
+Qui te revélas párvulis,
+Cum Patre et almo Spiritu,
+In sempitérna sǽcula.
+Amen.
+
+== Latin/SanctiM/10-17b.txt [Lectio8]
+replaces: 6f825dafd026
+why: the data's reading differs from the printed books: "beatarum Virginum cætum inscripsit" -> "beatarum Virginum cœtui adscripsit"
+source: Breviarium Romanum, Pars autumnalis, Tournai 1902, 17 Oct., Lectio (viij): "eam Pius nonus Pontifex Maximus ... beatarum Virginum coetui adscripsit" (https://archive.org/details/breviariumromanu04cath); same in 1904 (https://archive.org/details/breviariumromanu04turo) and 1888 (https://archive.org/details/p4breviariumroma00cathuoft)
+---
+Extremum morbum patientissime toleranti subito divini iudicii cogitatio tantum iniecit metum, ut cum tremore ac fletu Crucifixum stringens misericordiam sibi precaretur: sed mox consolationes Dei lætificaverunt animam eius. Igitur tamquam consummata charitatis victima, die decima septima Octobris ad sponsum evolavit, annos nata tres et quadraginta. Cælestem eius gloriam miracula confirmaverunt, quibus rite probatis, eam Pius Nonus Pontifex Maximus magna piorum gratulatione quartodecimo Kalendas Octobris Anni Millesimi octingentesimi sexagesimi quarti beatarum Virginum cœtui adscripsit.
+
+== Latin/SanctiOP/08-17.txt [Hymnus Matutinum]
+replaces: 874dac4b67e5
+why: the data's reading differs from the printed books: "Dum frangit hostis róbor." -> "Dum frangit hostis róbora."
+source: Breviarium juxta ritum S. Ordinis Prædicatorum 1962, Pars II, St Hyacinth, hymn "Christi fidelis nuntius": "Dum frangit hostis róbora" (https://archive.org/details/breviariumiuxtar0002cath, full-text search snippet); same in the 1909 edition (https://archive.org/details/BrevariumIuxtaRitumSacriOrdinisPraedicatorum), The Hymns of the Dominican Missal and Breviary 1943 (https://archive.org/details/hymnsofdominican0000aqui), Analecta hymnica 43 (https://archive.org/details/analectahymnica43drevuoft)
+---
+Christi fidélis nuntius
+Dum prædicátor míttitur,
+Præco salutis cáelicus
+Late per orbem fúnditur.
+_
+Ubique verbi sémina,
+Rectique spargit lúmina:
+Fluunt ab ore fáculæ,
+Vitæ corúscant régulæ.
+_
+Rectas salutis sémitas
+Dignósque mores édocet,
+Verbóque tangens ánimas
+Ad pæniténdum cómmovet.
+_
+Ab hoste prædas éripit,
+Dum dura mollit pectora:
+Cæloque dignos éfficit,
+Dum frangit hostis róbora.
+_
+Tibi, Deus, sit glória
+In sempitérna sæcula:
+Et nos Hyacínthi précibus
+Adiúnge cæli cœtibus.
+Amen.
+
+== Latin/SanctiM/06-25.txt [Lectio6]
+replaces: 47755fc6a214
+why: the data's reading differs from the printed books: "dum in solículo Monte" -> "dum in Solículo Monte"
+source: Officia propria sanctorum monachorum ordinis D. Benedicti ... ad breviarii romani præscriptum, 1715, S. Guilielmi Abb., Lectio v: "Porro dum in Solículo Monte biénnio commorátur, interímque inédia, vigíliis, chaméuniis, atque assíduis oratiónibus macerátur" (https://archive.org/details/officiapropriasa00cath_0)
+---
+Revérsus in Itáliam, novam ad sanctum Dómini Sepúlchrum, quod Jerosólymis cólitur, peregrinatiónem molítur: sed quóminus propósitum exequátur, vária atque gravíssima intercédunt impediménta, divíno Númine, ad altióra et sanctióra religiósam júvenis índolem retrahénte. Porro dum in Solículo Monte biénnium commorátur, interímque inédia‚ vigíliis, chameúniis, atque assíduis oratiónibus macerátur, divína subníxus ope, cæco lumen restítuit. Quo édito miráculo fama percrebrescénte jam Guliélmus latére non póterat: quare íterum Jerosólymam adíre cógitat et álacris se itíneri commíttit.
+
+== Latin/Sancti/03-24.txt [Responsory6]
+replaces: 2c8a495ec7e9
+why: the data's reading differs from the printed books: "R. Ego sum Gábriel Angelus, qui asto ante Dóminum; et missus sum loqui te, et hæ" -> "R. Ego sum Gábriel, qui asto ante Deum: et missus sum loqui ad te, et hæc evangelizáre:"
+source: Le Bréviaire Romain, Propre des Saints, fascicule 4, 24 Mart., R. after Lectio vi (https://archive.org/details/le-breviaire-romain-propre-des-saints-fascicule-4-000001197); same in Officia Sanctorum 1830 (https://archive.org/details/bub_gb_PS85gfPwFs8C) and Officia ecclesiæ Pistoriensis 1841 (https://archive.org/details/bub_gb_kSixaYg45-gC)
+---
+R. Ego sum Gábriel, qui asto ante Deum: et missus sum loqui ad te, et hæc evangelizáre:
+* Ecce eris tacens, et non póteris loqui usque in diem quo hæc fiant.
+V. Pro eo quod non credidísti verbis meis, quæ implebúntur témpore suo,
+R. Ecce eris tacens, et non póteris loqui usque in diem quo hæc fiant.
+&Gloria
+R. Ecce eris tacens, et non póteris loqui usque in diem quo hæc fiant.

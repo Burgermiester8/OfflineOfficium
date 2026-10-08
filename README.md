@@ -1475,7 +1475,7 @@ Latin, and the English column printed it: 813 sections of a Monastic 1963
 book, about 190 of a 1960 or Divino Afflatu one (Matins lessons of the
 monastic feasts, their responsories and antiphons, homily titles, a few
 hymns). `translations-en.json` (beside the exe) supplies the English for those
-lines, and both the breviary and *Make a PDF* use it. It has 7,494 lines from
+lines, and both the breviary and *Make a PDF* use it. It has 7,495 lines from
 three sources, marked on each entry (1,342 of them before the audit of all
 fifteen versions, below):
 
@@ -1634,20 +1634,37 @@ lesson of St Hilary cited as a homily of St Gregory, and St Gregory's homily
 printed with u for v throughout (*conujuio*, *ujuendo*). The English of those
 lines was brought into line with the corrected Latin.
 
+**From printed breviaries** (archive.org's scans, with the internet open), 10
+sections more, each reading found in the printed books, most in several
+editions:
+
+| Passage | The data had | The books have |
+|---|---|---|
+| St Thérèse, Vespers hymn (monastic) | *Quæ casta vir ut ángelus* | *Quæ casta virgo, ut ángelus* (Subiaco 1957, Lille 1950, Versailles 1962) |
+| St Margaret Mary, lessons VII and VIII (monastic) | *petierat, illustria*; *cætum inscripsit* | *petierat, ut illustria*; *cœtui adscripsit* (Breviarium Romanum 1850-1904, Monasticum 1930) |
+| Sts Bernard, Mary and Grace of Alzira (Cistercian) | *utrámque aggrehis compértis* | *utrámque aggregávit. Impius vero frater his compértis* (Officia propria, 1703) |
+| St Mary Magdalene (Dominican) | *astans, incessánte, crine solúto* | *incessánter* (Breviarium O.P. 1894, 1909, 1962) |
+| St Hyacinth, Matins hymn (Dominican) | *Dum frangit hostis róbor* | *róbora* (Breviarium O.P. 1909, 1962; Analecta hymnica 43) |
+| Bl. Vincent Kadłubek (Cistercian) | *ita insectátus est, ut pravos populórum mores, et collápsam pietátem* | *ita insectátus est pravos populórum mores, ut collápsam pietátem* (Polish propers 1770, 1780, 1880) |
+| St William (monastic) | *in solículo Monte* | *in Solículo Monte* (Officia propria O.S.B., 1715; the Roman file's *solículo monte* is the Breviarium Romanum's) |
+| St Gabriel, Lauds antiphon and sixth responsory | *qui asto ante Dóminum*; *Gábriel Angelus … loqui te* | *ante Deum* (Luke 1:19); *Gábriel, qui asto ante Deum: et missus sum loqui ad te* (Bréviaire Romain, Propre des Saints) |
+
+The English of the lines whose sense changed was brought into line. St Joan of
+Arc's Matins hymn, which seemed to lack its end, was whole: a blank line stood
+between its third and fourth stanzas where the data marks a stanza with `_`,
+so the two printed run together; it is marked now.
+
 **Not done:**
 
-- 10 passages the translators found garbled have no source either site has,
-  all in the modern propers or rare texts: St Joan of Arc's Matins hymn, which
-  seems to lack its last stanza; *Quæ casta vir ut angelus* in St Thérèse's
-  hymn; St Margaret Mary's seventh and eighth lessons (a word missing before
-  *illustria*, *cætum inscripsit*); St Bernard of Alzira's *aggrehis
-  compértis*; the Dominican *Laudemus … super Dei Genitrix* and *astans,
-  incessánte*; *Dum frangit hostis róbor* in St Hyacinth's hymn; *ita
-  insectátus est* (Bl. Vincent Kadłubek); *in solículo Monte* (St William).
-  They are printed as the data has them, translated as they stand. Two more
-  were found not to be garbled: St Hilary's *manére et intérior et extérior*
-  is the Patrologia's text word for word, and St Leo's *communicatione* is good
-  Latin where the Patrologia reads *communione*.
+- One antiphon has no printed source: the monastic Lauds antiphon of Our Lady
+  of Guadalupe (`SanctiM/12-12b`), *Laudemus * laudaverunt in terra nostra, et
+  laudamus super Dei Genitrix*, added to Divinum Officium in November 2025 with
+  no source given. It looks like the Roman office's *Flores apparuérunt * in
+  terra nostra: te laudámus, Sancta Dei Génetrix*, but nothing printed shows
+  that antiphon in this place. It is printed as the data has it.
+- The *Cantilenæ* (sung) copy of St Thérèse's hymn,
+  `Latin-gabc/SanctiM/10-03b.txt`, has the same *vir*; the breviary does not
+  use it.
 - 31 of the English cuts include a line the translators translated from the
   Latin's own words (the Latin adds a sentence that no English file has); that
   English is by AI, in `data-fixes.txt`, and so carries no grey *AI* mark.
