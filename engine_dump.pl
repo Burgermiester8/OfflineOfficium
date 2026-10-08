@@ -419,26 +419,79 @@ sub specials_inside {
 # sections as they are ("@Sancti/06-26:Evangelium"): the engine follows them
 # only when it says the section -- the breviary file's section, else the Mass's
 # (monastic.pl lectioE). The same here, so the book prints the text.
+# A commemoration names the hour's texts of another office as the engine's
+# getrefs (specials/orationes.pl) reads them: ":Octava" or ":Commemoratio" is
+# that file's section of the same name, else the one numbered for the hour
+# ("Octava 2" at Lauds, "Octava 3" at second Vespers); ":Oratio" is its
+# antiphon and versicle of the hour with its collect, ":Oratio proper" the
+# antiphon and versicle alone (the collect follows in the text). The hour is
+# the commemoration's own number, else Lauds (2), as getrefs has it. Like
+# getrefs, it titles the commemoration only when the text gives no title.
+sub commemoration_of {
+  my ($h, $sec, $lang, $ind, $titled) = @_;
+  if ($sec =~ /^(commemoratio|octava)$/i) {
+    my $i = $ind == 2 ? 1 : 2;
+    return $h->{$sec} // $h->{"$sec $ind"} // $h->{"$sec $i"};
+  }
+  return undef unless $sec =~ /^oratio(\s+proper)?$/i;
+  my $proper = $1;
+  my %c;
+  if (($h->{Rank} // '') =~ /;;(?:ex|vide)\s+(.*?)\s*$/i) {
+    my $c = $1;
+    $c = "Commune/$c" if $c =~ /^C/;
+    my $ch = setupstring($lang, "$c.txt");
+    %c = %$ch if ref $ch;
+  }
+  my $a = $h->{"Ant $ind"} // $c{"Ant $ind"};
+  my $v = $h->{"Versum $ind"} // $c{"Versum $ind"};
+  return undef unless defined $a && defined $v;
+  chomp($a, $v);
+  $a =~ s/\s*\*\s*/ /;
+  my $o = '';
+  unless ($proper) {
+    $o = $h->{Oratio} // $c{Oratio} // '';
+    $o = "\$Oremus\n$o" if $o =~ /\S/ && $o !~ /\$Oremus/i;
+    $o = "_\n$o";
+  }
+  my $title = $h->{Officium} // '';
+  $title =~ s/\n.*//s;
+  ($titled ? '' : "!" . translate('Commemoratio', $lang) . " $title\n") . "Ant. $a\n_\n$v\n$o";
+}
+
 sub late_refs {
-  my ($t, $lang, $key, $depth) = @_;
+  my ($t, $lang, $key, $depth, $ind, $in_mass) = @_;
   return $t unless defined $t && $t =~ /^\s*@/m && ($depth // 0) < 4;
+  $ind //= $key =~ /^Commemoratio\s+(\d)/ ? $1 : 2;
   my @out;
   for my $line (split /\n/, $t) {
-    if ($line =~ /^\s*@([A-Za-z]+\/[^:\s]+)(?::([^:]*))?(?::(.*))?\s*$/) {
+    # A path may hold a space ("Sancti/aliquibus locis/...").
+    if ($line =~ /^\s*@([A-Za-z]+\/[^:]+?)(?::([^:]*))?(?::(.*))?\s*$/) {
       my ($file, $sec, $subs) = ($1, $2, $3);
       $sec = $key if !defined $sec || $sec eq '';
-      my $text;
-      my $h = setupstring($lang, "$file.txt");
-      $text = $h->{$sec} if ref $h && defined $h->{$sec};
-      if (!defined $text) {
+      $sec =~ s/\s+$//;
+      $file =~ s{/(\d)-}{/0$1-};    # "Sancti/9-12" (the Mass of the Rosary) is 09-12
+      my ($text, $from_mass);
+      # A reference in a Mass text names a Mass file ("@Commune/C4b", the
+      # Mass of Popes): it is looked for there first.
+      my $mass_text = sub {
         (my $mass = $file) =~ s/^(Sancti|Tempora|Commune)(?:M|OP|Cist)\//$1\//;
         my $mh = setupstring("../missa/$lang", "$mass.txt");
-        $text = $mh->{$sec} if ref $mh && defined $mh->{$sec};
+        ref $mh && defined $mh->{$sec} ? $mh->{$sec} : undef;
+      };
+      $text = $mass_text->() if $in_mass;
+      $from_mass = defined $text;
+      my $h = defined $text ? undef : setupstring($lang, "$file.txt");
+      $text = $h->{$sec} if ref $h && defined $h->{$sec};
+      my $titled = @out && $out[-1] =~ /^\s*!/;
+      $text = commemoration_of($h, $sec, $lang, $ind, $titled) if !defined $text && ref $h;
+      if (!defined $text && !$in_mass) {
+        $text = $mass_text->();
+        $from_mass = defined $text;
       }
       if (defined $text && $text =~ /\S/) {
         &do_inclusion_substitutions(\$text, $subs) if defined $subs && $subs ne '';
         $text =~ s/\n+$//;
-        push @out, late_refs($text, $lang, $sec, ($depth // 0) + 1);
+        push @out, late_refs($text, $lang, $sec, ($depth // 0) + 1, $ind, $from_mass || $in_mass);
         next;
       }
     }

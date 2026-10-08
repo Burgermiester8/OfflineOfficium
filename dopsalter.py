@@ -1460,6 +1460,12 @@ def _headed_copy(item, section):
     return red
 
 
+# What the engine prints where it finds no text ("Psalm not found" where a
+# Psalter versicle belongs: the monastic Friday before Pentecost, 1617 and 1930,
+# whose data lists the versicle among the psalms): no text of the season.
+_ENGINE_ERROR = re.compile(r"^Psalm\S* not found$|\bmissing$")
+
+
 def _season_day(items, year, known, langs, endings, versicles=frozenset()):
     """What one day of a season says that the book does not already hold:
     {hour: [Section]}; changed hymn endings are gathered into `endings`.
@@ -1498,6 +1504,8 @@ def _season_day(items, year, known, langs, endings, versicles=frozenset()):
                         continue
                     if not _fps(red.columns[0]) or _signature([red]) in versicles:
                         continue  # already given for an earlier season
+                    if any(_ENGINE_ERROR.search(l.text.strip()) for l in red.columns[0]):
+                        continue
                     if not red.columns[0][0].is_heading:
                         _headed(red, "Versus", "Versicle", langs)
                     secs.append(red)

@@ -108,6 +108,7 @@ Divine Office/
   licenses/                 the licences of the parts, installed with the app
   perl-lib/                 vendored pure-Perl CGI.pm 4.68 + URI 5.31 (0.6 MB)
   tools/engine-probe.pl     breviary-builder research: the engine's loader, standalone
+  tools/audit_texts.py      audits every version's variable parts, Latin beside English
   repo/                     the shallow clone
 ```
 
@@ -1474,20 +1475,27 @@ Latin, and the English column printed it: 813 sections of a Monastic 1963
 book, about 190 of a 1960 or Divino Afflatu one (Matins lessons of the
 monastic feasts, their responsories and antiphons, homily titles, a few
 hymns). `translations-en.json` (beside the exe) supplies the English for those
-lines, and both the breviary and *Make a PDF* use it. It has 1,342 lines from
-three sources, marked on each entry:
+lines, and both the breviary and *Make a PDF* use it. It has 7,485 lines from
+three sources, marked on each entry (1,342 of them before the audit of all
+fifteen versions, below):
 
-- `do` (117): the same Latin translated elsewhere in the English data — the
+- `do` (606): the same Latin translated elsewhere in the English data — the
   Roman office's copy of a responsory a monastic feast repeats, the Gospel of
   Matins whose English is only in another Mass (Palm Sunday's from the
   blessing of palms, St Gregory's from the Mass of a Coronation), and so on.
   Pairs that turned out to be misaligned in the data, metrical hymn versions
   that do not follow the Latin line by line, and citations with other numbers
-  were left out and translated instead.
-- `dr` (37): Bible verses in the Douay-Rheims (Challoner), which is the
-  translation the English data uses for the psalms, lessons and Gospels;
-  read from drbo.org.
-- `ai` (1,188): the rest, translated for this project literally, in the
+  were left out and translated instead. Each pair found by the audit was
+  checked against its Latin by the translator before it was kept.
+- `dr` (1,295): Bible verses in the Douay-Rheims (Challoner), which is the
+  translation the English data uses for the psalms, lessons and Gospels: the
+  first 37 read from drbo.org, the rest from the Project Gutenberg text of it
+  (as JSON, github.com/isaacronan/douay-rheims-json), whose verses are the
+  English data's own in 11,376 of the 11,889 the data has (96%; most of the
+  others are verses a lesson shortens). A verse is taken whole only where its
+  length fits the Latin line; a shortened one was translated, the verse beside
+  it.
+- `ai` (5,584): the rest, translated for this project literally, in the
   "prayerbook English" of the other texts (thee and thou, *Holy Ghost*,
   *Homily by St. N., Bishop*).
 
@@ -1502,16 +1510,125 @@ under Page (on by default) or `--no-ai-mark` turns it off, note included.
 
 A line is found by its Latin, ignoring accents, j/i, æ/ae, the labels the book
 adds (℟., ℣., *Ant.*, numbers) and an antiphon's psalm, so one entry serves
-every version that has the text. Only lines of the three versions above were
-translated; the others gain wherever they share those texts. What is left in
-those three is not missing English: *Conclusio specialis* is a directive, and
-*Alleluia* is the same in both. St George's ninth lesson (`Lectio94`) was
+every version that has the text. All fifteen versions are now covered (see
+*Every version's texts, audited*); what is left is not missing English:
+*Conclusio specialis* is a directive, and *Alleluia* is the same in both. St
+George's ninth lesson (`Lectio94`) was
 English in the Latin file as well. It now has the Latin: the historical
 lesson approved for the dioceses of England, as Guéranger's *Liturgical Year*
 prints it (one full stop after *fuisset* made a comma). The correction is kept
 in `data-fixes.txt` (see *Corrections to the data*). To add a line, add an
 entry under `entries` (the key is what `dotranslate.key()` gives for the
 Latin) and run `build-exe.py --quick`.
+
+### Every version's texts, audited
+
+`tools/audit_texts.py` reads what the breviary prints of the variable parts --
+the Proper of the Season, the Common of the Seasons, the Proper of the Saints
+and the Common of the Saints, Latin beside English -- for each of the fifteen
+versions, through the builder itself and without typesetting (3 min 30 s for
+all fifteen in a cloud session, four at a time). It counts:
+
+- Latin left in the English column;
+- references the engine left as they are (`@Sancti/12-25:Octava`);
+- what the engine prints where it finds no text (*Psalm not found*,
+  *Commune/C1a:Lectio8 is missing!*);
+- letters of other alphabets among the Latin ones;
+- lessons whose English is more than 2.2 times the Latin's length, or less
+  than 0.45 of it.
+
+Its exit status is 1 if anything but lesson lengths is found.
+
+Distinct lines of Latin in the English column, before:
+
+| Version | Lines | Version | Lines |
+|---|---|---|---|
+| Tridentine 1570 | 159 | Monastic 1617 | 196 |
+| Tridentine 1888, 1906 | 87 each | Monastic 1930 | 368 |
+| Divino Afflatu 1939 | 36 | Monastic 1963 | 30 |
+| Divino Afflatu 1954 | 34 | Monastic 1963 Barroux | 353 |
+| Reduced 1955 | 30 | Cistercian 1951 | 2,254 |
+| Rubrics 1960, 2020 USA | 30 each | Cistercian Altovadensis | 2,322 |
+| | | Dominican 1962 | 3,294 |
+
+Together, 6,176 distinct lines (760,000 letters), most of them the Dominican
+and Cistercian offices' own lessons, responsories, antiphons and hymns. After:
+none in any version. They were filled in `translations-en.json`: 1,023 from
+the English data's own translation of the same Latin, 1,257 Douay-Rheims
+verses, the rest translated by AI in 22 parts, each line of the project's own
+English that was paired automatically checked against its Latin (534 of the
+1,023 were a neighbouring line, a metrical hymn or a looser rendering, and were
+translated instead).
+
+**Lessons cut at Latin words.** The Cistercian and Dominican Latin make many
+lessons by cutting a Roman lesson at Latin words or Latin punctuation, as the
+monastic files do (see *Corrections to the data*); with no English section,
+the engine applies the same pattern to the English, which it does not fit. Of
+2,896 such cuts in the data, 341 left the English with a different part of the
+lesson from the Latin (the whole lesson beside a third of it, or verses 8b to
+10 of Habacuc lost to a semicolon). 847 English sections in `data-fixes.txt`
+now cut the English where the English translation begins the Latin's sentence,
+each checked with the engine's own substitution code (`do_inclusion_substitutions`)
+against the Latin's cut: the same start, the same end. After them, none differ
+by more than 15% of the text; the 443 that differ at all differ by less:
+capitals, a † the English has not, and the like.
+
+**Other corrections**, in `data-fixes.txt`, each with its reason and source:
+
+| Correction | Count |
+|---|---|
+| Latin slips the translators met: *homo cenæ* for *hora cenæ* (Luke 14:17), *ex femine* for *ex semine*, *Spíritus* for *Spíritu*, OCR misreadings (*conteraptum*, *amixit*, *dliis*), a clause lost by eye-skip between two *in hoc mundo* (restored from the same lesson in `Sancti/02-01`) | 51 sections, 76 slips |
+| Cyrillic, Arabic or Greek letters inside Latin words (*oсcisiónem*, *exsultࢱtio*, *Носest*, *Aρόstolos*) | 8 |
+| A Latin reference naming no section (`CommuneOP/C5`, printed *is missing!*), a substitution without its closing slash (`TemporaOP/Quad4-3`), *qui{us* | 3 |
+| The Cistercian Sts Peter and Paul's Gospel, read from a file the data has nowhere | 2 (Latin, English) |
+| English: a citation in parentheses at a line's start, which the engine reads as a condition and so dropped St Januarius's homily; a malformed cut that left the monastic Purification's eleventh lesson empty; St Francis Borgia's fifth lesson half in his fourth; a St Theodore commemoration the Latin has not; the old long life of St Denis beside the new short Latin (translated by AI); the Barroux Holy Family's English taken from another Sunday; braces for parentheses, a stray `s/$/~/`, a word cut short | 18 |
+
+**In the code.** `engine_dump.pl` follows a commemoration's references as the
+engine's `getrefs` does: `:Octava` and `:Commemoratio` are the section numbered
+for the hour (*Octava 2* at Lauds, *Octava 3* at second Vespers), `:Oratio` the
+antiphon and versicle of the hour with its collect, `:Oratio proper` without
+it, titled only where the text gives no title. The Christmas octave's
+commemorations (Tridentine, Divino Afflatu, Monastic 1617 and 1930,
+Cistercian) printed as
+`@Sancti/12-25:Octava`; they are now the antiphon, versicle and collect. It
+also reads a path with a space in it (`Sancti/aliquibus locis/…`), *9-12* as
+*09-12* (the Mass of the Rosary names it so), and a reference inside a Mass
+text among the Masses first. `dotranslate.py` no longer keeps the Latin of a
+line that is one small red run (*Sine intervallo sequitur*), taking it for a
+psalm number after the text; `dopsalter.py` drops a season's versicle that is
+the engine's *Psalm not found* (the monastic Friday before Pentecost, 1617 and
+1930); the Dominican *Ant Completorium1* and *3* are Compline's antiphons after
+first and second Vespers, not loose under *Alia*.
+
+After it all, `tools/audit_texts.py` finds nothing in any version: no Latin in
+the English column, no reference, no engine message, no other alphabet, no
+lesson out of proportion. Whole books, built in a cloud session (Linux fonts,
+so not Windows's page counts):
+
+| Book | Pages | Built in | References verified |
+|---|---|---|---|
+| Monastic 1963, all parts | 1,511 | 1 min 31 s | 5,566 of 5,566 |
+| Rubrics 1960, all parts | 1,560 | 1 min 26 s | 4,074 of 4,074 |
+| Cistercian 1951, all parts | 1,683 | 1 min 37 s | 7,260 of 7,260 |
+| Dominican 1962, the Propers and the Common | 1,141 | 57 s | 3,720 of 3,720 |
+
+**Not done:**
+
+- The Latin of three lessons is not in the data: the second day in the
+  octave of the Assumption (`Sancti/08-16bmv`, lessons VII to IX, St
+  Augustine on Martha and Mary) gives each only by its first and last words,
+  in Divinum Officium's own repository too. Its source (St Augustine, Sermon
+  104, *de verbis Domini* 27) could not be fetched: the cloud session's network
+  allows only GitHub and the package registries. With augustinus.it or
+  la.wikisource.org allowed, it can be added.
+- 23 passages the translators found garbled have no second copy in the data to
+  correct them from (the Dominican Holy Saturday's ninth lesson, *postquam
+  tatis susceptione infirmicata*; St Joan of Arc's Matins hymn, which seems to
+  lack lines; *Quæ casta vir ut angelus* in St Thérèse's hymn; and others).
+  They are printed as the data has them, translated as they stand.
+- 31 of the English cuts include a line the translators translated from the
+  Latin's own words (the Latin adds a sentence that no English file has); that
+  English is by AI, in `data-fixes.txt`, and so carries no grey *AI* mark.
 
 ### The Coverdale psalter
 

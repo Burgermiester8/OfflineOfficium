@@ -281,6 +281,10 @@ def classify(key, family, version=""):
         # other hours before their chapter and hymn.
         return Slot(group, 3.9 if group == "M" else 1, "Antiphonæ" if many else "Antiphona",
                     "Antiphons" if many else "Antiphon")
+    m = re.fullmatch(r"Ant Completorium([13])", k)
+    if m:  # psalmi.pl: Compline's antiphon after first or second Vespers
+        return Slot("C", 1.4 + int(m.group(1)) / 10, "Antiphona post %s Vesperas" % roman(int(m.group(1)) // 2 + 1),
+                    "Antiphon after %s Vespers" % ("First" if m.group(1) == "1" else "Second"))
     m = re.fullmatch(r"Ant Matutinum (1[12])", k)
     if m:  # one antiphon of the Common's in its place ([Rule] Ant Matutinum 11 special)
         noc, n = _matins_place(int(m.group(1)), family)

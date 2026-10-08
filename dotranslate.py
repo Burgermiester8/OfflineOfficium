@@ -98,7 +98,8 @@ def with_body(line, text):
         else:
             break
     rest = runs[len(head):]
-    while rest and rest[-1].size == "small" and rest[-1].red:
+    # (Not the whole text: a rubric, "Sine intervallo sequitur", is one such run.)
+    while len(rest) > 1 and rest[-1].size == "small" and rest[-1].red:
         tail.insert(0, rest.pop())
     # A red initial (a hymn's stanza, a lesson's first word, a collect's
     # ending) takes the new first letter.
@@ -108,7 +109,8 @@ def with_body(line, text):
     else:
         style = rest[0] if rest else None
         body = [dooffice.Run(text=text, italic=bool(style and style.italic),
-                             red=bool(style and style.red and style.italic))]
+                             red=bool(style and style.red and style.italic),
+                             size=style.size if style and style.red and style.size == "small" else "")]
     # What of the label the kept runs do not hold (all of it, or the space
     # after "℟. br." when the space began the text's run) goes before the text.
     leftover = prefix[len(seen):]

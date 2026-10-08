@@ -32,6 +32,8 @@ is long, so search it rather than reading it whole.
   `data-additions/` whole files upstream lacks (the Coverdale psalter)
 - `build-exe.py`, `launcher.py`, `installer.iss`: the app, its Setup, releases
 - `tools/audit_references.py` checks every cross-reference in a breviary PDF
+- `tools/audit_texts.py` audits the variable parts of every version: Latin left
+  in the English column, unresolved references, engine messages, lesson cuts
 
 ## Commands (from the source, on Linux or Windows)
 
@@ -40,6 +42,7 @@ python3 datafixes.py --check            # which corrections are in repo/
 python3 dopdf.py 2026-10-07 --hours Vespera -o /tmp/vespers.pdf
 python3 dobreviary.py --parts commune --version "Monastic - 1963" -o /tmp/commune.pdf
 python3 tools/audit_references.py /tmp/commune.pdf
+python3 tools/audit_texts.py --version "Monastic - 1963" --details
 ```
 
 On a Perl other than the app's own, the tools pass `-I perl-lib` (CGI.pm and
@@ -51,7 +54,9 @@ URI) by themselves.
   one file each, with a note of why and from what source), never straight into
   `repo/`: a fresh checkout would lose them. See *Corrections to the data* in
   the README. Whole new files go in `data-additions/`.
-- **Check PDF changes** with `tools/audit_references.py`, and by reading the
+- **Check text changes** with `tools/audit_texts.py` (all fifteen versions, about
+  4 minutes): it should find nothing. **Check PDF changes** with
+  `tools/audit_references.py`, and by reading the
   pages. A cloud session has no Windows fonts (Cambria and the others), so its
   page counts and line breaks differ from the app's: measure those on Windows.
 - **The README** records each change in its own plain style, with numbers that
