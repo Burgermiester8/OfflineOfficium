@@ -1437,10 +1437,10 @@ def office_rows(office):
 
 
 def dump_part(part, version, lang1, lang2, perl, dumper, horas_dir, workdir, cancelled=None,
-              only=None):
+              only=None, perl_libs=()):
     out = os.path.join(workdir, "%s.json" % part)
     p = docgi.perl_path  # plain ASCII: Perl cannot open a path with an accent in it
-    cmd = [p(perl), p(dumper), "--horas", p(horas_dir), "--version", version,
+    cmd = [p(perl)] + [a for lib in perl_libs for a in ("-I", p(lib))] +         [p(dumper), "--horas", p(horas_dir), "--version", version,
            "--lang1", lang1, "--lang2", lang2, "--part", part, "--out", p(out)]
     if only and part != "fixed":  # the fixed texts are never restricted
         cmd += ["--only", ",".join(only)]
@@ -2222,7 +2222,7 @@ def gather_text(parts, version, lang1, lang2, perl, dumper, web_root, workdir, p
     # The dumps run in their own processes while the sample days render.
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(need))) as pool:
         futs = {pool.submit(dump_part, p, version, lang1, lang2, perl, dumper, horas_dir,
-                            workdir, cancelled, only): p for p in need}
+                            workdir, cancelled, only, perl_libs): p for p in need}
         if rendering:
             engine = dooffice.Engine(web_root, perl, perl_libs)
             renders = dopsalter.render(engine, version, lang1, lang2, progress=rendered,
@@ -2238,7 +2238,7 @@ def gather_text(parts, version, lang1, lang2, perl, dumper, web_root, workdir, p
     if wanted:
         dumps["canticles"] = dump_part("canticles", version, lang1, lang2, perl, dumper,
                                        horas_dir, workdir, cancelled,
-                                       [str(n) for n in wanted])
+                                       [str(n) for n in wanted], perl_libs)
     return dumps, renders
 
 
@@ -2607,6 +2607,7 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
 
     if not (web and perl):
         web, perl = dopdf._default_paths()
+        perl_libs = perl_libs or dopdf._default_libs(perl)
     typst = typst or dopdf._default_typst()
     dumper = dumper or _default_dumper()
     if not (typst and dumper):

@@ -1060,6 +1060,17 @@ def _default_paths():
     return os.path.join(here, "repo", "web"), shutil.which("perl")
 
 
+def _default_libs(perl):
+    """perl-lib/ (CGI.pm and URI) for a Perl other than the app's own
+    Strawberry: Linux's, say, which has had no CGI.pm since 5.22."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    lib = os.path.join(here, "perl-lib")
+    bundled = os.path.join(here, "dist", "DivinumOfficium", "perl")
+    if perl and os.path.isdir(lib) and not os.path.abspath(perl).startswith(bundled):
+        return (lib,)
+    return ()
+
+
 def _default_typst():
     here = os.path.dirname(os.path.abspath(__file__))
     candidates = [
@@ -1103,6 +1114,7 @@ def main(argv=None, web=None, perl=None, typst=None, perl_libs=()):
         ap.error("unknown hour(s) %s; choose from %s" % (", ".join(unknown), ",".join(dooffice.HOURS)))
     if not (web and perl):
         web, perl = _default_paths()
+        perl_libs = perl_libs or _default_libs(perl)
     typst = typst or _default_typst()
     if not typst:
         sys.exit("typst.exe not found")

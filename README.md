@@ -353,12 +353,26 @@ cd OfflineOfficium
 python datafixes.py
 ```
 
-A cloud session runs on Linux. It can change the code and the data and run the
-Python and the Perl; the engine is upstream's, which runs on Linux, and
-`perl-lib/` supplies CGI.pm. That has not been tried yet. It cannot build the
-Windows app or the Setup, and the signing key stays on this PC, so releases are
-made here: pull the session's changes, then run `python build-exe.py --quick
---release --notes "…"`.
+A cloud session (Claude Code on the web) runs on Linux. It needs no setting
+up by hand:
+
+- **The setup.** `tools/cloud-setup.sh` runs at every session start (a
+  SessionStart hook in `.claude/settings.json`; it does nothing on Windows).
+  It fetches `repo/`, writes the corrections into it, installs the Linux build
+  of Typst 0.15.1 and pypdf with PyMuPDF, then prints one line that the
+  session reads.
+- **The project's rules.** `CLAUDE.md` gives the session the rules and the
+  commands.
+- **Perl.** The command-line tools give a Perl other than the app's own
+  `perl-lib/` (CGI.pm, which Perl has not carried since 5.22). Tested here with
+  Git's Perl, which has no CGI.pm: a Vespers PDF in 2 s, the Common of the
+  Saints in 7 s.
+
+A cloud session can change the code and the data, run the engine, and make
+PDFs, though with Linux's fonts, not Cambria. It cannot build the Windows app
+or the Setup, and the signing key stays on this PC, so releases are made here:
+pull the session's changes, then run `python build-exe.py --quick --release
+--notes "…"`.
 
 ### Is it fully offline?
 
