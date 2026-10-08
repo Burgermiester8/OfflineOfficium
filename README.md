@@ -1475,7 +1475,7 @@ Latin, and the English column printed it: 813 sections of a Monastic 1963
 book, about 190 of a 1960 or Divino Afflatu one (Matins lessons of the
 monastic feasts, their responsories and antiphons, homily titles, a few
 hymns). `translations-en.json` (beside the exe) supplies the English for those
-lines, and both the breviary and *Make a PDF* use it. It has 7,485 lines from
+lines, and both the breviary and *Make a PDF* use it. It has 7,494 lines from
 three sources, marked on each entry (1,342 of them before the audit of all
 fifteen versions, below):
 
@@ -1495,7 +1495,7 @@ fifteen versions, below):
   others are verses a lesson shortens). A verse is taken whole only where its
   length fits the Latin line; a shortened one was translated, the verse beside
   it.
-- `ai` (5,584): the rest, translated for this project literally, in the
+- `ai` (5,593): the rest, translated for this project literally, in the
   "prayerbook English" of the other texts (thee and thou, *Holy Ghost*,
   *Homily by St. N., Bishop*).
 
@@ -1529,7 +1529,7 @@ and the Common of the Saints, Latin beside English -- for each of the fifteen
 versions, through the builder itself and without typesetting (3 min 30 s for
 all fifteen in a cloud session, four at a time). It counts:
 
-- Latin left in the English column;
+- Latin left in the English column, and English in the Latin column;
 - references the engine left as they are (`@Sancti/12-25:Octava`);
 - what the engine prints where it finds no text (*Psalm not found*,
   *Commune/C1a:Lectio8 is missing!*);
@@ -1612,20 +1612,42 @@ so not Windows's page counts):
 | Cistercian 1951, all parts | 1,683 | 1 min 37 s | 7,260 of 7,260 |
 | Dominican 1962, the Propers and the Common | 1,141 | 57 s | 3,720 of 3,720 |
 
+**The missing lessons, from their source.** The second day in the octave of
+the Assumption (`Sancti/08-16bmv`, read by the Tridentine versions and
+Monastic 1617) gave lessons VII to IX, St Augustine on Martha and Mary, only
+by their first and last words, in Divinum Officium's own repository too. They
+are now whole: St Augustine's Sermon 104 (*de Verbis Domini* 27), §§2-3, from
+augustinus.it, whose words begin and end each lesson exactly where the data's
+did; the breviary's own first and last words are kept (*Quid autem putamus
+nos…*, *cur non omnes*, *uni instet scientiæ*), the spelling is the file's
+(æ, j), and the citation, which was "...", is *Sermo 27 de Verbis Domini*.
+Their English, by AI, is in `translations-en.json`.
+
+**Garbled passages settled from their sources** (la.wikisource.org), 9
+sections more: St Leo's Passion sermon (*postquam tatis susceptione
+infirmicata virtutis* is *postquam per susceptiónem infirmitátis poténtia est
+clarificáta virtútis*, Sermo 60), St Ambrose on Luke (*minus usu clausa* is
+*impérvia usu clausa*; *Talem déxteram sibi locat, Pater ad déxteram locat* is
+*Talem sibi Pater ad déxteram locat*), St Maximus of Turin (*Si sanctitatis
+imaginadam pro stítiam* is *Si pro quadam sanctitátis imágine tristítiam*), a
+lesson of St Hilary cited as a homily of St Gregory, and St Gregory's homily
+printed with u for v throughout (*conujuio*, *ujuendo*). The English of those
+lines was brought into line with the corrected Latin.
+
 **Not done:**
 
-- The Latin of three lessons is not in the data: the second day in the
-  octave of the Assumption (`Sancti/08-16bmv`, lessons VII to IX, St
-  Augustine on Martha and Mary) gives each only by its first and last words,
-  in Divinum Officium's own repository too. Its source (St Augustine, Sermon
-  104, *de verbis Domini* 27) could not be fetched: the cloud session's network
-  allows only GitHub and the package registries. With augustinus.it or
-  la.wikisource.org allowed, it can be added.
-- 23 passages the translators found garbled have no second copy in the data to
-  correct them from (the Dominican Holy Saturday's ninth lesson, *postquam
-  tatis susceptione infirmicata*; St Joan of Arc's Matins hymn, which seems to
-  lack lines; *Quæ casta vir ut angelus* in St Thérèse's hymn; and others).
-  They are printed as the data has them, translated as they stand.
+- 10 passages the translators found garbled have no source either site has,
+  all in the modern propers or rare texts: St Joan of Arc's Matins hymn, which
+  seems to lack its last stanza; *Quæ casta vir ut angelus* in St Thérèse's
+  hymn; St Margaret Mary's seventh and eighth lessons (a word missing before
+  *illustria*, *cætum inscripsit*); St Bernard of Alzira's *aggrehis
+  compértis*; the Dominican *Laudemus … super Dei Genitrix* and *astans,
+  incessánte*; *Dum frangit hostis róbor* in St Hyacinth's hymn; *ita
+  insectátus est* (Bl. Vincent Kadłubek); *in solículo Monte* (St William).
+  They are printed as the data has them, translated as they stand. Two more
+  were found not to be garbled: St Hilary's *manére et intérior et extérior*
+  is the Patrologia's text word for word, and St Leo's *communicatione* is good
+  Latin where the Patrologia reads *communione*.
 - 31 of the English cuts include a line the translators translated from the
   Latin's own words (the Latin adds a sentence that no English file has); that
   English is by AI, in `data-fixes.txt`, and so carries no grey *AI* mark.

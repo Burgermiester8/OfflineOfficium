@@ -6385,10 +6385,10 @@ Quamvis post Apóstolos sancti Patres et Doctóres nostri multi tot et tanta de 
 
 == Latin/Tempora/Pent02-0o.txt [Lectio9]
 replaces: 7ef98df17df3
-why: slips in the Latin: servum suum homo cenæ dicere -> servum suum hora cenæ dicere ('homo' for 'hora' in the Gospel citation; the homily goes on 'Quid hora cenæ')
-source: Luke 14:17 Vulgate 'misit servum suum hora cenæ dicere invitatis'; Ant 2 of Tempora/Pent02-0
+why: garbled words in the Latin, settled from the source: oculos reuocat -> oculos revocat; debeamus inuitat -> debeamus invitat; et uocauit multos -> et vocavit multos; quis cognouit eum -> quis cognovit eum; internæ præparauit -> internæ præparavit; qui uocauit multos, sed pauci ueniunt -> qui vocavit multos, sed pauci veniunt; æterno ejus conujuio male ujuendo -> æterno ejus convivio male vivendo; dicere inuitatis ut uenirent -> dicere invitatis ut venirent; sæculorum deuenerunt -> sæculorum devenerunt; cum uocamur -> cum vocamur; a conujuio dei -> a convivio dei; and slips in the Latin: servum suum homo cenæ dicere -> servum suum hora cenæ dicere ('homo' for 'hora' in the Gospel citation; the homily goes on 'Quid hora cenæ')
+source: Gregory the Great, Homilia 36 in Evangelia (evident word; OCR u for v/j, no source needed); Luke 14:17 Vulgate 'misit servum suum hora cenæ dicere invitatis'; Ant 2 of Tempora/Pent02-0
 ---
-Sed superna nos pietas nec deserentes se deserit. Contemptas enim illas delicias ad memoriæ nostræ oculos reuocat, easque nobis proponit, in promissione torporem excutit, atque ut fastidium nostrum repellere debeamus inuitat. ait namque: Homo quidam fecit cenam magnam, et uocauit multos. Quis est homo iste, nisi ille de quo per prophetam dicitur: et homo est: et quis cognouit eum? Qui fecit cenam magnam: quia satietatem nobis dulcedinis internæ præparauit. qui uocauit multos, sed pauci ueniunt: quia nonnumquam ipsi qui ei per fidem subjecti sunt, æterno ejus conujuio male ujuendo contradicunt. Sequitur: Misit autem servum suum hora cenæ dicere inuitatis ut uenirent. Quid hora cenæ nisi finis est mundi? In quo nimirum nos sumus: sicut jam dudum Paulus  testatur dicens: Nos sumus, in quo fines sæculorum deuenerunt. Si ergo jam hora cenæ est, cum uocamur: tanto minus nos debemus excusare a conujuio dei, quanto jam propinquasse cernimus finem sæculi. Quo enim pensamus, quia nihil est quod restat, eo debemus pertimescere, ne tempus gratiæ, quod præsto est, pereat.
+Sed superna nos pietas nec deserentes se deserit. Contemptas enim illas delicias ad memoriæ nostræ oculos revocat, easque nobis proponit, in promissione torporem excutit, atque ut fastidium nostrum repellere debeamus invitat. ait namque: Homo quidam fecit cenam magnam, et vocavit multos. Quis est homo iste, nisi ille de quo per prophetam dicitur: et homo est: et quis cognovit eum? Qui fecit cenam magnam: quia satietatem nobis dulcedinis internæ præparavit. qui vocavit multos, sed pauci veniunt: quia nonnumquam ipsi qui ei per fidem subjecti sunt, æterno ejus convivio male vivendo contradicunt. Sequitur: Misit autem servum suum hora cenæ dicere invitatis ut venirent. Quid hora cenæ nisi finis est mundi? In quo nimirum nos sumus: sicut jam dudum Paulus  testatur dicens: Nos sumus, in quo fines sæculorum devenerunt. Si ergo jam hora cenæ est, cum vocamur: tanto minus nos debemus excusare a convivio dei, quanto jam propinquasse cernimus finem sæculi. Quo enim pensamus, quia nihil est quod restat, eo debemus pertimescere, ne tempus gratiæ, quod præsto est, pereat.
 &teDeum
 
 == Latin/SanctiCist/05-08.txt [Responsory3]
@@ -6749,10 +6749,10 @@ Cura pastoráli, licet multum renítens, suscépta, cogitáre cœpit, véluti vi
 
 == Latin/TemporaOP/Quad6-6.txt [Lectio8]
 replaces: 6670e36a48d4
-why: slips in the Latin: Apostólicus maxror -> Apostólicus mæror (OCR 'x' for 'æ')
-source: Leo the Great, sermon on the Passion: 'apostolicus mæror'; spelling
+why: garbled words in the Latin, settled from the source: de nostra naturæ communicatione -> de nostræ naturæ communicatione; and slips in the Latin: Apostólicus maxror -> Apostólicus mæror (OCR 'x' for 'æ')
+source: Leo the Great, Sermo LX (De Passione Domini IX), cap. 2 (PL 54), https://la.wikisource.org/wiki/Sermones_ad_Romanam_Plebem/LX; Leo the Great, sermon on the Passion: 'apostolicus mæror'; spelling
 ---
-Fúerit tunc discipulórum excusábilis pavor, nec in diffidéntiæ culpam Apostólicus mæror incíderit: quando, concurréntibus ad unum scelus Judæis Judæorumque principibus, superbus taurorum pinguium tumor et proterva vitulorum petulántia sæviébat; quando sub oculis ovium, Pastóris justi sanguínem freméntium bestiárum rabies expetébat; quando dénique etiam ipse, qui pati venerat, de nostra naturæ communicatione dicebat: Tristis est anima mea usque ad mortem.
+Fúerit tunc discipulórum excusábilis pavor, nec in diffidéntiæ culpam Apostólicus mæror incíderit: quando, concurréntibus ad unum scelus Judæis Judæorumque principibus, superbus taurorum pinguium tumor et proterva vitulorum petulántia sæviébat; quando sub oculis ovium, Pastóris justi sanguínem freméntium bestiárum rabies expetébat; quando dénique etiam ipse, qui pati venerat, de nostræ naturæ communicatione dicebat: Tristis est anima mea usque ad mortem.
 
 == Latin/SanctiCist/07-23Coct.txt [Lectio6]
 replaces: c49cfe0b40e9
@@ -9809,3 +9809,105 @@ source: Matt 20:22 in the Douay-Rheims, which this line of the Latin is
 ---
 But Jesus answering, said to them: You know not what you ask.
 
+== Latin/Sancti/08-16bmv.txt [Lectio7]
+replaces: a5f79edae762
+why: the data gave the lesson only by its first and last words with "…" between ("Quid autem putamus nos reprebensum esse ministerium Marthæ ... uni instet scientiæ"), in Divinum Officium's own repository too, so the book printed a line of fragments; the citation was "..."
+source: St Augustine, Sermo 104 (de Verbis Domini 27), §§2-3, in the text of augustinus.it (Nuova Biblioteca Agostiniana, after the Maurist edition), spelt as this file spells (æ, j, no accents), with the breviary's own first and last words as the data gave them ("Quid autem putamus nos…", "cur non omnes", "uni instet scientiæ")
+---
+Léctio sancti Evangélii secúndum Lucam
+!Luc 10:38-42
+In illo témpore: Intravit Jesus in quoddam castellum: et mulier quædam, Martha nomine, excepit illum in domum suam. Et réliqua.
+_
+De Homilia sancti Augustíni Epíscopi
+!Sermo 27 de Verbis Domini
+Quid autem putamus nos reprehensum esse ministerium Marthæ, quam cura hospitalitatis occupaverat, quæ ipsum Dominum hospitio receperat? Quomodo recte reprehendebatur, quæ tanto hospite lætabatur? Hoc si verum est, dimittant homines quod ministrant egentibus; eligant sibi partem meliorem, quæ non auferetur ab eis. Vacent verbo, inhient doctrinæ dulcedinis, occupentur circa scientiam salutarem; nihil eis curæ sit, quis peregrinus in vico sit, quis egeat pane, quis indumento, quis visitandus, quis redimendus, quis sepeliendus; vacent opera misericordiæ, uni instet scientiæ.
+
+== Latin/Sancti/08-16bmv.txt [Lectio8]
+replaces: 22ba9b87fc26
+why: the data gave the lesson only by its first and last words with "…" between ("Si melior pars est, cur non omnes … sed multa ab uno"), in Divinum Officium's own repository too, so the book printed a line of fragments
+source: St Augustine, Sermo 104 (de Verbis Domini 27), §§2-3, in the text of augustinus.it (Nuova Biblioteca Agostiniana, after the Maurist edition), spelt as this file spells (æ, j, no accents), with the breviary's own first and last words as the data gave them ("Quid autem putamus nos…", "cur non omnes", "uni instet scientiæ")
+---
+Si melior pars est, cur non omnes arripimus, quando ipsum Dominum in hac causa patronum habemus? Non enim timemus in hac re, ne offendamus ejus justitiam, cum patronam teneamus ejus sententiam. Et tamen ita non est; sed sicut dixit Dominus, ita est. Quomodo intellegis, non est; est autem, quomodo intellegere debeas. Ecce adverte. Circa multa es occupata, quando unum est necessarium. Maria meliorem partem elegit; non tu malam, sed ista meliorem. Unde meliorem? Quia tu circa multa, illa circa unum. Præponitur unum multis. Non enim a multis unum, sed multa ab uno.
+
+== Latin/Sancti/08-16bmv.txt [Lectio9]
+replaces: 5e8e2d5b7303
+why: the data gave the lesson only by its first and last words with "…" between ("Multa sunt quæ factu sunt: … ergo nec ista ministeria"), in Divinum Officium's own repository too, so the book printed a line of fragments
+source: St Augustine, Sermo 104 (de Verbis Domini 27), §§2-3, in the text of augustinus.it (Nuova Biblioteca Agostiniana, after the Maurist edition), spelt as this file spells (æ, j, no accents), with the breviary's own first and last words as the data gave them ("Quid autem putamus nos…", "cur non omnes", "uni instet scientiæ")
+---
+Multa sunt, quæ facta sunt; unus, qui fecit. Cælum, terra, mare, et omnia quæ in ipsis sunt, quam multa sunt! Quis ista numeret? quis horum multitudinem cogitet? Quis hæc fecit? Et fecit Deus omnia, et ecce bona valde. Bona valde quæ fecit: quanto melior ille qui fecit? Attendamus igitur occupationes nostras circa multa. Ministerium necessarium est corpora refecturis. Quare hoc? Quia esuritur, quia sititur. Misericordia miseriæ necessaria est. Frangis panem esurienti, quia invenisti esurientem. Tolle famem, si potes: cui frangis panem? Tolle peregrinationem: cui exhibes hospitalitatem? Tolle nuditatem: cui præparas vestem? Non sit ægritudo: quem visitas? Non sit captivitas: quem redimis? Non sit rixa: quem concordas? Non sit mors: quem sepelis? In illo sæculo futuro non erunt ista mala: ergo nec ista ministeria.
+
+== Latin/TemporaOP/Quad6-6.txt [Lectio9]
+replaces: 2ba0a7e3f9a3
+why: garbled words in the Latin, settled from the source: postquam tatis susceptione infirmicata virtutis -> postquam per susceptiónem infirmitátis poténtia est clarificáta virtút
+source: Leo the Great, Sermo LX (De Passione Domini IX), cap. 2 (PL 54), https://la.wikisource.org/wiki/Sermones_ad_Romanam_Plebem/LX
+---
+Nunc autem postquam per susceptiónem infirmitátis poténtia est clarificáta virtútis, nulla fidelium maestitudine paschális est obscuránda solémnitas; nec cum tristítia nobis gestórum ordo recoléndus est: cum ita Dóminus usus sit malitia Judæórum, ut intentióne facinoris volúntas sit impléta miseréntis. Si autem in éxitu Israël de Ægypto agni sanguis fuit restitútio libertátis, et sacratíssima est facta festivitas, quæ per hostiam pécudis iram avérteret vastatóris: quanta pópulis christianis concipiénda sunt gáudia, pro quibus omnipotens Pater Fílio suo non pepercit, sed pro nobis ómnibus tradidit illum! Ut in occisióne Christi, Pascha esset verum et singuláre sacrificium: quo non ex dominatióne Pharaónis unus pópulus, sed ex diáboli captivitáte totus mundus erúitur.
+_
+/:Sine intervallo sequitur:/
+_
+@Tempora/Quad6-6:Lectio3:1-13 s/-11/-22/ s/Incipit//
+12 Príncipes manu suspénsi sunt: fácies senum non erubuérunt.
+13 Adolescéntibus impudíce abúsi sunt, et púeri in ligno corruérunt.
+14 Senes defecérunt de portis, júvenes de choro psalléntium.
+15 Defécit gáudium cordis nostri: versus est in luctum chorus noster.
+16 Cécidit coróna cápitis nostri: væ nobis, quia peccávimus.
+17 Proptérea mœstum factum est cor nostrum: ídeo contenebráti sunt óculi nostri.
+18 Propter montem Sion quia dispériit, vulpes ambulavérunt in eo.
+19 Tu autem Dómine in ætérnum permanébis, sólium tuum in generatiónem et generatiónem.
+20 Quare in perpétuum obliviscéris nostri, derelínques nos in longitúdine diérum?
+21 Convérte nos Dómine ad te, et convertémur: ínnova dies nostros, sicut a princípio.
+22 Sed proíciens repulísti nos: irátus es contra nos veheménter.
+@Tempora/Quad6-6:Lectio3:14
+
+== Latin/TemporaOP/Pasc0-2.txt [Lectio1]
+replaces: 0f47cf0c2032
+why: garbled words in the Latin, settled from the source: qualitátem, minus usu clausa -> qualitátem, impérvia usu clausa
+source: Ambrose, Expositio Evangelii secundum Lucam, lib. X, 169 (PL 15), https://la.wikisource.org/wiki/Expositio_Evangelii_secundum_Lucam_(Ambrosius)/10
+---
+Léctio sancti Evangélii secúndum Lucam
+!Luc 24:36-47
+In illo témpore: Stetit Jesus in médio discipulórum, et dicit eis: Pax vobis: ego sum, nolíte timére. Et réliqua.
+_
+!Liber 10. Comment. in Lucam, cap. 24, ante finem
+Non per incorpóream naturam, sed per resurrectiónis qualitátem, impérvia usu clausa Dóminus penetrávit. Nam quod tángitur, corpus est: quod palpátur, corpus est.  In córpore autem resurgémus. Seminátur enim corpus animále, surgit corpus spiritále: sed illud subtilius, hoc crássius, útpote adhuc terrénæ labis qualitáte concrétum. Nam quómodo non corpus, in quo manébant insígnia vúlnerum, vestígia cicatrícum, quæ Dóminus palpánda óbtulit? In quo non solum fidem firmat, sed étiam devotiónem ácuit: quod vulnera suscépta pro nobis cælo inférre máluit, abolére nóluit: ut Deo Patri nostræ prétia libertátis osténderet.
+
+== Latin/TemporaOP/Pasc0-2.txt [Lectio2]
+replaces: 184e18d144dc
+why: garbled words in the Latin, settled from the source: Talem déxteram sibi locat, Pater ad déxteram locat, -> Talem sibi Pater ad déxteram locat,
+source: Ambrose, Expositio Evangelii secundum Lucam, lib. X, 170 (PL 15), https://la.wikisource.org/wiki/Expositio_Evangelii_secundum_Lucam_(Ambrosius)/10
+---
+Talem sibi Pater ad déxteram locat, trophæum nostræ salútis ampléctens: tales illic mártyres nobis cicatrícis suæ coróna monstrávit. Et quóniam sermo huc noster usque evasit, considerémus qua grátia secúndum Joánnem crediderint Apóstoli, qui gavísi sunt; secúndum Lucam quasi incréduli redarguántur: ibi Spíritum Sanctum accéperint, hic sedére in civitáte jubeántur, quoadúsque induántur virtúte ex alto. Et vidétur mihi ille quasi Apóstolus majóra et altióra tetigisse, hic sequéntia et humánis próxima: hic histórico usus circúitu, ille compendio.  Nam etsi primo Lucas eos non credidísse dicat, póstea tamen credidisse demonstrat. Et si prima considerémus, contrária sunt: si sequéntia, certum est convenire.
+
+== Latin/TemporaOP/Pasc0-2.txt [Lectio3]
+replaces: 1dc7023f7d1a
+why: garbled words in the Latin, settled from the source: quod esse vidétum augústius -> quod esse vidétur augústius
+source: Ambrose, Expositio Evangelii secundum Lucam, lib. X, 180 (PL 15), https://la.wikisource.org/wiki/Expositio_Evangelii_secundum_Lucam_(Ambrosius)/10
+---
+Stetit, inquit, in médio eórum et dixit: Pax vobis: ego sum, nolíte timére. Conturbáti vero et contérriti, existimábant se spíritum vidére. Vidétur separatim se istis úndecim demonstrasse, sicut se Amaóni et Cléophæ seorsum jam véspere demonstráverat. Et quemádmodum isti duo, ita étiam vidéntur illi úndecim ad confirmándos réliquos convenire potuisse. Dénique conturbáti sunt: et ideo apéruit sensum, ut intelligerent ea quæ scripta sunt. Spíritum autem Sanctum vel illis úndecim quasi perfectióribus insufflávit, et réliquis póstea tribuéndum esse promíttit: vel eísdem ibi insufflávit, hic spondet. Nec vidétur esse contrárium.  cum divisiones gratiárum sint. Ibi remittendórum grátia tribúta est peccatórum, quod esse vidétur augústius: et ideo insufflátur a Christo. Lucas autem linguarum grátiam descrípsit effúsam.
+
+== Latin/SanctiCist/06-15AV.txt [Lectio9]
+replaces: 3b40b05796f5
+why: garbled words in the Latin, settled from the source: !Homilía 13. in Evangelia. -> !Comment. in Matth., can. 10
+source: Hilary of Poitiers, Commentarius in Matthaeum, cap. X, 22-24 (PL 9, Migne 1844), https://la.wikisource.org/wiki/Commentarius_in_Matthaeum
+---
+Léctio sancti Evangélii secúndum Matthaeum. 
+!Mat 10:34-42
+In illo témpore: Dixit Jesus discípulis suis : Nolíte arbitrári, quia pacem vénerim míttere in terram, non veni pacem míttere, sed gládium. Et réliqua.
+_
+Homilía S. Hilárii Epíscopi.
+!Comment. in Matth., can. 10
+Quæ est ista divísio? inter prima enim legis præcépta accépimus: Honóra patrem tuum et matrem tuam. Et ipse Dóminus ait: Pacem relínquo vobis, pacem meam do vobis. Quid sibi vult missus pótius gládius in terram, et separátus a patre fílius, et fília a matre, et nurus advérsus socrum, et hómines doméstici, ejus inimíci? Igitur exínde pública authóritas impietáti præfértur.
+
+== Latin/TemporaOP/Quadp3-3.txt [Lectio3]
+replaces: 54617a0ecac3
+why: garbled words in the Latin, settled from the source: Si sanctitatis imaginadam pro stítiam símulas -> Si pro quadam sanctitátis imágine tristítiam símulas
+source: Maximus of Turin, Homilia XXXVI In die Cinerum (PL 57), https://la.wikisource.org/wiki/Homiliae_(Maximus)/1
+---
+Si pro quadam sanctitátis imágine tristítiam símulas, omnem fructum promissiónis divínæ, obséquii tui ostentátor, amittis. Quod si Deo jeiúnium tuum defers, cur illud hominibus pari tecum conditióne vivéntibus, vanæ glóriæ sectátor, osténtas? Hanc Apóstolus secútus senténtiam dicébat: Nolíte fieri inánis glóriæ cúpidi. Ináne est enim et vanum, quidquid nullius pónderis aut virtútis firmitate consístit. Ináne est, quod cum sæculo prætereúnte deficiens, ad vitam non transit ætérnam.
+
+== Latin/Tempora/Pent02-0o.txt [Lectio6]
+replaces: 2e98ce14cfcb
+why: garbled words in the Latin, settled from the source: uidetis -> videtis; paruuli -> parvuli; uero -> vero; uirtutis -> virtutis
+source: Gregory the Great, Homilia 36 in Evangelia (evident word)
+---
+Quis loquetur potentias Domini, auditas faciet omnes laudes ejus? Quis pastor oves proprio pascit cruore? Et quid dico, pastor? Matres multæ sunt, quæ post partus dolores, filios aliis tradunt nutricibus. Hoc autem ipse non est passus: sed ipse nos proprio sanguine pascit, et per omnia nos sibi coagmentat. Unicuique fidelium semet ipsum per mysterium commiscet, et quos genuit per semet ipsum enutrit, nec alteri tradit: et hoc tibi rursum persuadens quod carnem tuam assumpsit. Ne torpeamus igitur tanta digni charitate, et honore putati. Nonne videtis quanta promptitudine parvuli papillas capiunt, et quanto impetu labia uberibus infigunt? Accedamus cum tanta nos quoque alacritate ad hanc mensam, quinimmo cum longe majori trahamus tamquam infantes lactentes spiritus gratiam, et unus sit nobis dolor hac esca privari. Non sunt humanæ virtutis opera proposita. qui tunc ista fecit in illa cena, idem ea nunc quoque facit. Nos ministrorum tenemus locum: qui vero sanctificat ea, et immutat, ipse est.

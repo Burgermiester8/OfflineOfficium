@@ -12,6 +12,7 @@ typesetting, so a version takes under a minute. It looks for:
   latin in english   a line of the English column that is still Latin: the
                      same as a line of the Latin column beside it, or Latin
                      by its words (a line too short for a key is skipped)
+  english in latin   a line of the Latin column that is English by its words
   reference          a reference the engine left as it is ("@Sancti/12-25:...")
   engine message     what the engine prints where it finds no text
                      ("Psalm not found", "Commune/C1a:Lectio8 is missing!")
@@ -38,7 +39,7 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HERE)
 
 PARTS = ["tempora", "temporis", "sancti", "commune"]
-KINDS = ("latin in english", "reference", "engine message", "other alphabet", "lesson length")
+KINDS = ("latin in english", "english in latin", "reference", "engine message", "other alphabet", "lesson length")
 
 _LA = set("et est non ad cum qui quae quod sed ut ab de ex per pro super sicut eius ejus eum ei nos vos tu te "
           "tibi mihi ego enim autem ergo quia nobis vobis sunt erat esse hoc haec ille ipse dominus domine deus "
@@ -67,6 +68,16 @@ def is_latin(text):
     la = sum(x in _LA for x in w) + sum(x.endswith(("orum", "arum", "ibus", "atur", "itur", "erunt")) for x in w)
     en = sum(x in _EN for x in w) + sum(x.endswith(("eth", "ing")) for x in w)
     return la > en and la >= 2 and en < 3
+
+
+_EN_ONLY = _EN - {"an", "me", "as", "so", "to", "be", "my"}  # Latin words too
+
+
+def is_english(text):
+    w = _words(text)
+    en = sum(x in _EN_ONLY for x in w)
+    la = sum(x in _LA for x in w)
+    return len(w) >= 4 and en >= 3 and en > 2 * la
 
 
 def _plain(lines):
@@ -100,6 +111,9 @@ def audit(version):
                     body = dotranslate._SUFFIX.sub("", dotranslate.split_prefix(l.text)[1])
                     if k and not set(_words(body)) <= _SAME and (k in la_keys or is_latin(body)):
                         found["latin in english"].append((where, l.text.strip()))
+                for l in la:
+                    if dotranslate.key(l.text) and is_english(l.text):
+                        found["english in latin"].append((where, l.text.strip()))
                 for col in (la, en):
                     for l in col:
                         # (NFC: the Greek question mark some files type for a semicolon is one)
