@@ -9911,3 +9911,34 @@ why: garbled words in the Latin, settled from the source: uidetis -> videtis; pa
 source: Gregory the Great, Homilia 36 in Evangelia (evident word)
 ---
 Quis loquetur potentias Domini, auditas faciet omnes laudes ejus? Quis pastor oves proprio pascit cruore? Et quid dico, pastor? Matres multæ sunt, quæ post partus dolores, filios aliis tradunt nutricibus. Hoc autem ipse non est passus: sed ipse nos proprio sanguine pascit, et per omnia nos sibi coagmentat. Unicuique fidelium semet ipsum per mysterium commiscet, et quos genuit per semet ipsum enutrit, nec alteri tradit: et hoc tibi rursum persuadens quod carnem tuam assumpsit. Ne torpeamus igitur tanta digni charitate, et honore putati. Nonne videtis quanta promptitudine parvuli papillas capiunt, et quanto impetu labia uberibus infigunt? Accedamus cum tanta nos quoque alacritate ad hanc mensam, quinimmo cum longe majori trahamus tamquam infantes lactentes spiritus gratiam, et unus sit nobis dolor hac esca privari. Non sunt humanæ virtutis opera proposita. qui tunc ista fecit in illa cena, idem ea nunc quoque facit. Nos ministrorum tenemus locum: qui vero sanctificat ea, et immutat, ipse est.
+
+== Latin/SanctiM/05-30b.txt [Hymnus Matutinum]
+replaces: 1ff287452d9f
+why: a blank line stood between the third and fourth stanzas of St Joan of Arc's Matins hymn where the data marks a stanza with "_", so the book ran the two stanzas together (and the hymn's last stanza and doxology looked missing to a reader of the data)
+source: the hymn's own stanzas of four lines, the others marked with "_"
+---
+Aureliáni túrribus
+Frustra premúntur hóstium:
+Intrat Joánna: mílites
+Hymnos precésque cóncinunt.
+_
+Quam vellet hosti párcere!
+Hunc voce amíca prǽmonet
+Sponte ut recédens, líberum
+Regnum relínquat Gálliæ.
+_
+Negat, sed agmen Gállicum
+Ruit: Joánna sánguinem
+Profúndit, icta vúlnere
+Deúsque dat victóriam.
+_
+Urbes et agros óccupat:
+Rursus nitéscunt Lília:
+Turmæ fugántur hóstium:
+Rhemos patéscit sémita.
+_
+O sancta et una Trínitas,
+Firmans movénsque péctora,
+Contra malum certántibus
+Dona vigórem et prǽmium.
+Amen.
