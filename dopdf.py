@@ -77,6 +77,11 @@ def languages_named(meta):
 PAPERS = {
     "Letter (8.5 × 11 in)": ("paper", "us-letter"),
     "A4": ("paper", "a4"),
+    # Book sizes of the print-on-demand printers (Lulu's names), between
+    # Letter and half letter.
+    "Crown Quarto (7.44 × 9.68 in)": ("size", ("7.44in", "9.68in")),
+    "Executive (7 × 10 in)": ("size", ("7in", "10in")),
+    "US Trade (6 × 9 in)": ("size", ("6in", "9in")),
     "Half letter (5.5 × 8.5 in)": ("paper", "us-statement"),
     "A5": ("paper", "a5"),
     "Pocket breviary (4.5 × 7 in)": ("size", ("4.5in", "7in")),
@@ -100,6 +105,9 @@ class Layout:
     contents: bool = True  # only emitted when there is more than one day
     rubric_colour: str = "#a31621"
     red_in_print: bool = True  # False gives an all-black book for plain printers
+    # The breviary: each office of the Propers headed in its liturgical colour
+    # (with red_in_print); off, in the rubric colour like the rest.
+    heading_colours: bool = True
     text_colour: str = "#000000"
     align: str = "justify"  # or "left" / "right": ragged on the other side
     accessible: bool = False  # tagged PDF for screen readers; about 3x the file size
@@ -137,20 +145,29 @@ ALIGNS = ("justify", "left", "right")
 
 # Each paper's size in inches, and the breviary's margins on it: (top, bottom,
 # inside, outside), top being the edge to the running head (the text begins
-# about two lines lower). Letter and A4 keep everything 0.5 in from the
-# edge, as print-on-demand printers require; the smaller papers are as the
-# dated PDFs set them.
+# about two lines lower). Letter, A4 and the print-on-demand book sizes keep
+# everything 0.5 in from the edge, as those printers require; the smaller
+# papers are as the dated PDFs set them.
 PAPER_INCHES = {
     "Letter (8.5 × 11 in)": (8.5, 11.0), "A4": (8.27, 11.69),
+    "Crown Quarto (7.44 × 9.68 in)": (7.44, 9.68), "Executive (7 × 10 in)": (7.0, 10.0),
+    "US Trade (6 × 9 in)": (6.0, 9.0),
     "Half letter (5.5 × 8.5 in)": (5.5, 8.5), "A5": (5.83, 8.27),
     "Pocket breviary (4.5 × 7 in)": (4.5, 7.0),
 }
-STANDARD_MARGINS = {"Letter (8.5 × 11 in)": (0.5, 0.5, 0.75, 0.75), "A4": (0.5, 0.5, 0.75, 0.75)}
+STANDARD_MARGINS = {p: (0.5, 0.5, 0.75, 0.75) for p in (
+    "Letter (8.5 × 11 in)", "A4", "Crown Quarto (7.44 × 9.68 in)", "Executive (7 × 10 in)",
+    "US Trade (6 × 9 in)")}
 SMALL_MARGINS = (0.35, 0.5, 0.55, 0.45)
 
 
 def standard_margins(paper):
     return STANDARD_MARGINS.get(paper, SMALL_MARGINS)
+
+
+def small_paper(paper):
+    """A page too narrow for the dated PDFs' wide margins (under 6.5 in)."""
+    return PAPER_INCHES.get(paper, (8.5, 11.0))[0] < 6.5
 
 
 # The type's own spacing, in em: from the foot of one line to the top of the
@@ -536,7 +553,7 @@ class Writer:
             page_size = 'paper: "%s"' % value
         else:
             page_size = "width: %s, height: %s" % value
-        small = kind == "size" or value in ("us-statement", "a5")
+        small = small_paper(lay.paper)
         lang1 = LANG_CODES.get(meta.lang1) or LANG_CODES.get(dooffice.family(meta.lang1), "la")
         lang2 = LANG_CODES.get(meta.lang2) or LANG_CODES.get(dooffice.family(meta.lang2), "en")
         rub = colour(lay.rubric_colour, Layout.rubric_colour) if lay.red_in_print else "#000000"

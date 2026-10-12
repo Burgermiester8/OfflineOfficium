@@ -419,7 +419,9 @@ class Office:
     day: str = ""  # "MM-DD" a saint's office is kept on (a Sunday feast: the last it can take)
     hours: list = field(default_factory=list)  # dooffice.Hour per group
     part_start: bool = False
-    rows: list = None  # a month of the Calendar: (day, Roman date, letter, title, title2, rank)
+    rows: list = None  # a month of the Calendar: (day, Roman date, letter, title, title2, rank, colour)
+    colours: tuple = ()  # the colours of the whole Calendar, for its key (on January)
+    colour: str = ""  # an office of the Propers: its liturgical colour, for its heading
     untitled: bool = False  # printed under its part's heading alone (the prayers)
     include: tuple = None  # a custom part's PDF: (its file, its number of pages)
 
@@ -428,6 +430,16 @@ MONTHS_LA = ("Januarii", "Februarii", "Martii", "Aprilis", "Maii", "Junii", "Jul
              "Septembris", "Octobris", "Novembris", "Decembris")
 DAYS_LA = ("Dominica", "Feria II", "Feria III", "Feria IV", "Feria V", "Feria VI", "Sabbato")
 DAYS_EN = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+# The liturgical colours (dopsalter.LITURGICAL_COLOURS) as the book prints
+# them: a Calendar dot's fill, an office's heading, and the name in Latin as an
+# Ordo abbreviates it and in English. White is a white dot, but a heading in
+# gold (white type would not show); red is the breviary red of the rubrics.
+COLOURS = {"white": ("#ffffff", "#a07c16", "alb.", "white"),
+           "red": ("#a31621", "#a31621", "rub.", "red"),
+           "violet": ("#6b3fa0", "#6b3fa0", "viol.", "violet"),
+           "green": ("#2e7d32", "#2e7d32", "vir.", "green"),
+           "rose": ("#d26a9a", "#c9558c", "ros.", "rose"),
+           "black": ("#000000", "#000000", "nig.", "black")}
 
 
 def month_file_title(key):
@@ -1012,10 +1024,25 @@ def build_offices(part, data, titles, two, lang2_is_english, sources=None, in_bo
         if note:
             sub = (sub + " — " if sub else "") + note
         offices.append(Office(part=part, key=key, title=t1, title2=t2, left=left, note=sub, day=day,
-                              hours=[hours[g] for g in sorted(hours, key=lambda g: GROUPS[g][0])]))
+                              hours=[hours[g] for g in sorted(hours, key=lambda g: GROUPS[g][0])],
+                              colour=office_colour(part, o)))
     if offices:
         offices[0].part_start = True
     return offices
+
+
+def office_colour(part, o):
+    """The liturgical colour of an office of the Propers, for its heading: the
+    engine's (engine_dump.pl), but rose for Gaudete and Laetare Sundays, which
+    it has as violet, and green for the Matins readings of August to November,
+    the weeks after Pentecost, whose files have no rank to read one from."""
+    if part.key not in ("tempora", "sancti"):
+        return ""
+    if part.key == "tempora" and o["key"] in ("Adv3-0", "Quad4-0"):
+        return "rose"
+    if part.key == "tempora" and re.fullmatch(r"\d{3}-\d", o["key"]) and not o.get("color"):
+        return "green"
+    return dopsalter.LITURGICAL_COLOURS.get(o.get("color") or "", "")
 
 
 def _day_span(first, last):
@@ -1097,17 +1124,18 @@ class BookWriter(dopdf.Writer):
     """dopdf's writer, arranged as a book: part > office > hour > section."""
 
     def page_furniture(self, small):
-        """Letter and A4: as little margin above and below as print-on-demand
-        allows -- they keep everything 0.5 in from the trimmed edge, running head
-        and page number included. So the page number goes into the running head,
-        at its outer corner (right on odd pages, left on even), and the text runs
-        to 0.5 in from the foot. The page number is the book's, not the volume's,
-        so a volume starting on an even page still puts it outside. Margins
-        chosen in the window (Layout.margins) set any paper this way."""
+        """Letter, A4 and the print-on-demand book sizes (dopdf.STANDARD_MARGINS):
+        as little margin above and below as print-on-demand allows -- they keep
+        everything 0.5 in from the trimmed edge, running head and page number
+        included. So the page number goes into the running head, at its outer
+        corner (right on odd pages, left on even), and the text runs to 0.5 in
+        from the foot. The page number is the book's, not the volume's, so a
+        volume starting on an even page still puts it outside. Margins chosen in
+        the window (Layout.margins) set any paper this way."""
         margins = self.layout.margins
-        if small and not margins:
+        if self.layout.paper not in dopdf.STANDARD_MARGINS and not margins:
             return super().page_furniture(small)
-        top, bottom, inside, outside = margins or dopdf.STANDARD_MARGINS["A4"]
+        top, bottom, inside, outside = margins or dopdf.standard_margins(self.layout.paper)
         inch = lambda v: ("%.3f" % v).rstrip("0").rstrip(".") + "in"
         return [
             # The head sits between the top margin and the text: 1.9em of band
@@ -1180,11 +1208,18 @@ class BookWriter(dopdf.Writer):
             "}",
             # A month of the Calendar.
             "#let caltable(two, ..cells) = table(",
-            "  columns: if two { (1.5em, 4.2em, 1em, 1fr, 1fr, auto) } else { (1.5em, 4.2em, 1em, 1fr, auto) },",
+            "  columns: if two { (1.5em, 4.2em, 1em, 1fr, 1fr, auto, auto) } else { (1.5em, 4.2em, 1em, 1fr, auto, auto) },",
             "  stroke: (x, y) => if y > 0 { (top: 0.3pt + luma(210)) },",
             "  inset: (x: 0.3em, y: 0.3em),",
             "  align: (x, y) => if x == 0 { right + top } else { left + top },",
             "  ..cells.pos())",
+            # The day's colour: a dot of it (none in a book all in black) and its name.
+            "#let litcol(fill, name) = text(size: 0.84em, hyphenate: false, {",
+            "  if fill != none { box(circle(radius: 0.3em, fill: fill, stroke: 0.4pt + luma(90))); h(0.3em) }",
+            "  name",
+            "})",
+            "#let calkey(..keys) = block(width: 100%, sticky: true, below: 0.5em,",
+            "  align(center, keys.pos().join(h(1.2em))))",
         ]
 
     def runs(self, line):
@@ -1292,7 +1327,14 @@ class BookWriter(dopdf.Writer):
             self.emit("#pagebreak(weak: true)")
         self.emit("#metadata((d: %s, t: %s))<day>" % (q(office.part.la), q(office.title)))
         if not office.untitled:
-            self.emit("#heading(level: 2)[#%s]" % q(office.title))
+            title = q(office.title)
+            # An office of the Propers in its colour: the body's own fill is
+            # over the heading's (the rubric colour), and the bookmark and the
+            # contents read the words alone.
+            if office.colour in COLOURS and self.layout.red_in_print \
+                    and getattr(self.layout, "heading_colours", True):
+                title = 'text(fill: rgb("%s"), %s)' % (COLOURS[office.colour][1], title)
+            self.emit("#heading(level: 2)[#%s]" % title)
         if office.note:
             self.emit("#officenote(%s)" % q(office.note))
         if office.rows is not None:
@@ -1368,13 +1410,27 @@ class BookWriter(dopdf.Writer):
 
     def calendar(self, office, two):
         q = dopdf.q
+        latin = dooffice.family(self.meta.lang1) != "English"
+
+        def colour(key):
+            fill, _ink, la, en = COLOURS[key]
+            return "litcol(%s, %s)" % ('rgb("%s")' % fill if self.layout.red_in_print else "none",
+                                       q(la if latin else en))
+
+        # The Latin names, as an Ordo abbreviates them, are given in English
+        # once, above January, in a book whose second language is English.
+        if latin and office.colours and dooffice.family(self.meta.lang2) == "English":
+            self.emit("#calkey(%s)" % ", ".join(
+                '[#%s #text(size: 0.84em, style: "italic", %s)]' % (colour(k), q(COLOURS[k][3]))
+                for k in COLOURS if k in office.colours))
         cells = []
-        for day, rdate, letter, t1, t2, rank in office.rows:
+        for day, rdate, letter, t1, t2, rank, col in office.rows:
             row = [q(day), "text(size: 0.84em, %s)" % q(rdate), "text(fill: rub, %s)" % q(letter),
                    q(t1)]
             if two:
                 row.append('text(style: "italic", %s)' % q(t2))
             row.append("text(size: 0.84em, hyphenate: false, %s)" % q(rank))
+            row.append(colour(col) if col in COLOURS else "[]")
             cells.append(", ".join(row))
         if cells:
             self.emit("#caltable(%s,\n  %s)" % ("true" if two else "false", ",\n  ".join(cells)))
@@ -2580,6 +2636,8 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
     ap.add_argument("--paper", default="Letter (8.5 × 11 in)", choices=list(dopdf.PAPERS))
     ap.add_argument("--size", type=float, default=10.0)
     ap.add_argument("--black", action="store_true")
+    ap.add_argument("--plain-headings", action="store_true",
+                    help="the Propers' office headings in the rubric colour, not the day's")
     ap.add_argument("--new-page-per-office", action="store_true")
     ap.add_argument("--two-columns", action="store_true",
                     help="one language (--lang2 the same as --lang1): the text in two columns")
@@ -2617,6 +2675,7 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
     if not (typst and dumper):
         sys.exit("typst.exe or engine_dump.pl not found")
     layout = dopdf.Layout(paper=args.paper, font_size=args.size, red_in_print=not args.black,
+                          heading_colours=not args.plain_headings,
                           new_page_per_day=args.new_page_per_office, two_columns=args.two_columns,
                           blank_front=args.blank_front, blank_back=args.blank_back,
                           **dopdf.type_options(args))

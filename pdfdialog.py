@@ -38,6 +38,10 @@ PAGES_PER_HOUR = {
 PAPER_FACTOR = {
     "Letter (8.5 × 11 in)": 1.0, "A4": 0.93, "Half letter (5.5 × 8.5 in)": 2.3,
     "A5": 2.2, "Pocket breviary (4.5 × 7 in)": 3.3,
+    # The book sizes: the 1960 breviary, Latin and English, 10 pt (1,609 pages
+    # on Letter). A week of dated PDFs grows less (1.26, 1.29, 1.49 of Letter).
+    "Crown Quarto (7.44 × 9.68 in)": 1.32, "Executive (7 × 10 in)": 1.35,
+    "US Trade (6 × 9 in)": 1.86,
 }
 ONE_COLUMN = "— none (one column) —"
 
@@ -311,7 +315,7 @@ class PdfDialog:
         for cb in (c1, c2):
             cb.bind("<<ComboboxSelected>>", lambda _e: self.update_summary())
 
-        self._build_page(outer, row=2)
+        self._build_page(outer, row=2, skip=("heading_colours",))  # a breviary's alone
         self._build_type(outer, row=3)
         self._build_footer(self.foot_box)
 
@@ -332,6 +336,7 @@ class PdfDialog:
             "title_page": tk.BooleanVar(value=True),
             "contents": tk.BooleanVar(value=True),
             "red_in_print": tk.BooleanVar(value=True),
+            "heading_colours": tk.BooleanVar(value=True),
             "mark_ai": tk.BooleanVar(value=True),
             "accessible": tk.BooleanVar(value=False),
         }
@@ -343,13 +348,21 @@ class PdfDialog:
             ("title_page", "Title page"),
             ("contents", contents_label),
             ("red_in_print", "Rubrics in colour"),
+            ("heading_colours", "Propers' headings in the day's colour"),
             ("mark_ai", "Mark English translated by AI (“AI”)"),
             ("accessible", "Tagged for screen readers (about 3× the size)"),
         ) if k in self.opts]
+        checks = {}
         for i, (key, label) in enumerate(shown):
-            ttk.Checkbutton(page, text=label, variable=self.opts[key],
-                            command=self.update_summary).grid(
-                row=1 + i // 2, column=(i % 2) * 2, columnspan=2 + (i % 2) * 3, sticky="w", pady=1)
+            checks[key] = ttk.Checkbutton(page, text=label, variable=self.opts[key],
+                                          command=self.update_summary)
+            checks[key].grid(row=1 + i // 2, column=(i % 2) * 2, columnspan=2 + (i % 2) * 3,
+                             sticky="w", pady=1)
+        # A book all in black has its headings black too.
+        if "heading_colours" in checks and "red_in_print" in self.opts:
+            red = self.opts["red_in_print"]
+            red.trace_add("write", lambda *_: checks["heading_colours"].state(
+                ["!disabled"] if red.get() else ["disabled"]))
 
 
     def _build_type(self, outer, row, preview=False, column=0, span=2):
@@ -803,7 +816,7 @@ BREVIARY_SETTINGS = os.path.join(os.path.dirname(SETTINGS_FILE), "breviary-setti
 # The Psalter is printed in full, every day (146 pages, measured on that book).
 # The Sunday Masses (not in that book): measured alone at the same settings.
 MISSA_PAGES = 79
-PART_PAGES = {"kalendarium": 9, "orationes": 1, "ordinarium": 20, "psalterium": 146,
+PART_PAGES = {"kalendarium": 10, "orationes": 1, "ordinarium": 20, "psalterium": 146,
               "tempora": 587, "temporis": 15, "sancti": 639, "commune": 125, "missa": MISSA_PAGES}
 # The Common: 208 before each variant printed only its own texts (the same
 # Common alone, 181 pages -> 109).
@@ -813,11 +826,16 @@ FULL_TEXTS = {"tempora": 1.22, "sancti": 1.08, "commune": 1.29}  # the Common al
 # page), and set in two columns against one; by paper, as a narrow page gains
 # more from one language and less from two columns. Measured on Monastic 1963
 # at 7 pt, Latin and English - Coverdale (README, One language); the pocket
-# size by its width.
+# size by its width; the book sizes on the same book in October 2026 (README,
+# Book sizes).
 ONE_LANGUAGE = {"Letter (8.5 × 11 in)": 0.76, "A4": 0.76, "Half letter (5.5 × 8.5 in)": 0.5,
-                "A5": 0.5, "Pocket breviary (4.5 × 7 in)": 0.47}
+                "A5": 0.5, "Pocket breviary (4.5 × 7 in)": 0.47,
+                "Crown Quarto (7.44 × 9.68 in)": 0.6, "Executive (7 × 10 in)": 0.58,
+                "US Trade (6 × 9 in)": 0.52}
 TWO_COLUMNS = {"Letter (8.5 × 11 in)": 0.69, "A4": 0.69, "Half letter (5.5 × 8.5 in)": 0.84,
-               "A5": 0.84, "Pocket breviary (4.5 × 7 in)": 0.9}
+               "A5": 0.84, "Pocket breviary (4.5 × 7 in)": 0.9,
+               "Crown Quarto (7.44 × 9.68 in)": 0.8, "Executive (7 × 10 in)": 0.82,
+               "US Trade (6 × 9 in)": 0.88}
 # Leaving out the alternative lessons: the Common alone, 109 -> 86 pages.
 NO_ALTERNATIVES = {"commune": 0.79}
 

@@ -50,6 +50,7 @@ use JSON::PP;
 use DivinumOfficium::LanguageTextTools qw(prayer rubric translate load_languages_data omit_regexp);
 use DivinumOfficium::RunTimeOptions qw(check_version check_language);
 use DivinumOfficium::Directorium qw(get_from_directorium);
+use DivinumOfficium::Main qw(liturgical_color);
 
 require "$Bin/../DivinumOfficium/SetupString.pl";
 require "$Bin/horascommon.pl";
@@ -626,12 +627,23 @@ sub load_office {
   my $rankname = ($rank[2] // '') =~ /^\s*(\d+)/ ? ranktable()->[$1] : '';
   my $title1 = plain($s1->{Officium}) || plain($rank[0]);
   my $title2 = plain($s2->{Officium}) || plain($rank2[0]) || $title1;
+  # Its colour, as the engine's own Kalendarium gives it (kal.pl
+  # findkalentry): liturgical_color() of the name in the Latin [Rank]. That
+  # sets $_ without localizing it, so it is localized here. It knows martyrs
+  # by "Martyr", so the Dominican calendar's "Mart" and "MM" (Bl. Francis de
+  # Capillas, Bl. Sadoc and companions) came out white, as did St John before
+  # the Latin Gate, whose feast, of his martyrdom, is red.
+  my $latin = $lang1 eq 'Latin' ? $s1 : $lang2 eq 'Latin' ? $s2 : setupstring('Latin', $file);
+  my $name = (split /;;/, ((ref $latin ? $latin->{Rank} : '') // ''))[0] // '';
+  my $color = $name =~ /\S/ ? do { local $_; liturgical_color($name) } : '';
+  $color = 'red' if $color eq 'black' && $name =~ /\b(?:Mart|MM)\b|ante Portam Latinam/;
   return {
     %$item,
     parent => raw_parent($item->{file}),
     title => [$title1, $title2],
     rank => ($rank[1] // ''),
     rankname => ($rankname // ''),
+    color => $color,
     rule => ($s1->{Rule} // ''),
     sections => \@sections,
   };

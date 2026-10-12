@@ -13,7 +13,8 @@ For each "… pag. N" (Latin column) and "… p. N" (English column):
      pages after it (the run may go on over the page);
   4. the Latin and English references on each page give the same pages (or
      the next: where one language's text begins a row lower than the other's,
-     a page can end between them);
+     a page can end between them; and a reference's row may break at the
+     page's end, one language's on this page and the other's on the next);
   5. the number printed in page N's running head is N;
   6. the heading a reference names ("Resp. IV, pag. 56") is the last red
      heading of its kind before the quoted words on page N (or, for part of a
@@ -262,11 +263,30 @@ for lab, i in sorted(label_to_index.items()):
         for a, b in sorted(spans, reverse=True):
             cut = cut[:a] + " " + cut[b:]
         blank[(i, c)] = letters(cut)
-        # the page's text as letters, with where each red run begins
-        flat, reds = "", []
+        # the page's text as letters, with where each red run begins. A red
+        # heading a narrow column carries onto the next line at a space
+        # before or inside its parenthesis ("Commemoration of the Octave (at"
+        # / "First Vespers).", "Lesson III" / "(alternative).", US Trade) is
+        # one run, as one broken at a hyphen already is. Only there: an hour
+        # over a label ("In I Vesperis" / "Antiphonæ."), or a red initial
+        # before a reference and a heading, are two. So is a heading whose
+        # words a stretched line gives as pieces, each a line of its own to
+        # PyMuPDF but ending in its space ("Lesson ", "III ", "(alternative)."),
+        # never past a stop ("Lesson I." "Isa 1:1-3").
+        flat, reds, gap, last = "", [], "", ""
         for part in re.split(r"(⟨[^⟩]*⟩)", cut):
             if part.startswith("⟨"):
-                reds.append((len(flat), letters(part)))
+                carried = "\n" in gap and not gap.strip() \
+                    and (last.count("(") > last.count(")") or part[1:].lstrip().startswith("("))
+                spread = not gap.strip() and re.search(r"[^\W\d_]$", last.rstrip()) \
+                    and (last[-1:].isspace() or (gap and "\n" not in gap))
+                if reds and (carried or spread):
+                    reds[-1] = (reds[-1][0], reds[-1][1] + letters(part))
+                else:
+                    reds.append((len(flat), letters(part)))
+                last = part.strip("⟨⟩")
+            else:
+                gap = part
             flat += letters(part)
         red[(i, c)] = (flat, reds)
 
@@ -362,6 +382,26 @@ for lab, c, cands, target, raw, heading in refs:
 by_page = collections.defaultdict(lambda: ([], []))
 for lab, c, cands, target, raw, _heading in refs:
     by_page[lab][c].append(target)
+
+
+def paired(la, en):
+    return len(la) == len(en) and all(b - a in (0, 1) for a, b in zip(la, en))
+
+
+# A row broken at a page's end: one language's reference ends on this page,
+# the other's -- a line longer -- on the next (a Latin reference of four lines
+# beside an English one of three). Given back to this page when the rest pairs.
+split_rows = 0
+for lab in sorted(by_page):
+    if ONE or lab + 1 not in by_page:
+        continue
+    (la, en), (nla, nen) = by_page[lab], by_page[lab + 1]
+    if not paired(la, en) and nla and paired(la + nla[:1], en):
+        la.append(nla.pop(0))
+        split_rows += 1
+    elif not paired(la, en) and nen and paired(la, en + nen[:1]):
+        en.append(nen.pop(0))
+        split_rows += 1
 next_page = 0
 for lab, (la, en) in sorted(by_page.items()):
     if ONE:
@@ -381,6 +421,9 @@ print("verified: %d of %d (%d of them naming a heading, found there)"
       % (ok, len(refs), named_ok[0]))
 if next_page:
     print("English to the page after the Latin's (its text a row lower): %d" % next_page)
+if split_rows:
+    print("A reference's row broken at a page's end (Latin and English either side): %d"
+          % split_rows)
 print("PROBLEMS: %d" % sum(len(v) for v in problems.values()))
 for kind, items in problems.items():
     print("  %s: %d" % (kind, len(items)))

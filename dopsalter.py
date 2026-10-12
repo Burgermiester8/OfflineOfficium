@@ -1638,6 +1638,13 @@ def dominical_letter(month, day, year=2027):
     return "Abcdefg"[(doy - 1) % 7]
 
 
+# The engine's colours (liturgical_color in DivinumOfficium/Main.pm) are for
+# text on a white page: black stands for white, grey for black, and blue for
+# the feasts of Our Lady, which are white.
+LITURGICAL_COLOURS = {"black": "white", "blue": "white", "grey": "black", "purple": "violet",
+                      "red": "red", "green": "green"}
+
+
 def calendar_offices(part, sancti, two):
     from dobreviary import Office
 
@@ -1649,13 +1656,17 @@ def calendar_offices(part, sancti, two):
         t1, t2 = (o.get("title") or [o["key"], o["key"]])[:2]
         rank = "Comm." if o.get("commemoratio") else re.sub(
             r"\s+", " ", o.get("rankname") or o.get("rank") or "").strip()
+        # The day's colour is its feast's: a commemoration does not change it.
+        colour = "" if o.get("commemoratio") else LITURGICAL_COLOURS.get(o.get("color") or "", "")
         known = (mm, dd) != (2, 29)
         months[mm].append((str(dd), roman_date(mm, dd) if known else "", dominical_letter(mm, dd),
-                           t1 or o["key"], (t2 if two and t2 != t1 else ""), rank))
+                           t1 or o["key"], (t2 if two and t2 != t1 else ""), rank, colour))
+    colours = tuple(sorted({row[6] for rows in months.values() for row in rows if row[6]}))
     offices = []
     for m in range(1, 13):
         offices.append(Office(part=part, key="kal-%02d" % m, title=MONTHS_LA[m - 1],
-                              title2=dopdf.MONTHS[m - 1], rows=months[m]))
+                              title2=dopdf.MONTHS[m - 1], rows=months[m],
+                              colours=colours if m == 1 else ()))
     return offices
 
 

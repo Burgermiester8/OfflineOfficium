@@ -720,7 +720,8 @@ Click **Make a PDF…** in the app's window. Choose:
   Office of Our Lady, the Office of the Dead, the commons …), and whether it
   is said by a priest.
 - **Languages** — left and right, or one column.
-- **Page** — Letter, A4, half letter, A5 or pocket breviary (4.5 × 7 in); a
+- **Page** — Letter, A4, Crown Quarto (7.44 × 9.68 in), Executive (7 × 10
+  in), US Trade (6 × 9 in), half letter, A5 or pocket breviary (4.5 × 7 in); a
   new page per day or per hour; title page; contents; rubrics in colour or
   black; optionally a tagged PDF for screen readers.
 - **Type** — the font (any text font installed on the PC; the faces that set a
@@ -867,10 +868,10 @@ Click **Make a breviary…** in the app's window:
     head (the text starts about two lines below it); *bottom* from the text
     to the edge; *inside* is the binding side, left on right-hand pages and
     right on left-hand ones; *outside* the other side. They start at the
-    paper's own (Letter and A4: 0.5, 0.5, 0.75, 0.75) and follow a change of
-    paper until you change them. Below 0.5 in the window warns that
-    print-on-demand printers ask for more. Chosen margins set any paper as
-    Letter and A4 are set: page number in the head, no foot.
+    paper's own (Letter, A4 and the book sizes: 0.5, 0.5, 0.75, 0.75) and
+    follow a change of paper until you change them. Below 0.5 in the window
+    warns that print-on-demand printers ask for more. Chosen margins set any
+    paper as Letter and A4 are set: page number in the head, no foot.
 
   The page estimate follows these settings, roughly. As an example, the
   Monastic book at the settings of run 15 with line spacing 95%, space
@@ -1014,7 +1015,8 @@ Several things make the book shorter, as printed breviaries were:
   without the Ordinary keeps the first of each in full. A section is shortened
   only where both columns have the same texts, so the languages stay side by
   side.
-- **Margins for print-on-demand** (Letter and A4). Lulu and similar printers
+- **Margins for print-on-demand** (Letter, A4 and the book sizes: Crown
+  Quarto, Executive, US Trade; see *Book sizes*). Lulu and similar printers
   want everything 0.5 in from the trimmed edge, running head and page number
   included. So the page number moves into the running head, at its outer
   corner (right on odd pages, left on even), and the text runs to 0.5 in from
@@ -1067,9 +1069,34 @@ What each of the new parts holds:
   unione*), the *Pater noster*, the *Ave Maria*, the Apostles' Creed, and
   *Sacrosanctæ* (with *Beata viscera*), each under its own heading.
 - **Calendar** — a table per month: the day, its Roman date (*Kal.*, *IV Non.*,
-  *XIX Kal.* …), the dominical letter, the feast in both languages and its
+  *XIX Kal.* …), the dominical letter, the feast in both languages, its
   rank as the version names it (*III. classis* under the 1960 rubrics,
-  *Duplex majus* before), commemorations marked *Comm.*
+  *Duplex majus* before), commemorations marked *Comm.*, and the colour of
+  the day.
+
+  **The colour** is in the last column: a dot of it and its name as an Ordo
+  abbreviates it, *alb.*, *rub.*, *viol.*, *nig.* (*white*, *red*, *violet*,
+  *black* in a book whose first language is English). In a book of Latin and
+  English a key under *Januarius* gives the English of each; a book all in
+  black (*Rubrics in colour* off) has the names without the dots. The colour
+  is the feast's: a commemoration does not change it, and has none of its
+  own. It comes from the engine, as its own Kalendarium colours a feast's
+  name (`liturgical_color()` of the name in the Latin `[Rank]`,
+  `DivinumOfficium/Main.pm`), read as a vestment: the engine's *black*, which
+  stands for white on a white page, is white; its *grey* is black; its
+  *blue*, for the feasts of Our Lady, is white. Its patterns know martyrs by
+  *Martyr*, so the Dominican calendar's *Mart* and *MM* came out white (four
+  days: Bl. Francis de Capillas, Bl. William and companions, Bl. Sadoc and
+  companions, St Ursula and companions), as did St John before the Latin Gate
+  (6 May, in the ten versions that keep it), whose feast is red;
+  `engine_dump.pl` makes these red. The 1960 Calendar has 180 days white, 93
+  red, 5 violet (the vigils) and 1 black (All Souls), and 56 commemorations.
+  The column makes some titles wrap: that Calendar (Latin and English,
+  Letter, 10 pt) is 10 pages where it was 9, and the window's estimate
+  follows. Nothing else in the dumps changed: the old and new
+  `engine_dump.pl` give the same seven dumps but for the colour (the saints,
+  the Common, the Season, the fixed texts and the Masses; 1960 and Monastic
+  1963; Latin and English, and English alone).
 - **Ordinary** — each hour's fixed frame in full (*Deus in adjutorium*, the
   hymns of Prime and the little hours, Psalm 94 of the invitatory and the
   three Gospel canticles with their antiphons left as *Ant.*, the preces, the
@@ -1886,6 +1913,99 @@ Two things turned up on the way:
 **Measured** alone at the estimate's settings (1960, Letter, 10 pt, two
 languages): 79 pages, built in 4 s.
 
+### Headings in the day's colour
+
+Each office of the Proper of the Season and the Proper of the Saints is
+headed in its liturgical colour (*Propers' headings in the day's colour* in
+the Page box, on by default; `--plain-headings` keeps them in the rubric
+colour). Violet, green and black are themselves; red is the breviary red
+(`#a31621`, the rubrics' own unless another is chosen); white is gold, since
+white type would not show; and rose is for Gaudete and Laetare Sundays. The
+hours' headings, the labels and every other rubric keep the rubric colour,
+and in a book all in black (*Rubrics in colour* off) the headings are black
+too and the box is greyed. The colour is in the heading's own text, so the
+bookmarks and the contents read as before.
+
+The colour is the engine's, as in the Calendar (above), with two additions
+by `dobreviary.office_colour()`: rose for Gaudete and Laetare (the engine
+has violet; the Roman rubrics give rose for those two Sundays), and green
+for the Matins readings of August to November, the weeks after Pentecost,
+whose files have no rank to read a colour from. A commemoration printed as
+an office of its own takes its own saint's colour. Read for all fifteen
+versions' Proper of the Season: Advent and Septuagesima to Holy Week violet,
+but Gaudete and Laetare rose, Holy Thursday white and Good Friday black;
+Eastertide white, but the Rogation days violet; Pentecost, its octave and
+its Ember days red; Trinity, Corpus Christi and the Sacred Heart, with their
+octaves, white; the September Ember days violet; the rest of the time after
+Epiphany and after Pentecost green. The 1960 Propers (Latin and English,
+Letter, 10 pt: 1,255 pages, 94 s) have 754 office headings, every one with
+its colour: 265 green, 242 white, 147 red, 96 violet, 2 rose, 2 black. All
+3,322 of their references verified.
+
+### Book sizes
+
+Between Letter and half letter, three sizes of book that print-on-demand
+printers make, by Lulu's names: **Crown Quarto** (7.44 × 9.68 in, 189 × 246
+mm), **Executive** (7 × 10 in) and **US Trade** (6 × 9 in). In a breviary they
+are set as Letter and A4 are, for those printers: everything 0.5 in from the
+trimmed edge, the page number in the running head, and the same standard
+margins (0.5, 0.5, 0.75, 0.75), which the window's margins change as on any
+paper. The dated PDFs set the two wider ones as Letter (0.75 in at the sides,
+the page number in the foot) and US Trade as half letter: a page under 6.5
+in wide takes the narrow margins.
+
+**Measured** in October 2026, two books at a time, the same books on each
+size (pages; the 1960 book's times beside them):
+
+| Book | Letter | Crown Quarto | Executive | US Trade |
+|---|---|---|---|---|
+| 1960, all eight parts, Latin and English, 10 pt | 1,609 (115 s) | 2,120 (128 s) | 2,180 (121 s) | 2,990 (139 s) |
+| Monastic 1963 (as in *One language*), Latin and English - Coverdale, 7 pt | 752 | 1,003 | 1,030 | 1,352 |
+| — Latin, one column | 478 | 583 | 579 | 718 |
+| — Latin, two columns | 350 | 464 | 476 | 633 |
+| A week of dated PDFs (4–10 October 2026, every hour) | 244 | 307 | 315 | 363 |
+
+Against Letter the breviary grows 1.32, 1.35 and 1.86 times (the Monastic
+book 1.33, 1.37 and 1.80), which the window's estimate takes; the dated PDFs
+grow less (1.26, 1.29 and 1.49; half letter 1.79), so their estimate on these
+sizes runs high. One language is 60%, 58% and 52% of the window's estimate of
+two, and two columns 80%, 82% and 88% of one: a narrower page gains more from
+one language and less from two columns, as before. On Letter the same book
+gave 65% and 73%, where the window still takes 76% and 69%, measured before
+the Psalter was printed in full; its estimate of a book of one language on
+Letter is now about a sixth high.
+
+On US Trade at 10 pt the two languages' columns are 2.2 in wide, as on half
+letter with its own margins; the pages of St Lawrence read well, the page
+number at the outer corner of the head and the wider margin on the binding
+side.
+
+**Every reference checked** in all sixteen books: the 1960 book 4,074 of
+4,074 on each size, the Monastic book 5,150, 2,642 and 2,642. On US Trade
+`tools/audit_references.py` first found 13 problems in the 1960 book, none of
+them in the book; the narrow column showed it three things it read wrongly:
+
+- A red heading broken at a space -- *Commemoration of the Octave (at* /
+  *First Vespers).* (ten references), *Lesson III* / *(alternative).* -- was
+  two runs, so the heading over the text was not the one named. It is now one
+  run where the break is at its parenthesis, as a heading broken at a hyphen
+  already was; not at every line's end, which joined an hour to the label
+  under it (*In I Vesperis* / *Antiphonæ.*) and a red initial to the heading
+  after a reference, and failed 186 references of the Monastic books on the
+  way.
+- A stretched line's red words come from PyMuPDF as lines of their own,
+  each ending in its space (*Lesson* , *III* , *(alternative).*): joined, never
+  past a stop (*Lesson I.* and its *Isa 1:1-3* stay apart).
+- A reference's row broken at the page's end (a Latin reference of four
+  lines beside an English one of three: the English on p. 726, the Latin's
+  last lines on p. 727, both to p. 704) read as the two languages differing.
+  It is counted apart: *A reference's row broken at a page's end*: 1.
+
+As controls, on the 1960 book every page moved on by one and every numbered
+heading given the next number: on Letter the old and new audit fail the same
+(4,039 and 2,634 of 4,074); on US Trade the new one 2 and 13 fewer, the false
+problems above.
+
 ### Blank pages
 
 *Blank pages: front … back …* in the Page box (`--blank-front N`,
@@ -2043,6 +2163,10 @@ typeset by itself.
   (*Oratio ut in Communi*) therefore read with *N.*, as in a printed book.
 - Christmastide and Epiphanytide have no entry in the Common of the Seasons:
   their texts are in the Proper of the Season.
+- The Calendar gives the Holy Innocents (28 December) red in every version,
+  as the engine does. That is the 1960 rubrics' colour; before them the day
+  was violet unless it fell on a Sunday, which a calendar of every year
+  cannot show.
 - The Ordinary's rubrics are the builder's own, in Latin (and English beside
   an English column); the engine has no such rubrics to give. The rules for
   the absolutions and blessings are the engine's code (`specmatins.pl`,
