@@ -396,12 +396,15 @@ def family_of(version):
     return "roman"
 
 
-def book_title(version):
-    return {
+def book_title(version, book="breviary"):
+    """"Breviarium Monasticum"; its Matins alone "Matutinale Monasticum", its
+    other hours "Diurnale Monasticum"."""
+    title = {
         "monastic": "Breviarium Monasticum",
         "cist": "Breviarium Cisterciense",
         "op": "Breviarium Ordinis Prædicatorum",
     }.get(family_of(version), "Breviarium Romanum")
+    return title.replace("Breviarium", BOOK_NAMES[book][0]) if book in BOOK_NAMES else title
 
 
 # --------------------------------------------------------------------------
@@ -422,6 +425,11 @@ class Office:
     rows: list = None  # a month of the Calendar: (day, Roman date, letter, title, title2, rank, colour)
     colours: tuple = ()  # the colours of the whole Calendar, for its key (on January)
     colour: str = ""  # an office of the Propers: its liturgical colour, for its heading
+    file: str = ""  # the engine's file it is printed from (_norm), for the notes naming it
+    # "Cetera ut in": (the file named, [the words in each language], the label of
+    # that office's heading in this book, or "" when the book does not print it)
+    rest: tuple = None
+    anchor: str = ""  # its heading's label, when a note names this office
     untitled: bool = False  # printed under its part's heading alone (the prayers)
     include: tuple = None  # a custom part's PDF: (its file, its number of pages)
 
@@ -430,6 +438,35 @@ MONTHS_LA = ("Januarii", "Februarii", "Martii", "Aprilis", "Maii", "Junii", "Jul
              "Septembris", "Octobris", "Novembris", "Decembris")
 DAYS_LA = ("Dominica", "Feria II", "Feria III", "Feria IV", "Feria V", "Feria VI", "Sabbato")
 DAYS_EN = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+MONTHS_LA_SHORT = ("Jan.", "Feb.", "Mart.", "Apr.", "Maii", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.",
+                   "Nov.", "Dec.")
+# A feast kept on a Sunday, as the transfer tables name it ("10-DU"): which Sunday of the month.
+SUNDAYS_OF = {"P": ("prima", "First"), "S": ("secunda", "Second"), "T": ("tertia", "Third"),
+              "Q": ("quarta", "Fourth"), "U": ("ultima", "Last")}
+
+
+def feast_day(office, english, short=False):
+    """The day a feast of the Proper of the Saints is kept, as a breviary heads
+    it: "Die 10 Augusti" / "10 August"; one kept on a Sunday by its Sunday,
+    "Dominica ultima Octobris" / "Last Sunday of October". Short, for the
+    running head: "10 Aug." / "10 Aug", and a Sunday's days, "25–31 Oct".
+    "" for any other office."""
+    if office.part.key != "sancti":
+        return ""
+    m = re.match(r"(\d\d)-D([A-Z])", office.key)
+    if m and m.group(2) in SUNDAYS_OF:
+        if short:
+            return office.left
+        la, en = SUNDAYS_OF[m.group(2)]
+        month = int(m.group(1)) - 1
+        return ("%s Sunday of %s" % (en, dopdf.MONTHS[month]) if english
+                else "Dominica %s %s" % (la, MONTHS_LA[month]))
+    if not re.fullmatch(r"\d\d-\d\d", office.day or ""):
+        return ""
+    month, day = (int(x) for x in office.day.split("-"))
+    if short:
+        return "%d %s" % (day, dopdf.MONTHS[month - 1][:3] if english else MONTHS_LA_SHORT[month - 1])
+    return "%d %s" % (day, dopdf.MONTHS[month - 1]) if english else "Die %d %s" % (day, MONTHS_LA[month - 1])
 # The liturgical colours (dopsalter.LITURGICAL_COLOURS) as the book prints
 # them: a Calendar dot's fill, an office's heading, and the name in Latin as an
 # Ordo abbreviates it and in English. White is a white dot, but a heading in
@@ -864,6 +901,7 @@ def build_offices(part, data, titles, two, lang2_is_english, sources=None, in_bo
     fam = family_of(data.get("version", ""))
     vname = data.get("engine_version") or data.get("version", "")
     sources = sources or {}
+    by_name = {f.split("/", 1)[1]: f for f in sources if "/" in f}  # "C5" -> "Commune/C5"
     in_book = {_norm(f) for f in in_book}
     commons = {_norm(x["file"]): x for x in data["offices"]} if part.key == "commune" else {}
     offices = []
@@ -989,26 +1027,41 @@ def build_offices(part, data, titles, two, lang2_is_english, sources=None, in_bo
             if g is None:
                 order, la, en = GROUPS[sl.group]
                 g = hours[sl.group] = dooffice.Hour(key=en if lang2_is_english else la, heading=la)
+                g.group = sl.group  # which book it goes in (book_offices)
+            # The day's prayer, printed at First Vespers or Lauds, ends Matins
+            # too: a Matins book prints it there (book_offices).
+            sec.collect = sl.la.startswith("Oratio") and sl.group in ("V1", "L")
             g.sections.append(sec)
 
-        note = ""
+        # "Cetera ut in: ..." in each language, and the file it names, whose
+        # page the book gives after it where that office is printed (anchor_rests).
+        rest = None
         target = base or _source_of(o)
         if target and _norm(target).split("/")[-1] == key:
             target = None  # "vide C10" in C10 itself
         if target and (_norm(target) in in_book or not _norm(target).startswith(("Sancti/", "Tempora/"))):
             name = titles.get(_norm(target)) or titles.get(re.sub(r"^\w+/", "", target))
             if name:
-                note = ("The rest as in: %s" if lang1_is_english else "Cetera ut in: %s") % name[0]
+                words = [("The rest as in: %s" if lang1_is_english else "Cetera ut in: %s") % name[0]]
                 if two:
-                    note += (" · The rest as in: %s" if lang2_is_english else " · Cetera ut in: %s") % name[1]
+                    words.append(("The rest as in: %s" if lang2_is_english else "Cetera ut in: %s") % name[1])
+                # "vide C5" names a Common by its key alone: its file, Commune/C5.
+                rest = (_norm(target) if "/" in target else by_name.get(target, "Commune/" + target), words)
 
-        if not hours and not note:
+        if not hours and not rest:
             continue  # nothing of its own: a feria that repeats its Sunday
-        if not hours and note:
+        if not hours and rest:
+            # The office's only text: the note as a rubric, beside its translation.
             h = dooffice.Hour(key="", heading="")
-            h.sections.append(dooffice.Section(columns=[[_rubric_line(note)]]))
+            cols = []
+            for col, words in enumerate(rest[1]):
+                line = _rubric_line(words)
+                line.rest = (rest[0], col)
+                cols.append([line])
+            h.sections.append(dooffice.Section(columns=cols))
+            h.group = "Z"
             hours["Z"] = h
-            note = ""
+            rest = None
 
         left = day = ""
         if part.key == "sancti" and o.get("date"):
@@ -1021,11 +1074,9 @@ def build_offices(part, data, titles, two, lang2_is_english, sources=None, in_bo
         sub = t2 if two and t2 != t1 else ""
         if o.get("commemoratio"):
             sub = (("Commemoration" if lang1_is_english else "Commemoratio") + (" · " + sub if sub else ""))
-        if note:
-            sub = (sub + " — " if sub else "") + note
         offices.append(Office(part=part, key=key, title=t1, title2=t2, left=left, note=sub, day=day,
                               hours=[hours[g] for g in sorted(hours, key=lambda g: GROUPS[g][0])],
-                              colour=office_colour(part, o)))
+                              colour=office_colour(part, o), file=_norm(o["file"]), rest=rest))
     if offices:
         offices[0].part_start = True
     return offices
@@ -1176,9 +1227,18 @@ class BookWriter(dopdf.Writer):
             "}",
             # An office (a feast, a Sunday, a Common): red, bold, centred --
             # a little smaller in a column half the page wide.
+            # A feast of the Proper of the Saints has its day above it, in the
+            # heading's own block so that the two are never parted
+            # (feastday.update before the heading, none after).
+            "#let feastday = state(\"feastday\", none)",
             "#show heading.where(level: 2): it => block(width: 100%, sticky: true, above: 1.1em, below: 0.3em,",
-            "  align(center, text(fill: rub, size: %s, weight: \"bold\", hyphenate: false, it.body)))"
+            "  align(center, {",
+            "    context { let f = feastday.get(); if f != none {",
+            "      text(size: 0.74em, weight: \"regular\", tracking: 0.08em, hyphenate: false, upper(f))",
+            "      linebreak() } }",
+            "    text(fill: rub, size: %s, weight: \"bold\", hyphenate: false, it.body)"
             % ("1.12em" if self.two_columns() else "1.25em"),
+            "  }))",
             # A hymn in two columns of stanzas (BookWriter.hymn): set so where
             # every line (all but one in ten) fits half its language's column,
             # measured at the book's own type; else as before. Kept on one
@@ -1240,19 +1300,33 @@ class BookWriter(dopdf.Writer):
         if ref:
             ident, col = ref[0], ref[1]
             where = ref[2] if len(ref) > 2 else ""
-            lang = dooffice.family(self.meta.lang1 if col == 0 else self.meta.lang2)
-            page = getattr(self.meta, "ref_pages", {}).get(ident)
-            if page is not None:  # in an earlier volume
-                num = str(page)
-            elif ident in self.marks_here:
-                num = "#context str(counter(page).at(<%s>).first())" % ident
-            else:
-                num = ""
-            # Where to look ("Resp. IV, "), then the page. The number is in a box
-            # of fixed width, last, so filling it in moves nothing.
-            out += " #text(fill: rub, size: 0.86em)[%s%s~#box(width: 2.2em)[%s]]" % (
-                "#" + dopdf.q(where + ", ") if where else "", "pag." if lang == "Latin" else "p.", num)
+            # Where to look ("Resp. IV, "), then the page.
+            out += " " + self.page_ref(ident, col, "#" + dopdf.q(where + ", ") if where else "")
+        rest = getattr(line, "rest", None)
+        if rest and len(rest) > 2 and rest[2]:  # "Cetera ut in: ...", as the only text
+            out += self.page_ref(rest[2], rest[1], ", ")
         return out
+
+    def page_ref(self, ident, col, before="", centred=False):
+        """The page of `ident` (a first copy's label, or an office's heading
+        named by a "Cetera ut in"), small and red: "pag. 56" in a Latin
+        column, "p. 56" in another. The number is in a box of fixed width,
+        last, so filling it in moves nothing: a page not yet known (an office
+        in a part of the book typeset after this one) is left empty, and the
+        volume set again once it is (unresolved)."""
+        lang = dooffice.family(self.meta.lang1 if col == 0 else self.meta.lang2)
+        page = getattr(self.meta, "ref_pages", {}).get(ident)
+        if page is not None:  # in an earlier volume, or known from a first setting
+            num = str(page)
+        elif ident in self.marks_here:
+            num = "#context str(counter(page).at(<%s>).first())" % ident
+        else:
+            num = ""
+            self.unresolved = True
+        # In a centred line (the note under a title) the number would be
+        # centred in its box too: there it keeps to the box's start.
+        box = "#box(width: 2.2em, align(start)[%s])" % num if centred else "#box(width: 2.2em)[%s]" % num
+        return "#text(fill: rub, size: 0.86em)[%s%s~%s]" % (before, "pag." if lang == "Latin" else "p.", box)
 
     def two_columns(self):
         """One language set in two columns (Layout.two_columns)."""
@@ -1270,6 +1344,9 @@ class BookWriter(dopdf.Writer):
         self.marks_here = {m for o in offices if o.rows is None
                            for h in o.hours for s in h.sections for c in s.columns for l in c
                            for m in getattr(l, "marks", ())}
+        self.marks_here |= {o.anchor for o in offices if o.anchor}  # offices a note names
+        self.unresolved = False
+        self.last_day_line = None  # the day above the last feast (a day's next offices go without)
         self.out = []
         self.styles = set()
         for i, office in enumerate(offices):
@@ -1325,7 +1402,21 @@ class BookWriter(dopdf.Writer):
                     self.emit("#pagebreak()")
         elif self.layout.new_page_per_day and index:
             self.emit("#pagebreak(weak: true)")
-        self.emit("#metadata((d: %s, t: %s))<day>" % (q(office.part.la), q(office.title)))
+        # A feast's day: above its title (once for a day's offices), and in
+        # the running head beside its name, for a reader turning the pages.
+        english = (dooffice.family(self.meta.lang1) == "English", dooffice.family(self.meta.lang2) == "English")
+        days = [feast_day(office, english[0])]
+        if two:
+            days.append(feast_day(office, english[1]))
+        day_line = " · ".join(dict.fromkeys(d for d in days if d))
+        short = feast_day(office, english[0], short=True)
+        self.emit("#metadata((d: %s, t: %s))<day>" % (
+            q(office.part.la), q("%s · %s" % (short, office.title) if short else office.title)))
+        if day_line and day_line != getattr(self, "last_day_line", None) and not office.untitled:
+            self.emit("#feastday.update(%s)" % q(day_line))
+        else:
+            day_line = ""
+        self.last_day_line = day_line or getattr(self, "last_day_line", None)
         if not office.untitled:
             title = q(office.title)
             # An office of the Propers in its colour: the body's own fill is
@@ -1334,9 +1425,22 @@ class BookWriter(dopdf.Writer):
             if office.colour in COLOURS and self.layout.red_in_print \
                     and getattr(self.layout, "heading_colours", True):
                 title = 'text(fill: rgb("%s"), %s)' % (COLOURS[office.colour][1], title)
-            self.emit("#heading(level: 2)[#%s]" % title)
-        if office.note:
-            self.emit("#officenote(%s)" % q(office.note))
+            # A note elsewhere names this office: its page is this label's.
+            self.emit("#heading(level: 2)[#%s]%s" % (title, " <%s>" % office.anchor if office.anchor else ""))
+            if day_line:
+                self.emit("#feastday.update(none)")
+        if office.note or office.rest:
+            # Under the title: its translation, then "Cetera ut in: ..." in each
+            # language with the page of the office it names.
+            parts = []
+            for col, words in enumerate(office.rest[1] if office.rest else ()):
+                anchor = office.rest[2] if len(office.rest) > 2 else ""
+                parts.append("#%s%s" % (q(words), self.page_ref(anchor, col, ", ", centred=True)
+                                        if anchor else ""))
+            body = "#%s" % q(office.note) if office.note else ""
+            if parts:
+                body += (" — " if body else "") + " · ".join(parts)
+            self.emit("#officenote([%s])" % body)
         if office.rows is not None:
             self.calendar(office, two)
             return
@@ -1439,6 +1543,9 @@ class BookWriter(dopdf.Writer):
     # a volume that starts mid-part would otherwise contribute its offices as
     # top-level bookmarks.
     rebuild_outline = True
+    # Page 1 on a right-hand page, as each page's binding margin and number
+    # assume (odd pages right-hand): an odd front matter gets a blank page.
+    even_front = True
 
     def volume_entries(self, vol, pdf_path, next_page):
         """Parts (level 1) and offices (level 2), with their pages.
@@ -1465,22 +1572,29 @@ class BookWriter(dopdf.Writer):
                     pages.append(reader.get_destination_page_number(item))
 
         walk(reader.outline)
-        expected = []
+        expected, anchored = [], []
         for office in vol:
             if office.part_start:
                 expected.append((1, "", office.part.la))
             if not office.untitled:
+                if office.anchor:
+                    anchored.append((office.anchor, len(expected)))
                 expected.append((2, office.left, office.title))
         if len(expected) != len(pages):
             raise RuntimeError("volume bookmarks do not match its contents (%d vs %d)"
                                % (len(pages), len(expected)))
+        # The pages of the offices a "Cetera ut in" names, for the notes in the
+        # other volumes (and this one, set again: dopdf._typeset).
+        for anchor, k in anchored:
+            self.meta.ref_pages.setdefault(anchor, next_page + pages[k])
         return [(lvl, left, title, next_page + idx) for (lvl, left, title), idx in zip(expected, pages)]
 
     def title_page(self):
         meta = self.meta
         langs = dopdf.languages_named(meta)
         parts = [p.la for p in getattr(meta, "parts", []) if not p.compact]
-        return dopdf.title_block(book_title(meta.version), meta.version, parts, langs,
+        return dopdf.title_block(book_title(meta.version, getattr(meta, "book", "breviary")),
+                                 meta.version, parts, langs,
                                  ai_note=bool(getattr(meta, "ai_lines", 0)),
                                  volume=getattr(meta, "volume", None))
 
@@ -1667,7 +1781,95 @@ def finish(offices, parts, lang1, lang2, references=True):
     if references:
         cross_reference(offices, (lang1, lang2))
     run_in_headings(offices)
+    anchor_rests(offices)
     return offices
+
+
+# The books the builder makes: the whole breviary, or it as two: its Matins
+# (a Matutinale) and its other hours (a Diurnal, Diurnale), apart or together.
+BOOKS = ("breviary", "matins", "diurnal", "both")
+BOOK_NAMES = {"matins": ("Matutinale", "Matins"), "diurnal": ("Diurnale", "Diurnal")}
+DIURNAL_HOURS = {"Vespera", "Laudes", "Prima", "Tertia", "Sexta", "Nona", "Completorium"}
+
+
+def hour_book(hour):
+    """The book an hour of an office goes in -- "matins" or "diurnal" -- or
+    None for both: what is said throughout the office (the doxology of its
+    hymns), other texts, and anything not of one hour."""
+    group = getattr(hour, "group", None)  # the Propers' and Common's (build_offices)
+    if group:
+        return "matins" if group in ("M", "ALT") else None if group in ("O", "Z") else "diurnal"
+    if hour.key == "Matutinum":  # the Psalter, the Ordinary, the seasons
+        return "matins"
+    if hour.key in DIURNAL_HOURS or hour.key in MISSA_HOUR:
+        return "diurnal"
+    return None
+
+
+def book_offices(offices, book, lang1_is_english=False, lang2_is_english=False):
+    """The offices of one book: of the breviary all; of the Matins book each
+    office's Matins, with the day's prayer that ends them (printed at First
+    Vespers or Lauds); of the Diurnal its other hours. The Calendar, the
+    prayers before and after the Office and custom parts go in both; the
+    Ordinary by its hours; the Sunday Masses in the Diurnal. An office left
+    with nothing but its title is left out, unless it says where its texts
+    are ("Cetera ut in"). Copies: the same offices make both books."""
+    if book not in BOOK_NAMES:
+        return offices
+    out = []
+    for o in copy.deepcopy(offices):
+        if o.part.key == "missa" and book == "matins":
+            continue
+        if o.rows is not None or o.include or is_custom(o.part.key):
+            out.append(o)
+            continue
+        hours = [h for h in o.hours if hour_book(h) in (None, book)]
+        if book == "matins":
+            # The day's prayer ends Matins said of this office: of one with
+            # Matins of its own, or that says where they are. Not of a saint
+            # only commemorated (his prayer is said at Lauds).
+            collects = [s for h in o.hours if hour_book(h) == "diurnal"
+                        for s in h.sections if getattr(s, "collect", False)]
+            said = any(hour_book(h) == "matins" for h in hours) or o.rest
+            if collects and said:
+                matins = next((h for h in hours if hour_book(h) == "matins"), None)
+                if matins is None:
+                    _order, la, en = GROUPS["M"]
+                    matins = dooffice.Hour(key=en if lang2_is_english else la,
+                                           heading=en if lang1_is_english else la)
+                    matins.group = "M"
+                    hours.append(matins)
+                    hours.sort(key=lambda h: GROUPS.get(getattr(h, "group", None) or "Z")[0])
+                matins.sections += collects
+        if not hours and not o.rest and not o.untitled:
+            continue
+        o.hours = hours
+        out.append(o)
+    started = set()
+    for o in out:  # each part's first office in this book opens the part
+        o.part_start = o.part.key not in started
+        started.add(o.part.key)
+    return out
+
+
+def anchor_rests(offices):
+    """Give each "Cetera ut in" the page of the office it names: that office's
+    heading gets a label (the first printing of its file, a label being one
+    place), and each note naming it the label. A note whose office the book
+    does not print (the Common left out) keeps its words alone."""
+    notes = [(o, None) for o in offices if o.rest] + \
+        [(o, line) for o in offices for h in o.hours for s in h.sections for c in s.columns
+         for line in c if getattr(line, "rest", None)]
+    wanted = {(line.rest if line else o.rest)[0] for o, line in notes}
+    anchors = {}
+    for o in offices:
+        if o.file in wanted and o.file not in anchors and not o.untitled and o.rows is None:
+            o.anchor = anchors[o.file] = "rest-" + re.sub(r"[^A-Za-z0-9]+", "-", o.file).strip("-")
+    for o, line in notes:
+        if line is None:
+            o.rest = (o.rest[0], o.rest[1], anchors.get(o.rest[0], ""))
+        else:
+            line.rest = (line.rest[0], line.rest[1], anchors.get(line.rest[0], ""))
 
 
 def translate_offices(offices, lang1, lang2, path=None):
@@ -2225,13 +2427,16 @@ def _run_in(heads, line):
 
 def build(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root, typst,
           progress=None, cancelled=None, workdir=None, keep_source=False, only=None,
-          alternatives=True, perl_libs=(), references=True, customs=None):
+          alternatives=True, perl_libs=(), references=True, customs=None, book="breviary",
+          text=None):
     """Make a breviary PDF of `parts` (keys of PARTS, in the order given).
 
     only: restrict the dumped parts to these office keys (e.g. ["C4"]) -- for
     the app's self-test, which wants a real build in seconds.
     alternatives: False leaves out the alternative lessons.
     references: False prints every text in full, however often it recurs.
+    book: "breviary", or its "matins" or "diurnal" alone (book_offices).
+    text: (dumps, renders) already read from the engine (both books from one).
     """
     parts = current_parts(parts)
     if not parts:
@@ -2240,16 +2445,19 @@ def build(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root
     workdir = workdir or tempfile.mkdtemp(prefix="do-breviary-")
     os.makedirs(workdir, exist_ok=True)
     try:
-        dumps, renders = gather_text(parts, version, lang1, lang2, perl, dumper, web_root, workdir,
-                                     progress, cancelled, only, perl_libs)
-        offices = assemble(parts, version, lang1, lang2, dumps, renders, alternatives=alternatives,
-                           references=references, customs=customs)
+        dumps, renders = text or gather_text(parts, version, lang1, lang2, perl, dumper, web_root,
+                                             workdir, progress, cancelled, only, perl_libs)
+        offices = book_offices(gather(parts, version, lang1, lang2, dumps, renders,
+                                      alternatives=alternatives, customs=customs),
+                               book, *_english(lang1, lang2))
+        offices = finish(offices, parts, lang1, lang2, references)
         if not offices:
             raise RuntimeError("nothing to print for this version")
         _stage_includes(offices, workdir)
 
         meta = dopdf.Meta(version=version, lang1=lang1, lang2=lang2)
-        meta.parts = _book_parts(parts, lang1, customs or {})
+        meta.parts = _book_parts(_parts_in(parts, offices), lang1, customs or {})
+        meta.book = book
         meta.ref_pages = {}  # first copies' pages, filled in volume by volume
         dopdf._typeset(offices, meta, layout, pdf_path, typst, workdir, progress, cancelled,
                        writer=BookWriter, rows_of=office_rows)
@@ -2352,12 +2560,74 @@ def volume_path(pdf_path, seams, i):
     return stem + dovolumes.file_suffix(seams, i) + (ext or ".pdf")
 
 
+def book_path(pdf_path, book):
+    """"Breviarium Romanum (…) - Matutinale.pdf": one of two books made together."""
+    stem, ext = os.path.splitext(pdf_path)
+    return "%s - %s%s" % (stem, BOOK_NAMES[book][0], ext or ".pdf")
+
+
+def build_books(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root, typst,
+                book="breviary", seams=(), progress=None, cancelled=None, workdir=None,
+                keep_source=False, only=None, alternatives=True, perl_libs=(), references=True,
+                customs=None):
+    """The book chosen: the whole breviary, its Matins, its Diurnal, or those
+    two together (book: one of BOOKS) -- one PDF, or one per volume when
+    divided at seams. The two are typeset from one reading of the engine's
+    text, each named after pdf_path (book_path). [(path, offices)] in order."""
+    books = ["matins", "diurnal"] if book == "both" else [book]
+    own_dir = workdir is None
+    workdir = workdir or tempfile.mkdtemp(prefix="do-breviary-")
+    os.makedirs(workdir, exist_ok=True)
+
+    def book_progress(k):
+        """Each of two books a half of the typesetting ("book", in hundredths)."""
+        if len(books) == 1 or not progress:
+            return progress
+
+        def report(stage, done, total):
+            frac = done / total if total else 1.0
+            if stage == "book":  # its volumes
+                progress("book", int(100 * (k + frac)), 100 * len(books))
+            elif stage in ("typeset", "assemble"):
+                progress("book", int(100 * (k + (0.9 * frac if stage == "typeset" else 0.9 + 0.1 * frac))),
+                         100 * len(books))
+        return report
+
+    try:
+        text = None
+        if len(books) > 1:
+            cur = current_parts(parts)
+            if not cur:
+                raise ValueError("choose at least one part")
+            text = gather_text(cur, version, lang1, lang2, perl, dumper, web_root, workdir, progress,
+                               cancelled, only, perl_libs)
+        out = []
+        for k, b in enumerate(books):
+            path = book_path(pdf_path, b) if len(books) > 1 else pdf_path
+            sub = os.path.join(workdir, b) if len(books) > 1 else workdir
+            common = dict(progress=book_progress(k), cancelled=cancelled, workdir=sub,
+                          keep_source=True, only=only, alternatives=alternatives, perl_libs=perl_libs,
+                          references=references, customs=customs, book=b, text=text)
+            if seams:
+                out += build_volumes(parts, version, lang1, lang2, layout, path, perl, dumper,
+                                     web_root, typst, seams, **common)
+            else:
+                out.append((path, build(parts, version, lang1, lang2, layout, path, perl, dumper,
+                                        web_root, typst, **common)))
+        return out
+    finally:
+        if own_dir and not keep_source:
+            shutil.rmtree(workdir, ignore_errors=True)
+
+
 def build_volumes(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root, typst,
                   seams, progress=None, cancelled=None, workdir=None, keep_source=False, only=None,
-                  alternatives=True, perl_libs=(), references=True, customs=None):
+                  alternatives=True, perl_libs=(), references=True, customs=None, book="breviary",
+                  text=None):
     """Make a breviary in volumes divided at `seams` (keys of dovolumes.SEAMS,
     where the second, third ... volumes begin): one PDF each, named after
-    pdf_path (volume_path). [(path, offices)] in order."""
+    pdf_path (volume_path). [(path, offices)] in order. book and text as
+    for build()."""
     parts = current_parts(parts)
     if not parts:
         raise ValueError("choose at least one part")
@@ -2368,10 +2638,11 @@ def build_volumes(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, 
     workdir = workdir or tempfile.mkdtemp(prefix="do-breviary-")
     os.makedirs(workdir, exist_ok=True)
     try:
-        dumps, renders = gather_text(parts, version, lang1, lang2, perl, dumper, web_root, workdir,
-                                     progress, cancelled, only, perl_libs)
-        whole = gather(parts, version, lang1, lang2, dumps, renders, alternatives=alternatives,
-                       customs=customs)
+        dumps, renders = text or gather_text(parts, version, lang1, lang2, perl, dumper, web_root,
+                                             workdir, progress, cancelled, only, perl_libs)
+        whole = book_offices(gather(parts, version, lang1, lang2, dumps, renders,
+                                    alternatives=alternatives, customs=customs),
+                             book, *_english(lang1, lang2))
         names = dovolumes.names(seams)
         out = []
         for i, name in enumerate(names):
@@ -2379,7 +2650,8 @@ def build_volumes(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, 
                 raise dopdf.Cancelled()
             offices = finish(volume_offices(whole, seams, i, version), parts, lang1, lang2, references)
             meta = dopdf.Meta(version=version, lang1=lang1, lang2=lang2)
-            meta.parts = _book_parts(parts, lang1, customs or {})
+            meta.parts = _book_parts(_parts_in(parts, offices), lang1, customs or {})
+            meta.book = book
             meta.ref_pages = {}
             meta.volume = (dovolumes.ROMANS[i],) + tuple(name)
             path = volume_path(pdf_path, seams, i)
@@ -2567,6 +2839,16 @@ def _stage_includes(offices, directory):
             o.include = (name, o.include[1])
 
 
+def _parts_in(parts, offices):
+    """The parts a book prints something of (a Matins book has no Sunday Masses)."""
+    printed = {o.part.key for o in offices}
+    return [p for p in parts if p in printed]
+
+
+def _english(lang1, lang2):
+    return dooffice.family(lang1) == "English", dooffice.family(lang2) == "English"
+
+
 def _book_parts(parts, lang1, customs):
     return [custom_part(p, customs.get(p)) if is_custom(p) else book_part(p, lang1) for p in parts]
 
@@ -2635,6 +2917,9 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
     ap.add_argument("--lang2", default="English", help="same as --lang1 for one column")
     ap.add_argument("--paper", default="Letter (8.5 × 11 in)", choices=list(dopdf.PAPERS))
     ap.add_argument("--size", type=float, default=10.0)
+    ap.add_argument("--book", choices=BOOKS, default="breviary",
+                    help="the whole breviary, its Matins alone (a Matutinale), its other hours "
+                         "(a Diurnal), or both of those, as two books")
     ap.add_argument("--black", action="store_true")
     ap.add_argument("--plain-headings", action="store_true",
                     help="the Propers' office headings in the rubric colour, not the day's")
@@ -2687,21 +2972,14 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
         problem = dovolumes.check(seams)
         if problem:
             sys.exit(problem)
-        books = build_volumes(parts, args.version, args.lang1, args.lang2, layout,
-                              args.output, perl, dumper, web, typst, seams, progress=progress,
-                              workdir=args.keep_source, keep_source=bool(args.keep_source),
-                              alternatives=not args.no_alternatives, perl_libs=perl_libs,
-                              references=not args.full_texts, customs=customs)
-        for path, offices in books:
-            sys.stderr.write("\nwrote %s (%d offices)" % (path, len(offices)))
-        sys.stderr.write("\n")
-        return 0
-    offices = build(parts, args.version, args.lang1, args.lang2, layout,
-                    args.output, perl, dumper, web, typst, progress=progress,
-                    workdir=args.keep_source, keep_source=bool(args.keep_source),
-                    alternatives=not args.no_alternatives, perl_libs=perl_libs,
-                    references=not args.full_texts, customs=customs)
-    sys.stderr.write("\nwrote %s (%d offices)\n" % (args.output, len(offices)))
+    books = build_books(parts, args.version, args.lang1, args.lang2, layout, args.output, perl,
+                        dumper, web, typst, book=args.book, seams=seams, progress=progress,
+                        workdir=args.keep_source, keep_source=bool(args.keep_source),
+                        alternatives=not args.no_alternatives, perl_libs=perl_libs,
+                        references=not args.full_texts, customs=customs)
+    for path, offices in books:
+        sys.stderr.write("\nwrote %s (%d offices)" % (path, len(offices)))
+    sys.stderr.write("\n")
     return 0
 
 

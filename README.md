@@ -922,10 +922,18 @@ Several things make the book shorter, as printed breviaries were:
   its quoted words are printed on that page as text (references there don't
   count), that an *usque ad* line follows, that the Latin and English give
   the same page (or the English the next, where its text starts a row lower),
-  that the page's own number in the head agrees, and that the
+  that the page's own number in the head agrees and stands at the outer
+  corner as the page prints (the right on a right-hand page, odd in the PDF;
+  never by the binding), and that the
   heading a reference names is the last of its kind over the words quoted
   (the nearest responsory heading above them is *Responsorium III* for *Resp.
-  III*). It exits 1 if anything fails. Run on a Monastic 1963 book (A4, Times
+  III*). It exits 1 if anything fails. Until October 2026 the check of the
+  head's number never ran: the rule under the head is drawn over the foot of
+  its letters' box (at 47 pt against 49), and the audit took a line for the
+  head only when all of it was above the rule, so it read the head as text
+  and found no number. It now goes by the line's middle. On the book whose
+  page 1 was a left-hand page (above) it reports *page number on the binding
+  side: 117 pages*. Run on a Monastic 1963 book (A4, Times
   New Roman 7 pt, no alternative lessons) it found 63 of 7,844 references
   that landed on a first copy since turned into a reference itself (fixed:
   the rule above). With the headings named, that book checks 7,986 of 7,986
@@ -1023,6 +1031,21 @@ Several things make the book shorter, as printed breviaries were:
   the foot; the running head starts 0.5 in from the top. The dated PDFs keep
   their layout.
 
+  **Page 1 is a right-hand page.** Odd pages are right-hand ones only if
+  page 1 is, and it came straight after the title page and contents, however
+  many pages they made. In the first printed copy (October 2026) they made
+  an odd number, so page 1 was a left-hand page: every page number stood by
+  the binding, and the wider inside margin was on the outside. A title page
+  and contents of an odd number of pages are now followed by a blank page,
+  as in a printed book; so are each volume's. The dated PDFs, which are not
+  bound, are as they were. Measured on the 1960 book (Letter): 21 pages
+  before page 1, now 22, and its 1,579 numbered pages all with the number
+  outside; a book of the Calendar, the prayers and the Common, 117 pages
+  with the number by the binding before and 0 after; a set of two volumes,
+  each volume's page 1 a right-hand page (12 and 14 pages before it); and a
+  title page alone (1 page, now 2) and no front matter (0). The audit now
+  checks this on every page (below).
+
 Each office is laid out hour by hour — *In I Vesperis, Ad Matutinum, Ad Laudes
 … In II Vesperis* — and each text under its heading in both languages
 (*Antiphonæ / Antiphons*, *Capitulum / Chapter*, *Hymnus / Hymn*, *Ad Magnificat
@@ -1062,6 +1085,22 @@ most of each column empty. Details:
 Each part opens on its own title page (the prayers, two pages, just under a
 heading); bookmarks go part → office (saints with their dates); the contents
 list both, clickable; running heads name the part, the office and the hour.
+
+**The day of each feast** (October 2026; the first printed copy had it only
+in the contents and the Calendar): above each office of the Proper of the
+Saints, in small capitals, the day it is kept in each language, *DIE 10
+AUGUSTI · 10 AUGUST*, or for a feast kept on a Sunday its Sunday, *DOMINICA
+ULTIMA OCTOBRIS · LAST SUNDAY OF OCTOBER* (the transfer tables' *10-DU*; *DP*
+and *DT*, the first and third, are the others). A day's later offices (a
+commemoration printed as an office of its own) go under the day already
+given. It is set in the heading's own block, so a page never ends between
+the day and the title. The running head gives the day too, beside the
+office's name, so it shows on every page of a long office: *Proprium
+Sanctorum · 10 Aug. · S. Laurentii Martyris* (*25–31 Oct* for a Sunday's
+feast). Measured on the 1960 book (Letter): 279 days over its 334 offices of
+the Saints, 1,615 pages where it was 1,610; every reference, note and page
+number checked as before, and so in a book with English first, a Latin book
+in two columns and a set of two volumes.
 
 What each of the new parts holds:
 
@@ -1261,6 +1300,42 @@ Things that turned up while building it:
   Nativity of Our Lord*. When it is not — 1960 dropped 8 May, yet Michaelmas
   still takes its Vespers, Lauds and hymns from it — the source is loaded and
   merged in, so Michaelmas is complete.
+- **The page of "the rest".** Since October 2026 each *Cetera ut in* gives the
+  page of the office it names, in each language, as the book's other
+  references do: *Cetera ut in: Commune Apostolorum, pag. 663 · The rest as
+  in: Common of Apostles, p. 663*, under the office's title, or in both
+  columns where it is the office's only text. A note named the Common by its
+  key alone (*vide C5*), which is now taken as the Common's file. The Proper
+  of the Saints names the Common printed after it, and the Common names
+  offices printed after their own, so a page can be named before it is
+  typeset: the book is typeset in pieces, and a piece whose notes name a page
+  of a later piece is typeset again once every page is known. The number sits
+  in a box of fixed width, so the second setting moves nothing; it is checked
+  (the same number of pages, or the build stops). A note whose office the
+  book does not print (the Common left out) keeps its words alone. The 1960
+  book (Letter): its 334 notes in each language all with their page; 84 s,
+  of which 25 s setting two of its three pieces again; 1,610 pages, as
+  before. `tools/audit_references.py` checks every one: the office named is
+  headed on that page (its title among the page's headings or, in the second
+  language, the translation under one). The 1960 book 668 of 668; the Proper
+  of the Saints and the Common, Monastic 1963, 306 of 306, and with English
+  first 616 of 616; a set of two volumes 382 and 444; a book without the
+  Common the 16 that name a feast in it. With every note's page moved on by
+  one, 576 of 616 fail; the rest name an office whose title begins a heading
+  on the next page (*Commune Evangelistarum*, *Commune Evangelistarum tempore
+  Paschali*).
+
+  The audit needed three things for it. It read the note under a title only
+  where a piece of it crossed the middle of the page, but PyMuPDF gives the
+  red page and the second language as pieces on one side of the middle, and
+  a short last line ("pag. 6" with its box) can stop short of it: a row is now
+  centred when its text touches the gutter's middle, where a column's never
+  is, or runs across it with no more than a space. A note's name runs to its
+  page but never past "·", "—", "…" or ":", so a note without a page cannot
+  take the next one's. And with English first, the English is the left
+  column: the allowance for the English giving the page after the Latin's
+  (its text a row lower) followed the right column, and failed 2 references
+  of that book (as the audit before these changes did too).
 - **Psalm references.** Antiphons end in the psalm they go with (`;;8`,
   `;;88(2-19)`, `;;14 (Alleluia.)`); they print as a small red *Ps. 8*, as in a
   breviary — 2,267 of them in the 1960 book.
@@ -1941,6 +2016,75 @@ Epiphany and after Pentecost green. The 1960 Propers (Latin and English,
 Letter, 10 pt: 1,255 pages, 94 s) have 754 office headings, every one with
 its colour: 265 green, 242 white, 147 red, 96 violet, 2 rose, 2 black. All
 3,322 of their references verified.
+
+### Matins and the Diurnal
+
+**Book**, in the window's Office box (`--book` on the command line): *The
+whole breviary* (as before), *Matins alone (Matutinale)*, *The Diurnal: the
+other hours*, or *Matins and the Diurnal, as two books*. They are titled
+*Matutinale Romanum* and *Diurnale Romanum* (*Monasticum*, *Cisterciense*,
+*Ordinis Prædicatorum*). Two books are named after the file chosen, with
+*- Matutinale* and *- Diurnale* added, and in volumes after those (*… -
+Matutinale - I. Pars Prima.pdf*). They are typeset from one reading of the
+engine's text, and each is finished on its own: a text repeated within it is
+printed once, and its references, notes and pages are its own.
+
+What goes where (`dobreviary.book_offices`):
+
+- Every part keeps its place, and each office the hours of its book. The
+  Propers and the Common know each text's hour (their groups): Matins and
+  the alternative lessons go in the Matins book; First Vespers, Lauds, the
+  little hours, Second Vespers, Compline and the commemorations in the
+  Diurnal; what is said throughout the office (the doxology of the hymns)
+  and other texts in both.
+- Matins end with the day's prayer, which the book prints at First Vespers
+  or Lauds. The Matins book gives it again at the end of an office's Matins
+  where Matins are said of that office: it has Matins of its own, or says
+  where they are (*Cetera ut in*). Not for a saint only commemorated, whose
+  prayer is said at Lauds.
+- The Psalter, the Ordinary and the Common of the Seasons by their hours:
+  their Matins (the Psalter's with each day's absolutions and blessings, the
+  monastic canticles; the Ordinary's with the Te Deum) in the Matins book,
+  the other hours (the Litany too, said after Lauds) in the Diurnal; *De
+  hymnis* in both.
+- The Calendar, the prayers before and after the Office and custom parts in
+  both books; the Sunday Masses in the Diurnal.
+- An office left with nothing of its book is left out, unless it says where
+  its texts are, with the page. A feria whose only text in the Diurnal is
+  its week's prayer stays, as one line referring to it with its page, so
+  that every day has its entry: in the 1960 book the Saturday of the third
+  week after Easter (*Orat., pag. 182*) and the Monday to Wednesday after
+  Trinity (*Orat. per hebdomadam, pag. 194*, under Trinity Sunday's Lauds).
+  Their other texts are the Psalter's, as on any feria; they are in the
+  Proper of the Season for their Matins lessons. (A first version left these
+  four out; they are kept at the user's asking.)
+
+Measured on the 1960 book (Latin and English, Letter, 10 pt, every part,
+the Sunday Masses included), pages by part:
+
+| Part | Breviary | Matins | Diurnal |
+|---|---|---|---|
+| Calendar | 10 | 10 | 10 |
+| Prayers before and after the Office | 1 | 1 | 1 |
+| Ordinary | 20 | 5 | 16 |
+| Psalter | 146 | 40 | 108 |
+| Proper of the Season | 588 | 530 (420 offices) | 77 (204 offices) |
+| Common of the Seasons | 15 | 5 | 11 |
+| Proper of the Saints | 649 | 570 (334 offices) | 136 (322 offices) |
+| Common of the Saints | 89 | 69 | 29 |
+| Sunday Masses | 75 | — | 75 |
+| **The book** | **1,615** | **1,250** | **478** |
+
+The two were made together in 95 s, where the breviary alone takes about
+85. Every reference, note and page number checked: Matins 3,262 references
+and 668 notes, the Diurnal 736 and 668; a Diurnal with English first; and
+Monastic 1963 in two volumes each (Matins 766 and 777 pages, the Diurnal 319
+and 278), all with every reference verified and every page number outside.
+The window's estimate takes each part's share of these (`BOOK_SHARE`):
+Matins about 1,250 pages, the Diurnal about 400 (without the Sunday Masses,
+which the window leaves out at first); made from the window with the
+prayers, the Ordinary and the Common, 99 and 51 pages against 100 and 60
+estimated.
 
 ### Book sizes
 

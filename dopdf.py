@@ -862,7 +862,7 @@ def _typeset(days, meta, layout, pdf_path, typst_exe, workdir, progress, cancell
     writer = writer or Writer
     tagged = layout.accessible
     volumes = plan_volumes(days, rows_of=rows_of)
-    vol_pdfs, entries, next_page = [], [], 1
+    vol_pdfs, entries, next_page, again = [], [], 1, []
     for n, vol in enumerate(volumes):
         if cancelled and cancelled():
             raise Cancelled()
@@ -870,13 +870,29 @@ def _typeset(days, meta, layout, pdf_path, typst_exe, workdir, progress, cancell
             progress("typeset", n, len(volumes))
         typ = os.path.join(workdir, "volume%02d.typ" % (n + 1))
         pdf = os.path.join(workdir, "volume%02d.pdf" % (n + 1))
+        w = writer(layout, meta)
         with open(typ, "w", encoding="utf-8") as fh:
-            fh.write(writer(layout, meta).document(vol, start_page=next_page))
+            fh.write(w.document(vol, start_page=next_page))
         compile_pdf(typ, pdf, typst_exe, cancelled, tagged=tagged)
         count = len(PdfReader(pdf).pages)
         entries += writer(layout, meta).volume_entries(vol, pdf, next_page)
         vol_pdfs.append(pdf)
+        if getattr(w, "unresolved", False):
+            again.append((vol, typ, pdf, next_page, count))
         next_page += count
+    # A page named before it was typeset (the breviary's "Cetera ut in" from
+    # the Proper of the Saints to the Common after it): those volumes set
+    # again, every page now known. The number's box is of fixed width, so the
+    # pages come out the same; were they not, the book would be wrong.
+    for vol, typ, pdf, start, count in again:
+        if cancelled and cancelled():
+            raise Cancelled()
+        with open(typ, "w", encoding="utf-8") as fh:
+            fh.write(writer(layout, meta).document(vol, start_page=start))
+        compile_pdf(typ, pdf, typst_exe, cancelled, tagged=tagged)
+        if len(PdfReader(pdf).pages) != count:
+            raise RuntimeError("%s came out %d pages, not %d, when set again with its references"
+                               % (os.path.basename(pdf), len(PdfReader(pdf).pages), count))
     if progress:
         progress("typeset", len(volumes), len(volumes))
 
@@ -894,7 +910,8 @@ def _typeset(days, meta, layout, pdf_path, typst_exe, workdir, progress, cancell
     if progress:
         progress("assemble", 0, 1)
     _assemble(front_pdf, vol_pdfs, entries, marks, layout, meta, pdf_path,
-              rebuild_outline=writer.rebuild_outline)
+              rebuild_outline=writer.rebuild_outline,
+              even_front=getattr(writer, "even_front", False))
     if progress:
         progress("assemble", 1, 1)
 
@@ -929,7 +946,9 @@ def blank_pages(layout):
 
 
 def _assemble(front_pdf, vol_pdfs, entries, marks, layout, meta, pdf_path,
-              rebuild_outline=False):
+              rebuild_outline=False, even_front=False):
+    """even_front: a bound book's page 1 is a right-hand page, so a title page
+    and contents of an odd number of pages are followed by a blank one."""
     writer = PdfWriter()
     blank_front, blank_back = blank_pages(layout)
     if blank_front or blank_back:
@@ -940,6 +959,9 @@ def _assemble(front_pdf, vol_pdfs, entries, marks, layout, meta, pdf_path,
     n_front = blank_front
     if front_pdf:
         writer.append(front_pdf, import_outline=False)
+        if even_front and len(writer.pages) % 2:
+            box = writer.pages[-1].mediabox
+            writer.add_blank_page(float(box.width), float(box.height))
         n_front = len(writer.pages)
         if layout.title_page:
             writer.add_outline_item("Title", blank_front)

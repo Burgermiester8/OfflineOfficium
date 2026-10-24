@@ -863,6 +863,19 @@ def number(text, default):
 
 
 VOLUME_CHOICES = ("One book", "2 volumes", "3 volumes", "4 volumes")
+BOOK_CHOICES = (("breviary", "The whole breviary"), ("matins", "Matins alone (Matutinale)"),
+                ("diurnal", "The Diurnal: the other hours"),
+                ("both", "Matins and the Diurnal, as two books"))
+# Each part's pages in a Matins book and in a Diurnal against the whole
+# breviary's (PART_PAGES): measured on the 1960 book, Latin and English,
+# Letter, 10 pt (README, Matins and the Diurnal). The Calendar and the
+# prayers are in both, whole.
+BOOK_SHARE = {
+    "matins": {"ordinarium": 0.25, "psalterium": 0.27, "tempora": 0.9, "temporis": 0.33,
+               "sancti": 0.88, "commune": 0.78, "missa": 0.0},
+    "diurnal": {"ordinarium": 0.8, "psalterium": 0.74, "tempora": 0.13, "temporis": 0.73,
+                "sancti": 0.21, "commune": 0.33},
+}
 
 
 def volume_pages(pages_by_part, seams, modern):
@@ -939,6 +952,14 @@ class BreviaryDialog(PdfDialog):
         cb.bind("<<ComboboxSelected>>", lambda _e: self.update_summary())
         self.book_name = ttk.Label(office, style="Muted.TLabel")
         self.book_name.grid(row=1, column=1, sticky="w")
+        # The whole breviary, or its Matins and its other hours (a Diurnal) as
+        # books of their own (dobreviary.book_offices).
+        self.book_kind = tk.StringVar(value=BOOK_CHOICES[0][1])
+        ttk.Label(office, text="Book").grid(row=2, column=0, sticky="w", pady=(6, 0))
+        cbk = ttk.Combobox(office, textvariable=self.book_kind, state="readonly", width=34,
+                           values=[label for _k, label in BOOK_CHOICES])
+        cbk.grid(row=2, column=1, sticky="w", pady=(6, 0))
+        cbk.bind("<<ComboboxSelected>>", lambda _e: self.update_summary())
 
         langs = ttk.LabelFrame(outer, text="Languages", padding=8)
         langs.grid(row=0, column=1, sticky="nsew", **pad)
@@ -1022,6 +1043,18 @@ class BreviaryDialog(PdfDialog):
         self.volume_note = ttk.Label(box, style="Muted.TLabel", wraplength=540, justify="left")
         self.volume_note.grid(row=1, column=0, columnspan=2, sticky="w", pady=(6, 0))
         self.usual_division()
+
+    def book_choice(self):
+        """"breviary", "matins", "diurnal" or "both" (dobreviary.BOOKS)."""
+        return next((k for k, label in BOOK_CHOICES if label == self.book_kind.get()), "breviary")
+
+    def book_title(self):
+        """The title of the book chosen: "Matutinale Romanum"; both, the two."""
+        kind, version = self.book_choice(), self.version.get()
+        if kind == "both":
+            return "%s and %s" % (self.book.book_title(version, "matins"),
+                                  self.book.book_title(version, "diurnal"))
+        return self.book.book_title(version, kind)
 
     def volumes_wanted(self):
         return VOLUME_CHOICES.index(self.volume_count.get()) + 1 if self.volume_count.get() in VOLUME_CHOICES else 1
@@ -1365,8 +1398,8 @@ class BreviaryDialog(PdfDialog):
         if ev[0] == "progress" and ev[1] == "book":
             _, _stage, done, total = ev
             self.bar.config(value=40 + 55 * (done / total if total else 1))
-            self.status.config(text="Typesetting volume %d of %d…" % (min(total // 100, done // 100 + 1),
-                                                                      total // 100))
+            self.status.config(text="Typesetting %s %d of %d…" % (
+                getattr(self, "_unit", "volume"), min(total // 100, done // 100 + 1), total // 100))
         elif ev[0] == "done-volumes":
             paths = ev[1]
             self.worker = None
@@ -1379,8 +1412,9 @@ class BreviaryDialog(PdfDialog):
             except Exception:
                 pass
             self.last_pdf = paths[0]
-            self.status.config(text="Saved %d volumes%s to %s" % (
-                len(paths), " (%s pages)" % ", ".join("{:,}".format(n) for n in pages) if pages else "",
+            self.status.config(text="Saved %d %s%s to %s" % (
+                len(paths), "files" if getattr(self, "_unit", "volume") == "book" else "volumes",
+                " (%s pages)" % ", ".join("{:,}".format(n) for n in pages) if pages else "",
                 os.path.dirname(paths[0])))
             self.open_btn.config(state="normal")
             self.folder_btn.config(state="normal")
@@ -1566,7 +1600,7 @@ class BreviaryDialog(PdfDialog):
     def update_summary(self):
         if not hasattr(self, "estimate"):
             return  # still building the window
-        self.book_name.config(text=self.book.book_title(self.version.get()))
+        self.book_name.config(text=self.book_title())
         parts = self.parts()
         if not parts:
             self.estimate.config(text="Choose at least one part.")
@@ -1593,15 +1627,25 @@ class BreviaryDialog(PdfDialog):
             return
         custom_pages = sum(self._custom_pages(f, lay) for f in customs.values())
         parts = [p for p in parts if p not in customs]
-        pages = sum(PART_PAGES[p] * (1 if alt else NO_ALTERNATIVES.get(p, 1))
-                    * (1 if self.references.get() else FULL_TEXTS.get(p, 1)) for p in parts)
+        kind = self.book_choice()
+        kinds = ["matins", "diurnal"] if kind == "both" else [kind]
+
+        def by_part(k):
+            """Each part's pages at the standard settings, in book k (BOOK_SHARE)."""
+            return {p: PART_PAGES[p] * (1 if alt else NO_ALTERNATIVES.get(p, 1))
+                    * (1 if self.references.get() else FULL_TEXTS.get(p, 1))
+                    * BOOK_SHARE.get(k, {}).get(p, 1) for p in parts}
+
+        factor = 1.0  # paper, type, spacing, columns
         one = self.lang2.get() == ONE_COLUMN
         self.two_columns_check.state(["!disabled"] if one else ["disabled"])
         if one:
-            pages *= ONE_LANGUAGE.get(lay.paper, 0.6)
+            factor *= ONE_LANGUAGE.get(lay.paper, 0.6)
             if self.two_columns.get():
-                pages *= TWO_COLUMNS.get(lay.paper, 0.8)
-        pages *= PAPER_FACTOR.get(lay.paper, 1.0) * (lay.font_size / 10.0) ** 2 * spacing_factor(lay)
+                factor *= TWO_COLUMNS.get(lay.paper, 0.8)
+        factor *= PAPER_FACTOR.get(lay.paper, 1.0) * (lay.font_size / 10.0) ** 2 * spacing_factor(lay)
+        blanks = sum(dopdf.blank_pages(lay)) + custom_pages  # in every book and volume
+        tens = lambda pages: ", ".join("{:,}".format(int(round(v, -1))) for v in pages)
         n = self.volumes_wanted()
         self._show_volume_choices(n)
         if n > 1:
@@ -1624,28 +1668,38 @@ class BreviaryDialog(PdfDialog):
                                                        if len(whole) > 1 else whole[0])
                           if whole else "")
                 + "a saint or Sunday that can fall in two volumes is in both."))
-            by_part = {p: PART_PAGES[p] * (1 if alt else NO_ALTERNATIVES.get(p, 1))
-                       * (1 if self.references.get() else FULL_TEXTS.get(p, 1)) for p in parts}
-            factor = pages / max(1.0, sum(by_part.values()))  # paper, type, spacing, columns
-            blanks = sum(dopdf.blank_pages(lay)) + custom_pages  # in every volume
-            each = [v * factor + blanks for v in volume_pages(by_part, seams, "196" in self.version.get())]
-            seconds = 10 + sum(each) * 0.02 + 5 * n
+            each = {k: [v * factor + blanks for v in volume_pages(by_part(k), seams,
+                                                                  "196" in self.version.get())]
+                    for k in kinds}
+            total = sum(sum(v) for v in each.values())
+            seconds = 10 + total * 0.02 + 5 * n * len(kinds)
             when = "under a minute" if seconds < 60 else (
                 "about a minute" if seconds < 90 else "about %d minutes" % round(seconds / 60))
-            self.estimate.config(text="%d volumes of about %s pages, %s, roughly %s MB in all" % (
-                n, ", ".join("{:,}".format(int(round(p, -1))) for p in each), when,
-                "{:,}".format(max(1, int(round(sum(each) * (0.021 if lay.accessible else 0.007)))))))
+            mb = "{:,}".format(max(1, int(round(total * (0.021 if lay.accessible else 0.007)))))
+            if len(kinds) == 1:
+                text = "%d volumes of about %s pages, %s, roughly %s MB in all" % (
+                    n, tens(each[kinds[0]]), when, mb)
+            else:
+                text = "Two books of %d volumes: Matins about %s pages, the Diurnal about %s; %s, "                        "roughly %s MB in all" % (n, tens(each["matins"]), tens(each["diurnal"]), when, mb)
+            self.estimate.config(text=text)
             if not self.worker:
                 self.go_btn.config(state="normal")
             return
-        self.volume_note.config(text="One book holding every part chosen above.", style="Muted.TLabel")
-        pages += sum(dopdf.blank_pages(lay)) + custom_pages
-        seconds = 10 + pages * 0.02
+        self.volume_note.config(style="Muted.TLabel", text="One book holding every part chosen above."
+                                if len(kinds) == 1 else
+                                "Two books, each holding its own hours of every part chosen above.")
+        pages = {k: sum(by_part(k).values()) * factor + blanks for k in kinds}
+        total = sum(pages.values())
+        seconds = 10 + total * 0.02
         when = "under a minute" if seconds < 60 else (
             "about a minute" if seconds < 90 else "about %d minutes" % round(seconds / 60))
-        mb = pages * (0.021 if lay.accessible else 0.007)
-        self.estimate.config(text="About %s pages, %s, roughly %s MB" % (
-            "{:,}".format(int(round(pages, -1))), when, "{:,}".format(max(1, int(round(mb))))))
+        mb = "{:,}".format(max(1, int(round(total * (0.021 if lay.accessible else 0.007)))))
+        if len(kinds) == 1:
+            self.estimate.config(text="About %s pages, %s, roughly %s MB" % (tens([total]), when, mb))
+        else:
+            self.estimate.config(text="Two books: Matins about %s pages, the Diurnal about %s; %s, "
+                                      "roughly %s MB in all" % (tens([pages["matins"]]),
+                                                                tens([pages["diurnal"]]), when, mb))
         if not self.worker:
             self.go_btn.config(state="normal")
 
@@ -1665,6 +1719,7 @@ class BreviaryDialog(PdfDialog):
             "margins": [v.get() for v in self.margin_vars],
             "volumes": self.volumes_wanted(),
             "seams": self.seams_chosen(),
+            "book": self.book_choice(),
             "opts": {k: v.get() for k, v in self.opts.items()},
             "blank_pages": list(dopdf.blank_pages(self.layout())),
             "folder": os.path.dirname(self.last_pdf) if self.last_pdf else None,
@@ -1737,6 +1792,9 @@ class BreviaryDialog(PdfDialog):
             self._set_margins([number(v, 0) for v in margins])
         else:
             self._set_margins(dopdf.standard_margins(self.paper.get()))
+        labels = dict(BOOK_CHOICES)
+        if s.get("book") in labels:
+            self.book_kind.set(labels[s["book"]])
         for k, v in (s.get("opts") or {}).items():
             if k in self.opts:
                 self.opts[k].set(bool(v))
@@ -1745,14 +1803,23 @@ class BreviaryDialog(PdfDialog):
 
     def start(self):
         folder = getattr(self, "saved_folder", None) or os.path.join(os.path.expanduser("~"), "Documents")
-        name = safe_filename("%s (%s).pdf" % (self.book.book_title(self.version.get()), self.version.get()))
+        kind = self.book_choice()
+        # Two books are named after the whole breviary, each with its name
+        # added (" - Matutinale", " - Diurnale").
+        name = safe_filename("%s (%s).pdf" % (self.book.book_title(
+            self.version.get(), "breviary" if kind == "both" else kind), self.version.get()))
         n = self.volumes_wanted()
         # Volumes: one PDF each, this name with the volume's added
         # ("… - I. Pars Hiemalis.pdf"), so each can be printed by itself.
         seams = self.seams_chosen()
-        title = ('Save the %d volumes as (one PDF each: this name + "%s", "%s" …)' % (
-            n, dovolumes.file_suffix(seams, 0), dovolumes.file_suffix(seams, 1))
-                 if n > 1 else "Save the breviary as")
+        if kind == "both":
+            title = 'Save the two books as (this name + " - Matutinale", " - Diurnale"%s)' % (
+                ", each in %d volumes" % n if n > 1 else "")
+        elif n > 1:
+            title = 'Save the %d volumes as (one PDF each: this name + "%s", "%s" …)' % (
+                n, dovolumes.file_suffix(seams, 0), dovolumes.file_suffix(seams, 1))
+        else:
+            title = "Save the %s as" % ("breviary" if kind == "breviary" else "book")
         path = filedialog.asksaveasfilename(
             parent=self.win, title=title, defaultextension=".pdf",
             initialdir=folder if os.path.isdir(folder) else os.path.expanduser("~"),
@@ -1770,8 +1837,11 @@ class BreviaryDialog(PdfDialog):
         references = self.references.get()
         customs = self.customs()
         seams = self.seams_chosen() if self.volumes_wanted() > 1 else []
+        kind = self.book_choice()
         self.cancel.clear()
-        self.last_pdf = self.book.volume_path(path, seams, 0) if seams else path
+        first = self.book.book_path(path, "matins") if kind == "both" else path
+        self.last_pdf = self.book.volume_path(first, seams, 0) if seams else first
+        self._unit = "book" if kind == "both" else "volume"
         self._busy(True)
         self.bar.config(value=0, maximum=100)
         self.status.config(text="Starting…")
@@ -1781,20 +1851,15 @@ class BreviaryDialog(PdfDialog):
 
         def work():
             try:
-                if seams:
-                    books = self.book.build_volumes(
-                        parts, version, lang1, lang2, layout, path, self.perl, self.dumper,
-                        self.web_root, self.typst, seams, progress=progress,
-                        cancelled=self.cancel.is_set, alternatives=alternatives,
-                        perl_libs=self.engine.perl_libs, references=references, customs=customs)
+                books = self.book.build_books(
+                    parts, version, lang1, lang2, layout, path, self.perl, self.dumper,
+                    self.web_root, self.typst, book=kind, seams=seams, progress=progress,
+                    cancelled=self.cancel.is_set, alternatives=alternatives,
+                    perl_libs=self.engine.perl_libs, references=references, customs=customs)
+                if len(books) > 1:  # volumes, or two books
                     self.events.put(("done-volumes", [p for p, _o in books]))
-                    return
-                offices = self.book.build(parts, version, lang1, lang2, layout, path, self.perl,
-                                          self.dumper, self.web_root, self.typst,
-                                          progress=progress, cancelled=self.cancel.is_set,
-                                          alternatives=alternatives, perl_libs=self.engine.perl_libs,
-                                          references=references, customs=customs)
-                self.events.put(("done", path, len(offices), []))
+                else:
+                    self.events.put(("done", books[0][0], len(books[0][1]), []))
             except dopdf.Cancelled:
                 self.events.put(("cancelled",))
             except Exception as exc:  # shown to the user; the app stays usable

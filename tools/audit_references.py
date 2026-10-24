@@ -15,7 +15,9 @@ For each "… pag. N" (Latin column) and "… p. N" (English column):
      the next: where one language's text begins a row lower than the other's,
      a page can end between them; and a reference's row may break at the
      page's end, one language's on this page and the other's on the next);
-  5. the number printed in page N's running head is N;
+  5. the number printed in page N's running head is N, at its outer corner
+     as the page prints: the right on a right-hand page (odd in the PDF), the
+     left on a left-hand one -- never by the binding;
   6. the heading a reference names ("Resp. IV, pag. 56") is the last red
      heading of its kind before the quoted words on page N (or, for part of a
      long section, on up to three pages before it, where the section began):
@@ -130,6 +132,10 @@ def reading_order(col, width):
     return [col[k][2].strip() for k in sorted(col, key=lambda k: order[k])]
 
 
+head_x = {}  # page index -> where the number in its head stands (its middle)
+centred = {}  # page index -> its centred text in reading order (two languages)
+
+
 def columns(page):
     """([Latin lines], [English lines], number in the head) -- or, in a book of
     one language, ([its lines in reading order], [], number in the head)."""
@@ -143,6 +149,32 @@ def columns(page):
     # the middle; in two columns nothing does but a part's title.
     across = ONE and sum(1 for b in blocks for l in b.get("lines", []) for s in l["spans"]
                          if s["bbox"][0] < mid - 5 and s["bbox"][2] > mid + 5 and s["bbox"][3] > head_foot) >= 3
+    # Centred (two languages): a row of text running across the middle -- a
+    # heading, or the note under an office's title, which PyMuPDF gives in
+    # pieces (its red page, its second language, a short last line) -- with
+    # no more than a space where the two columns have their gutter (1.1em).
+    centred_spans = set()
+    if not ONE:
+        spans = sorted((s for b in blocks for l in b.get("lines", []) for s in l["spans"]
+                        if s["text"].strip() and (s["bbox"][1] + s["bbox"][3]) / 2 > head_foot),
+                       key=lambda s: (s["bbox"][1] + s["bbox"][3]) / 2)
+        rows = []
+        for s in spans:
+            c = (s["bbox"][1] + s["bbox"][3]) / 2
+            if rows and abs(c - rows[-1][0]) < 0.4 * (s["bbox"][3] - s["bbox"][1]):
+                rows[-1][1].append(s)
+            else:
+                rows.append([c, [s]])
+        for _c, row in rows:
+            left = [s["bbox"][2] for s in row if s["bbox"][2] <= mid + 5]
+            right = [s["bbox"][0] for s in row if s["bbox"][0] >= mid - 5]
+            size = max(s["size"] for s in row)
+            # touching the gutter's very middle, where a column's text never
+            # is (a short centred line, "pag. 6" with its box, need not cross it)
+            if any(s["bbox"][0] < mid + 1.5 and s["bbox"][2] > mid - 1.5 for s in row) \
+                    or (left and right and min(right) - max(left) < 0.45 * size):
+                centred_spans.update(id(s) for s in row)
+    mids = []  # (top, foot, left, text) of the centred spans
     for bi, b in enumerate(blocks):
         for li, l in enumerate(b.get("lines", [])):
             for s in l["spans"]:
@@ -150,12 +182,16 @@ def columns(page):
                 if not t.strip():
                     continue
                 x0, y0, x1, y1 = s["bbox"]
-                if y1 < head_foot:
+                # In the head by its middle: the rule under the head is drawn
+                # over the foot of its letters' box (y 47 against 49).
+                if (y0 + y1) / 2 < head_foot:
                     if t.strip().isdigit():
                         head_num = int(t.strip())
+                        head_x[page.number] = (x0 + x1) / 2
                     continue
-                if x0 < mid - 5 and x1 > mid + 5 and not ONE:
-                    continue  # centred headings (hours, offices)
+                if id(s) in centred_spans:
+                    mids.append((y0, y1, x0, t))  # kept for its "Cetera ut in" (check 7)
+                    continue
                 if s["color"] == GREY_AI and t.strip() == "AI":
                     continue
                 c = 0 if across or (x0 + x1) / 2 < mid else 1
@@ -167,6 +203,15 @@ def columns(page):
                 y, x, out = cols[c].get(key, (round(y0, 1), x0, ""))
                 cols[c][key] = (min(y, round(y0, 1)), min(x, x0),
                                 out + ("⟨%s⟩" % t if s["color"] == RUB else t))
+    # The centred text in reading order: row by row (a span level with the
+    # row's), each row left to right.
+    rows = []
+    for top, foot, x, t in sorted(mids):
+        if rows and top <= rows[-1][0] + 0.6 * (rows[-1][1] - rows[-1][0]):
+            rows[-1][2].append((x, t))
+        else:
+            rows.append([top, foot, [(x, t)]])
+    centred[page.number] = " ".join("".join(t for _x, t in sorted(r[2])) for r in rows)
     lefts = [x for _y, x, _t in cols[0].values()]
     width = (mid - min(lefts)) * (2 if across else 1) if lefts else W / 2
     left = reading_order(cols[0], width)
@@ -379,13 +424,39 @@ for lab, c, cands, target, raw, heading in refs:
     else:
         problems["quoted words not printed there"].append((where, raw))
 
+# Each page's number at its outer corner as printed: the first page of the PDF
+# is a right-hand page, so its odd pages are right-hand ones.
+binding_side = [lab for lab, i in sorted(label_to_index.items())
+                if i in head_x and (head_x[i] > W / 2) != (i % 2 == 0)]
+if binding_side:
+    problems["page number on the binding side"].append(
+        ("%d pages" % len(binding_side), "p. %s" % ", ".join(map(str, binding_side[:12]))
+         + (" …" if len(binding_side) > 12 else "")))
+
 by_page = collections.defaultdict(lambda: ([], []))
 for lab, c, cands, target, raw, _heading in refs:
     by_page[lab][c].append(target)
 
 
+def english_column():
+    """The column whose references say "p." (English): the right in a Latin
+    and English book, the left in one with English first."""
+    said = [" ".join(" ".join(pages[i][c]) for i in label_to_index.values()) for c in (0, 1)]
+    p = [len(re.findall(r"(?<![^\W\d_])p\.\s*\d", t)) for t in said]
+    return 0 if p[0] > p[1] else 1
+
+
+# The English may give the page after the Latin's (its text a row lower).
+LATER = 1 if ONE else english_column()
+
+
+def later(a, b):
+    """How many pages the English column's reference is after the other's."""
+    return b - a if LATER == 1 else a - b
+
+
 def paired(la, en):
-    return len(la) == len(en) and all(b - a in (0, 1) for a, b in zip(la, en))
+    return len(la) == len(en) and all(later(a, b) in (0, 1) for a, b in zip(la, en))
 
 
 # A row broken at a page's end: one language's reference ends on this page,
@@ -406,9 +477,52 @@ next_page = 0
 for lab, (la, en) in sorted(by_page.items()):
     if ONE:
         break  # one language: nothing to pair
-    if len(la) != len(en) or any(b - a not in (0, 1) for a, b in zip(la, en)):
-        problems["Latin and English differ"].append(("p.%d" % lab, "Latin %s / English %s" % (la, en)))
-    next_page += sum(1 for a, b in zip(la, en) if b == a + 1) if len(la) == len(en) else 0
+    if not paired(la, en):
+        problems["Latin and English differ"].append(("p.%d" % lab, "%s %s / %s %s" % (
+            ("Latin", la, "English", en) if LATER == 1 else ("English", la, "Latin", en))))
+    next_page += sum(1 for a, b in zip(la, en) if later(a, b) == 1) if len(la) == len(en) else 0
+
+# "Cetera ut in: X, pag. N" / "The rest as in: X, p. N", under an office's
+# title or as its only text: office X is headed on page N -- X among the
+# page's headings (bold and larger than the text), or, in the second
+# language, the translation under such a heading. These may point forward.
+# a name has no "·", "—" or "…" (a reference's), nor ":" (the next note's)
+REST = re.compile(r"(Cetera ut in|The rest as in):\s*([^·—…:]{1,200}?),\s*(pag|p)\.\s*(\d+)")
+heads = {}
+
+
+def page_headings(i):
+    """The letters of page i's office headings, and of the rest of its centred
+    text with any "Cetera ut in" taken out (the translations under them)."""
+    if i not in heads:
+        _mid, head_foot = text_block(d[i])
+        spans = [s for b in d[i].get_text("dict")["blocks"] for l in b.get("lines", [])
+                 for s in l["spans"] if s["text"].strip() and (s["bbox"][1] + s["bbox"][3]) / 2 > head_foot]
+        body = collections.Counter(round(s["size"], 1) for s in spans).most_common(1)
+        size = body[0][0] if body else 10
+        bold = "".join(s["text"] for s in spans if s["flags"] & 16 and s["size"] > size * 1.08)
+        under = REST.sub("", re.sub(r"\s+", " ", centred.get(i, "")))
+        heads[i] = (letters(bold), letters(under))
+    return heads[i]
+
+
+rest_notes, rest_ok = 0, 0
+for lab, i in sorted(label_to_index.items()):
+    texts = [centred.get(i, "")] + ["\n".join(col) for col in pages[i][:2]]
+    for text in texts:
+        flat = re.sub(r"\s+", " ", re.sub("­\\s*", "", text.replace("⟨", "").replace("⟩", "")))
+        for m in REST.finditer(flat):
+            rest_notes += 1
+            name, target = m.group(2), int(m.group(4))
+            where = "p.%d" % lab
+            if target not in label_to_index:
+                problems["office named does not exist there"].append((where, m.group(0)))
+                continue
+            bold, under = page_headings(label_to_index[target])
+            if letters(name) in bold or letters(name) in under:
+                rest_ok += 1
+            else:
+                problems["office named is not headed on that page"].append((where, m.group(0)))
 
 latin = sum(1 for r in refs if r[1] == 0)
 partial = sum(1 for r in refs if any(x[1] for x in r[2]))
@@ -424,6 +538,8 @@ if next_page:
 if split_rows:
     print("A reference's row broken at a page's end (Latin and English either side): %d"
           % split_rows)
+if rest_notes:
+    print("\"Cetera ut in\" with a page: %d, the office headed there: %d" % (rest_notes, rest_ok))
 print("PROBLEMS: %d" % sum(len(v) for v in problems.values()))
 for kind, items in problems.items():
     print("  %s: %d" % (kind, len(items)))
