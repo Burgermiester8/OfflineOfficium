@@ -809,8 +809,9 @@ dist/DivinumOfficium/DivinumOfficium.exe --make-pdf 2026-11-29 2027-11-27 --vers
 `--size`, `--black`, `--font Georgia`, `--align justify|left|right`,
 `--rubric-colour "#1f4e9c"` and `--text-colour "#222222"` also work. `DivinumOfficium.exe --selftest` checks every
 bundled piece (data, Perl, Typst, the engine, the PDF window, an export, the
-breviary window, a breviary from the dumped parts and one from the rendered
-Ordinary) and prints what passed. From source, `python dopdf.py …` takes the same options.
+breviary window, a breviary from the dumped parts -- with the rule between
+the languages and the first on the outside of each page, as the window makes
+one at first -- and one from the rendered Ordinary) and prints what passed. From source, `python dopdf.py …` takes the same options.
 
 ### Known limits
 
@@ -832,16 +833,22 @@ Click **Make a breviary…** in the app's window:
 - **Parts** — tick the ones you want and put them in order with ▲ ▼. By
   default, in the order of a printed breviary:
 
-  | Part | English | Pages (1960, Latin and English) |
+  | Part | English | Pages (1960, Latin and English, Letter, 10 pt; November 2026) |
   |---|---|---|
   | *Kalendarium* | Calendar | 10 |
-  | *Orationes ante et post Divinum Officium* | Prayers before and after the Office | 2 |
+  | *Orationes ante et post Divinum Officium* | Prayers before and after the Office | 1 |
   | *Ordinarium Divini Officii* | Ordinary of the Office | 21 |
-  | *Psalterium* | Psalter | 160 |
-  | *Proprium de Tempore* | Proper of the Season | 838 |
-  | *Commune de Tempore* | Common of the Seasons | 17 |
-  | *Proprium Sanctorum* | Proper of the Saints | 779 |
-  | *Commune Sanctorum* | Common of the Saints | 547 |
+  | *Psalterium* | Psalter | 147 |
+  | *Proprium de Tempore* | Proper of the Season | 599 |
+  | *Commune de Tempore* | Common of the Seasons | 15 |
+  | *Proprium Sanctorum* | Proper of the Saints | 642 |
+  | *Commune Sanctorum* | Common of the Saints | 87 |
+  | *Officium Defunctorum* | Office of the Dead | 18 |
+
+  (The first book had 2, 21, 160, 838, 17, 779 and 547 pages for the parts
+  from the prayers on, before repeated texts were printed once, headings run
+  into their lines and the Commons printed by families. The Sunday Masses
+  are a part too, unticked at first: see *The Sunday Masses*.)
 
 - **Include the alternative lessons** — on by default; off leaves out the
   Common's second and third sets of lessons (and the few "alia" forms
@@ -2086,6 +2093,371 @@ which the window leaves out at first); made from the window with the
 prayers, the Ordinary and the Common, 99 and 51 pages against 100 and 60
 estimated.
 
+### The two languages on the page
+
+Three changes made after the first Diurnal was printed (November 2026). The
+last two are boxes in the breviary window's Page box, ticked at first;
+`dopdf.Layout` has them off, so the dated PDFs are set as before.
+
+**The rule under the running head** was set a paragraph's space under the
+head's words, and that space follows *Space between verses*: at 90% the rule
+touched the words, and at a large setting it left them. It is now a fixed
+0.32 em under them whatever the spacing (`Writer.HEAD_RULE`, a stack), the
+head's band is 2.2 em instead of 1.9, and the text begins 0.9 em under the
+rule instead of 0.8. The dated PDFs' head has the same rule.
+
+**Rule between the two languages** (`--no-rule` leaves it out): a line of
+0.4 pt in the rubrics' colour down the middle of the space between the
+columns. It runs through each run of rows and a little below it, to meet the
+next across a blank line or a section's end; a heading set across the page
+interrupts it. In a book all in black it is black.
+
+**First language on the outside of each page** (`--no-mirror`): the first
+language (Latin) at the left of a left-hand page and at the right of a
+right-hand one, the second next to the binding, as a printed Diurnal has
+them. The window's *Left* and *Right* beside the languages then read
+*Outside* and *Inside*, and the preview's two pages show it. What is set
+across the page stands as it is: headings, the notes under them, the
+Calendar, a custom part. Both boxes are greyed for a book of one language.
+
+How the sides are found. The two columns are equally wide, so which stands
+at the left changes no line and no page. Each volume is therefore set twice
+(`dopdf.mirrored_source`): once with the first language at the left of every
+row, only to read back the page each row begins and ends on (a marker at its
+first line and at each language's end, `typst query`); then with each row's
+order written into the source — `#bi(c: 4031, o: "LLRT", …)`: L the first
+language at the left, R at the right, T a row that goes over a page turn. A
+T row is set in both orders at once, one upon the other, and each word is
+shown in the one its page wants and hidden in the other (hidden text is not
+in the PDF at all). Its text is looked through sixteen words at a time for
+the turn: a group that ends on the page where the one before it ended is on
+that page, and shown or hidden whole; only the group over the turn is taken
+word by word, and a word cut over the turn in two pieces, cut where the piece
+on the new page is as wide as what stands before the word's end. A check in
+the source stops the typesetting if any row begins on another page than the
+one it was measured on (it would then be measured again, up to three times).
+A volume set again for the pages of its forward references (above) keeps its
+rows' orders.
+
+Two earlier ways were measured and given up, on the Monastic 1963 Matins
+book at the settings of the first printed copy (Latin and English -
+Coverdale, US Trade, Bookman Old Style 8 pt; 1,434 pages in two volumes,
+whose typesetting takes 35 s unmirrored). Each row asking for its own page
+while it is set makes Typst set the whole volume again and again: 103 s for
+the second volume against 12 s, and 4.4 GB of memory; two such books at once
+took 13 minutes each. With the rows' orders given, that volume takes 14 s
+without its rows over a turn; those 330 rows, word by word, brought it to
+137 s (a third of a second each: long lessons), and sixteen words at a time
+to 30 s. The whole book: 271 s word by word, 111 s now. In the rows over a
+turn the words now stand exactly where the unmirrored book has them, a
+column across; word by word, each line of such a row was justified 2 pt short
+(a marker after a line's last comma keeps it from hanging into the margin).
+That is left only in the lines of the sixteen words over the turn.
+
+From the engine's text to the PDF, the whole Monastic breviary as the window
+makes it (nine parts, 1,751 pages) takes 2 min 53 s with the first language
+outside and 1 min 30 s without; the 1960 book (Letter, 10 pt, 1,560 pages),
+its text already read, 208 s and 82 s. The window's estimate of the time
+takes half a minute for the engine's text and then 0.10 s a page for a
+mirrored book, 0.04 s otherwise (it took 10 s and 0.02 s a page, and said
+*under a minute* of books that took a minute and a half).
+
+Made from the window itself with the choices saved after the first printed
+copy (Letter, Bookman Old Style 8 pt, margins 0.5 in, the parts in another
+order -- the Common before the Proper of the Saints -- with the Sunday
+Masses, three custom PDFs and four blank pages at each end; *Matins and the
+Diurnal, as two books*): 854 and 350 pages in 141 s, 3,952 and 926
+references and 380 notes in each, all verified. The window estimated 700 and
+280 pages: its estimate does not know a font's width, and Bookman Old Style
+is a wide one.
+
+`tools/audit_sides.py plain.pdf mirrored.pdf` checks the sides from the two
+PDFs alone, against the same book made with `--no-mirror`: each page has the
+same words; on a left-hand page every word stands where the plain book has
+it; on a right-hand page every word has changed columns, or stands where it
+did in a row set across the page (a word upon the page's middle, or a word's
+space there); and no word is printed over another. The Calendar's pages are
+compared word for word only, and so are pages the two books break at another
+line (*Known limits*): they have the same words between them and are counted,
+not compared. Two controls: the plain book against itself
+(*No right-hand page has a word in the other column*), and a mirrored Common
+with two right-hand pages put back from the plain one (both reported, *a
+right-hand page's column not exchanged*). `tools/audit_references.py` knows a
+mirrored book by its *pag.* being at one side on left-hand pages and at the
+other on right-hand ones, and reads the columns accordingly.
+
+### The Common of the Saints by families
+
+The engine's Common is a tree of small files: C2 one Martyr Bishop (Mass
+*Statuit*), C2-1 the same with the Mass *Sacerdotes Dei*, C2a not a Bishop,
+C2b a Pope, C2p in Paschaltide and so on, most of them their parent's office
+with another prayer or other lessons of the third Nocturn. Printed one by
+one they made fifty Commons in the Monastic book, four of them the same
+prayer for a Pope under four titles. The book now prints them by families,
+as a printed breviary does (`dobreviary.merge_commons`, `COMMON_FAMILIES`):
+the Monastic book's 50 files are 16 Commons, the 1960 book's 55 are 17.
+
+| Common | Files (Monastic 1963) |
+|---|---|
+| Commune Apostolorum | C1 |
+| Commune Evangelistarum | C1a |
+| Commune Apostolorum et Evangelistarum tempore Paschali | C1p, C1ap |
+| Commune unius Martyris | C2, C2-1, C2a, C2a-1 |
+| Commune unius aut plurium Summorum Pontificum | C2b, C2b-1, C2bp, C2b-1p, C3b, C3bp, C4b, C4b-1, C4b-2 |
+| Commune unius aut plurium Martyrum tempore Paschali | C2p, C2-1p, C2ap, C2a-1p, C3p, C3ap, C3a-1p |
+| Commune plurium Martyrum | C3, C3a, C3a-1 |
+| Commune Confessoris Pontificis | C4, C4-1 |
+| Commune Doctorum | C4a, C5a |
+| Commune Confessoris non Pontificis | C5, C5-1 |
+| Commune Abbatum | C5b |
+| Commune Virginum | C6, C6-1, C6a, C6a-1, C6b |
+| Commune non Virginum | C7, C7a, C7b |
+| Commune Dedicationis Ecclesiæ | C8 |
+| Officium Beatæ Mariæ Virginis in Sabbato | C10 and its seasons |
+| Commune Beatæ Mariæ Virginis | C11 |
+
+A family is one office: its head's text, and in each hour, after it, what the
+family's other files have of their own there, each under its name in red
+(*Commune Unius Martyris non Pontificis (Missa In virtute):* and its
+prayer).
+
+- A file with nothing of its own, or with the same texts and the same rest
+  as one printed before it, is not printed; a note that names it names that
+  one.
+- One with the same texts but another rest (a Pope in Paschaltide) is a
+  line: its name, *ut supra*, and where the rest is.
+- What a file takes the rest from is said after its name unless that is the
+  family's own text, with the page when it is another family's.
+- A file changes only what it has: where it changes all that the file it
+  rests on changes, its rest is that file's own rest (a Pope's prayer and
+  lessons are his own, whichever Mass his Martyr's Common had).
+- This is done on each book's own offices, after its hours are chosen: two
+  files that differ only in their lessons are one in a Diurnal.
+
+**A saint's Common, with its page.** The note under an office's title
+(*Cetera ut in: …, pag. N*) was made only from the office's rule (*ex C2*,
+*vide C5*). An office whose rule names none — St Luke, Sts Simon and Jude —
+had no note, though the engine does know its Common: the fourth field of
+its rank (*ex C1a*, *vide C1*), which `engine_dump.pl` now gives too. St Luke
+reads *Cetera ut in: Commune Evangelistarum, pag. N* and Sts Simon and Jude
+*Commune Apostolorum*; 152 of the Monastic book's 194 offices of saints have
+a note (the others have every text of their own, or are commemorations).
+Every note is worded by what is printed: the family's name for its head, a
+file's own name for one printed within a family. The page is the family's
+first, where its office begins. `tools/audit_references.py` checks each note:
+the name is a heading on that page, or (a Common within its family) a red
+label on that page or the 25 after it.
+
+### The Office of the Dead
+
+A part of its own, *Officium Defunctorum — Office of the Dead*, after the
+Common of the Saints and ticked at first; it can be unticked or moved like
+any part (`--parts … ,defunctorum`). The engine has no file for it to dump
+whole: its texts are spread over the Common C9 and the Psalter. So the engine
+says it, as the votive Office of the Dead on a free day (9 November 2026,
+`dopsalter.render_dead`), and the part is that: Vespers, Matins with its
+three Nocturns and Lauds, each psalm in full, the lessons numbered as in a
+book. Nothing in it is replaced by a reference, so that it can be prayed
+without turning pages. All Souls (2 November) and the other offices that rest
+on it point to its first page (*Cetera ut in: Officium Defunctorum, pag.
+N*). In two books, Vespers and Lauds are in the Diurnal and Matins in the
+Matins book.
+
+### The invitatories in the Ordinary
+
+Where the Ordinary's Matins says *Invitatorium: Antiphona ut in Psalterio vel
+in Proprio*, the book now lists them, as a Nocturnale does under
+*Invitatoria* (`dopsalter.invitatory_table`), in three groups: *Per
+hebdomadam* (each weekday's, from the Psalter), *In Officio de Tempore* (each
+season's) and *In Officio de Sanctis* (each Common's, by the names of the
+Commons as printed; Commons with the same invitatory share a line). In the
+Monastic book: 7, 6 and 11 lines. The seasons' are read from the days the
+engine is asked for to make the Common of the Seasons, not from that part as
+printed, which leaves out what the Proper prints (Paschaltide's *Surréxit
+Dóminus vere* is printed at Easter; a first version of the table had only
+Advent, Lent and Passiontide): Advent, Septuagesima (*Dominica*), Lent
+(*Dominica*: its ferias have the weekday's), Passiontide, Paschaltide, and
+from the Ascension to Pentecost. A feast's own invitatory stays with the
+feast. The table needs the Ordinary among the parts, and the Common of the
+Seasons for its second group; the Common of the Saints is read for it even
+when it is not printed. It is in the whole breviary and in a Matins book,
+not in a Diurnal.
+
+### The responsories of Matins
+
+*Responsories of Matins:* **in full after each lesson**, or **repeated ones
+by first words and page**, under the parts (`--responsories full` or
+`refer`). It is its own choice, whatever *Print a repeated text once* says:
+with that box ticked and the responsories in full, everything else repeated
+is still printed once; with it unticked and the responsories by reference,
+they alone are referred to. (On the command line, with neither given, they
+go with the other texts as before; choices saved before this keep what they
+had.) It covers the sections of Matins headed *Responsorium* (the short one
+after a short lesson too), whole and in part; a responsory in full can still
+be what a later text refers to. Greyed for a Diurnal, which has none.
+
+Measured on the Monastic 1963 Matins book (as above): 1,973 sections are
+references, 1,601 of them responsories of Matins. With the responsories in
+full the book is 1,627 pages instead of 1,433: the Proper of the Season 868
+for 695 (its ferias repeat their Sunday's responsories), the Proper of the
+Saints 512 for 497, the Common 89 for 83. The window's estimate takes those
+three ratios for each part's Matins (`RESPONSORIES_FULL`).
+
+### Christ the King in the Proper of the Season
+
+The feast is on the last Sunday of October, and the engine keeps it with the
+saints (`Sancti/10-DU`), where a book by the calendar has no date to put it
+under. It is now in the Proper of the Season (`dobreviary.season_feasts`):
+after the Saturday of the fifth week of October and before the first Sunday
+of November, under the day *Dominica ultima Octobris*. The Proper of the
+Saints keeps a line in its place, at the end of October, with the page (*In
+Proprio de Tempore, pag. N*). In volumes it goes where the end of October
+goes.
+
+### A Roman lesson left in monastic feasts
+
+Seen while reading St Luke in a test book: his Matins had a *Lectio IV* from
+St Jerome, and then lessons V and VI, which are the same text again. The
+monastic file takes the Roman one whole (`@Sancti/10-18`) and cuts the Roman
+lessons IV to VI anew into its own V to VIII; the Roman `[Lectio4]` is left
+behind in the office. The engine never says it: a monastic first Nocturn is
+of Scripture (for that day it gives Ezekiel as lessons I to IV), and
+`specmatins.pl` has a rule for just this, *accidental Lectio4 or Lectio9 from
+Roman version* — in an office of twelve lessons, a fourth lesson where there
+is no first, a ninth where there is no tenth. The book reads the files, not
+the day, so it never passed that rule; `engine_dump.pl` now applies the same
+one (`load_office`, and names what it left out in the office's `accidental`).
+
+Offices that printed such a lesson, counted for every version (Proper of the
+Season, Proper of the Saints and Common):
+
+| Version | Offices |
+|---|---|
+| Monastic 1617 | 24 |
+| Monastic 1930 | 22 |
+| Monastic 1963 | 5 (St James, St Bartholomew, St Matthew, St Luke, St Thomas) |
+| Monastic 1963 Barroux | 12 |
+| Cistercian 1951 | 25 |
+| Cistercian Altovadensis | 27 |
+| The eight Roman versions, Dominican 1962 | none |
+
+115 in all: a fourth lesson in 113 of them, a ninth in 13 (both in 11). The
+Monastic 1963 Matins book is a page shorter for it (1,433 for 1,434: the
+Proper of the Saints 497 for 498), and `tools/audit_texts.py` still finds
+nothing in any of the fifteen versions (7 min 37 s on the Windows PC).
+
+### The psalms' verses, audited
+
+Asked of a printed page where Psalm 119 goes from verse 5 to verse 7 in the
+Latin and from 3 to 5 in the English: is a verse missing? No. The numbers
+are the Vulgate's, and a psalm file is its verses as they are sung, one line
+each, so the page's numbers skip and repeat by design:
+
+- a psalm whose title is its first verse or two begins at 2 or 3 (66 psalms);
+- a verse sung as two lines has its number twice (293 verses);
+- two verses sung as one line have one number. The data marks the second
+  inside the line -- `119:5 Heu mihi … * (6) multum íncola fuit ánima mea` --
+  in 74 lines, and the engine does not print the mark (`$noinnumbers`); 30
+  more lines hold a second verse with no mark at all;
+- a canticle takes the verses its title names (18 left out, as they say), and
+  on the Epiphany the antiphon stands for Psalm 94's sixth verse.
+
+`tools/audit_psalms.py` counts all of these in the 151 psalm files and 50
+canticles (3,173 lines) and reports any number skipped in another way; with
+`--details` it prints every place. **No Latin verse is missing.** The 30
+unmarked lines were each read against the Vulgate and hold their second
+verse whole (the tool lists them, `JOINED`, and would report a new one). The
+Douay English has the Latin's numbers line for line in all 151 psalms and 45
+canticles; five canticles' English joins two of the Latin's lines.
+
+**The Coverdale psalter** divides its verses its own way, and each is set
+beside the Latin line whose number it was given (above): 2,232 of its verses
+beside one line, 155 holding two of the Latin's lines, 52 pairs sharing one
+line, 4 otherwise; so 154 Latin lines (152 since the two below) and 52
+Coverdale verses have nothing beside them, as on that page. Those 211 places were all read against the
+Latin, and 29 one-beside-one verses that shared more words with a
+neighbouring line than with their own. The lining up had set a verse one
+line too low in five psalms, where the two translations share too few words
+to tell (`LABELS` in `tools/make_coverdale.py` now numbers them by hand):
+
+| Psalm | Was | Now |
+|---|---|---|
+| 13 | *Have they no knowledge…* beside the last line of the Latin's verse 3 | beside verse 4, *Nonne cognoscent* |
+| 48 | *For it cost more to redeem their souls* alone, above verse 9 | beside verse 9, *Et pretium redemptionis animæ suæ* |
+| 51 | *Whereas the goodness of God endureth yet daily* beside verse 4 | between 3 and 4; *Thy tongue imagineth wickedness* beside 4 |
+| 100 | *Whoso leadeth a godly life* beside verse 7 | after verse 6, which ends *hic mihi ministrabat* |
+| 138 | *Which day by day were fashioned* beside verse 17, *How dear are thy counsels* above 18 | after 16, and beside 17 (*Mihi autem nimis honorificati sunt amici tui*) |
+
+**Three verses added.** The Latin's Psalm 13 goes on in verse 3 with the
+lines St Paul quotes (*Sepulcrum patens est guttur eorum* …, Rom 3:13-18).
+Coverdale translated them and the Prayer Book of 1662 prints them (Psalm
+14:5-7); the American book of 1928, which the source follows, left them out,
+so three Latin lines had no English. They are added from 1662 (`ADDED`):
+their words are the Prayer Book's, their pointing ours, after the verses
+beside them.
+
+**Two lines from the Douay.** Two other Latin lines have no Coverdale because
+the Hebrew has no such verse: 117:28b, *Confitebor tibi quoniam exaudisti
+me*, and 144:13b, *Fidelis Dominus in omnibus verbis suis*. At the user's
+asking they have the Douay's own line beside them, read from the data when
+the files are made (`DOUAY`): *I will praise thee, because thou hast heard
+me, and art become my salvation*, and *The Lord is faithful in all his
+words: and holy in all his works*. With them 152 Latin lines have nothing
+beside them, each because the Coverdale verse above it holds its words too.
+
+**The canticles' English**, three slips the audit met, corrected in
+`data-fixes.txt` (a psalm file has no sections, so it is fixed whole, under
+`[*]`, which `datafixes.py` now takes): *Upon thy wails, O Jerusalem* for
+*walls* (Isaias 62:6); the first verse of Ecclesiasticus 14:22 numbered
+4:22, and a line of Jeremias 7:3 numbered 4:3, both printed so; and the
+half of Jeremias 7:2 that the canticle leaves out.
+
+### Checked, November 2026
+
+Every book below was made with all of the above, its references and notes
+read from its pages (`tools/audit_references.py`), and, where the same book
+was also made with `--no-mirror`, each page's sides (`tools/audit_sides.py`).
+In every one all the references were verified, every *Cetera ut in* found its
+office on the page it gives, and no page had a column on the wrong side or a
+word over another.
+
+Monastic 1963, Latin and English - Coverdale, at the settings of the first
+printed copy (US Trade, Bookman Old Style 8 pt, line and verse spacing 90%,
+word spacing 80%, margins 0.5 in, no alternative lessons), the window's nine
+parts:
+
+| Book | Pages | References | Notes with a page | Right-hand pages exchanged |
+|---|---|---|---|---|
+| The whole breviary | 1,751 | 5,054 | 385 | 860 |
+| Matins | 1,433 | 3,952 | 379 | 701 |
+| The Diurnal | 418 | 1,032 | 379 | 196 |
+| Matins, the responsories in full | 1,627 | 750 | 379 | |
+| Matins in two volumes | 878, 880 | 1,802, 2,440 | 224, 205 | |
+| The Diurnal in two volumes | 318, 279 | 666, 452 | 224, 205 | |
+| The Diurnal, Latin alone | 257 | 531 | 190 | (one language) |
+| The Diurnal, English first | 420 | 1,020 | 380 | 195 |
+
+Rubrics 1960, Latin and English, Letter, 10 pt, the same parts with the
+alternative lessons:
+
+| Book | Pages | References | Notes with a page | Right-hand pages exchanged |
+|---|---|---|---|---|
+| The whole breviary | 1,560 | 4,010 | 636 | 762 |
+| Matins | 1,266 | 3,212 | 622 | |
+| The Diurnal | 407 | 706 | 624 | |
+
+A Common all in black (`--black`) has its 802 rules black. In the notes, 115
+(Monastic) and 228 (1960) name a Common printed within its family, and are
+found as a red label after the family's heading. The sides audit showed one
+thing that was not about sides: in the Contents a title too long for its line
+(Sts Jerome Emiliani, Joseph Calasanctius and John Baptist de la Salle, 20
+July) was broken, and at a line spacing under 100% the top of its second
+line showed under the cut, over the next row. A title is now never broken
+there (`Writer.front`, a box wider than any title inside the one that cuts
+it). And the Office of the Dead's pages had *In II Vesperis* in their running
+head, the hour of the Common before it: an office whose hours have no
+headings now has no hour in the head.
+
 ### Book sizes
 
 Between Letter and half letter, three sizes of book that print-on-demand
@@ -2318,6 +2690,18 @@ typeset by itself.
   each day of the sample week, they agree for all 21 days (1960, Divino
   Afflatu, Monastic 1963). The Cistercian ferial blessings follow its own
   lists, less closely checked.
+- With the first language on the outside of each page, a book takes about
+  three times as long to typeset (each volume is set twice, and its rows
+  over a page turn cost the most): see *The two languages on the page*. In
+  those rows, the line or two of the sixteen words at the turn can end 2 pt
+  short of the column's edge, where a comma would have hung into the margin.
+- An unmirrored book and the same book mirrored are not set by the same
+  means, and where a line fits a page by a hair one of them takes it over
+  the page: the two then differ by a line for some pages, until an office
+  begins a page (7 of the Monastic Matins book's 1,434 pages).
+- The rows' pages are read back with `typst query`, as the contents' are;
+  Typst 0.15 calls that command deprecated. A later Typst will want another
+  way.
 - The monastic chapter for Ascensiontide is not kept with the other seasons'
   (in `Matutinum Special.txt`) but in the offices after the Ascension
   (`TemporaM/`), and it differs by version — *Dignus est Agnus* (Apoc 5:12)

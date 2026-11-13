@@ -22,6 +22,11 @@ Each fix replaces the text of one section of one file (paths from web/www/horas)
     ---
     the section's new text, up to the next "== " line
 
+A file with no sections (a psalm, which is only its verses) is fixed whole,
+under the section "[*]":
+
+    == English/Psalterium/Psalmorum/Psalm256.txt [*]
+
 When the project changes a section a fix replaces (perhaps fixing it itself),
 --check and --pull say so, and the fix can be reviewed or dropped. A fix with
 the note "adds:" may add its section to a file that lacks it (at the end); its
@@ -86,9 +91,19 @@ def load(path=FIXES):
     return fixes
 
 
+WHOLE = "[*]"  # the "section" of a file that has none (a psalm): all its text
+
+
 def _split(text, section):
     """(lines, header index, end index, trailing blank lines) of a section, or None."""
     lines = text.split("\n")
+    if section == WHOLE:
+        if any(_SECTION.match(l) for l in lines):
+            return None  # the file has sections: name the one meant
+        blank = 0
+        while blank < len(lines) and not lines[len(lines) - blank - 1].strip():
+            blank += 1
+        return lines, -1, len(lines), blank
     start = next((i for i, l in enumerate(lines) if l.strip() == section), None)
     if start is None:
         return None

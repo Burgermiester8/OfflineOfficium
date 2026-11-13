@@ -71,15 +71,38 @@ def one_language():
 
 ONE = one_language()
 
-# the rubric colour: that of the ℟ signs
-colours = collections.Counter()
+
+def mirrored():
+    """Two languages with the first on the outside of each page (the book's
+    "first language on the outside"): the Latin references ("pag.") are at
+    one side on the left-hand pages and at the other on the right-hand ones.
+    The first language's column is then the left one of a left-hand page."""
+    if ONE:
+        return False
+    side = {0: [0, 0], 1: [0, 0]}  # the page number's parity -> "pag." at the left, at the right
+    for lab, i in label_to_index.items():
+        for w in d[i].get_text("words"):
+            if w[4].startswith("pag."):
+                side[lab % 2][0 if (w[0] + w[2]) / 2 < d[i].rect.width / 2 else 1] += 1
+    if not sum(side[0]) or not sum(side[1]):
+        return False
+    return (side[0][0] > side[0][1]) != (side[1][0] > side[1][1])
+
+
+MIRRORED = mirrored()
+index_to_label = {i: lab for lab, i in label_to_index.items()}
+
+# the rubric colour: that of the ℟ signs; and the size of the book's text
+colours, sizes = collections.Counter(), collections.Counter()
 for i in list(label_to_index.values())[20:40]:
     for b in d[i].get_text("dict")["blocks"]:
         for l in b.get("lines", []):
             for s in l["spans"]:
                 if "℟" in s["text"]:
                     colours[s["color"]] += 1
+                sizes[round(s["size"], 1)] += len(s["text"].strip())
 RUB = colours.most_common(1)[0][0]
+BODY = sizes.most_common(1)[0][0] if sizes else 10
 GREY_AI = 0x6E6E6E
 
 
@@ -143,6 +166,8 @@ def columns(page):
     # baseline into a single line.
     cols = {0: {}, 1: {}}
     head_num = None
+    # A mirrored book's right-hand pages have the first language at the right.
+    swapped = MIRRORED and index_to_label.get(page.number, 0) % 2 == 1
     mid, head_foot = text_block(page)
     blocks = page.get_text("dict")["blocks"]
     # One language across the page (one column, the Calendar): text runs over
@@ -151,8 +176,12 @@ def columns(page):
                          if s["bbox"][0] < mid - 5 and s["bbox"][2] > mid + 5 and s["bbox"][3] > head_foot) >= 3
     # Centred (two languages): a row of text running across the middle -- a
     # heading, or the note under an office's title, which PyMuPDF gives in
-    # pieces (its red page, its second language, a short last line) -- with
-    # no more than a space where the two columns have their gutter (1.1em).
+    # pieces (its red page, its second language, a short last line). By its
+    # ink: a column's words keep 0.29em and more from the gutter's middle (the
+    # gutter is 1.1em, and a line's last comma hangs 0.26em into it; measured
+    # at 8 pt in Bookman Old Style), a centred row's are upon it, or leave a
+    # word's space there. A piece's own box will not do: it has the line's
+    # last space, which ends at the middle itself.
     centred_spans = set()
     if not ONE:
         spans = sorted((s for b in blocks for l in b.get("lines", []) for s in l["spans"]
@@ -165,14 +194,17 @@ def columns(page):
                 rows[-1][1].append(s)
             else:
                 rows.append([c, [s]])
+        words = [w for w in page.get_text("words") if w[4].strip()]
         for _c, row in rows:
-            left = [s["bbox"][2] for s in row if s["bbox"][2] <= mid + 5]
-            right = [s["bbox"][0] for s in row if s["bbox"][0] >= mid - 5]
+            top, foot = min(s["bbox"][1] for s in row), max(s["bbox"][3] for s in row)
+            ink = [(w[0], w[2]) for w in words if top <= (w[1] + w[3]) / 2 <= foot]
             size = max(s["size"] for s in row)
-            # touching the gutter's very middle, where a column's text never
-            # is (a short centred line, "pag. 6" with its box, need not cross it)
-            if any(s["bbox"][0] < mid + 1.5 and s["bbox"][2] > mid - 1.5 for s in row) \
-                    or (left and right and min(right) - max(left) < 0.45 * size):
+            ends = [x1 for _x0, x1 in ink if x1 <= mid]
+            starts = [x0 for x0, _x1 in ink if x0 >= mid]
+            if any(x0 < mid < x1 for x0, x1 in ink) \
+                    or (ends and max(ends) > mid - 0.18 * size) \
+                    or (starts and min(starts) < mid + 0.18 * size) \
+                    or (ends and starts and min(starts) - max(ends) < 0.45 * size):
                 centred_spans.update(id(s) for s in row)
     mids = []  # (top, foot, left, text) of the centred spans
     for bi, b in enumerate(blocks):
@@ -195,6 +227,8 @@ def columns(page):
                 if s["color"] == GREY_AI and t.strip() == "AI":
                     continue
                 c = 0 if across or (x0 + x1) / 2 < mid else 1
+                if swapped and not across:
+                    c = 1 - c
                 key = (bi, li)
                 # The height of this column's part of the line, not of the
                 # joined line: a Latin line joined to the English one beside
@@ -212,7 +246,7 @@ def columns(page):
         else:
             rows.append([top, foot, [(x, t)]])
     centred[page.number] = " ".join("".join(t for _x, t in sorted(r[2])) for r in rows)
-    lefts = [x for _y, x, _t in cols[0].values()]
+    lefts = [x for _y, x, _t in cols[1 if swapped else 0].values()]  # the column at the left
     width = (mid - min(lefts)) * (2 if across else 1) if lefts else W / 2
     left = reading_order(cols[0], width)
     right = reading_order(cols[1], width)
@@ -484,11 +518,18 @@ for lab, (la, en) in sorted(by_page.items()):
 
 # "Cetera ut in: X, pag. N" / "The rest as in: X, p. N", under an office's
 # title or as its only text: office X is headed on page N -- X among the
-# page's headings (bold and larger than the text), or, in the second
-# language, the translation under such a heading. These may point forward.
+# page's headings (bold and larger than the text; a part's title, larger
+# still, for an office that is a part: the Office of the Dead), or, in the
+# second language, the translation under such a heading. A Common printed
+# within its family (dobreviary.merge_commons) has no heading of its own: the
+# page is its family's, and X a red label on that page or the FAMILY_PAGES
+# after it ("Commune Evangelistarum:" before its own prayer). These may point
+# forward.
 # a name has no "·", "—" or "…" (a reference's), nor ":" (the next note's)
 REST = re.compile(r"(Cetera ut in|The rest as in):\s*([^·—…:]{1,200}?),\s*(pag|p)\.\s*(\d+)")
+FAMILY_PAGES = 25
 heads = {}
+reds = {}
 
 
 def page_headings(i):
@@ -499,14 +540,25 @@ def page_headings(i):
         spans = [s for b in d[i].get_text("dict")["blocks"] for l in b.get("lines", [])
                  for s in l["spans"] if s["text"].strip() and (s["bbox"][1] + s["bbox"][3]) / 2 > head_foot]
         body = collections.Counter(round(s["size"], 1) for s in spans).most_common(1)
-        size = body[0][0] if body else 10
-        bold = "".join(s["text"] for s in spans if s["flags"] & 16 and s["size"] > size * 1.08)
+        # A part's title page has its title alone (a book of one language):
+        # large against the book's text, not against itself.
+        size = min(body[0][0], BODY) if body else BODY
+        bold = "".join(s["text"] for s in spans
+                       if (s["flags"] & 16 and s["size"] > size * 1.08) or s["size"] > size * 1.5)
         under = REST.sub("", re.sub(r"\s+", " ", centred.get(i, "")))
         heads[i] = (letters(bold), letters(under))
     return heads[i]
 
 
-rest_notes, rest_ok = 0, 0
+def red_labels(i):
+    """The letters of page i's red text, column by column (its labels)."""
+    if i not in reds:
+        found = [" ".join(re.findall(r"⟨([^⟩]*)⟩", line)) for col in pages[i][:2] for line in col]
+        reds[i] = letters(" ".join(found + re.findall(r"⟨([^⟩]*)⟩", centred.get(i, ""))))
+    return reds[i]
+
+
+rest_notes, rest_ok, rest_within = 0, 0, 0
 for lab, i in sorted(label_to_index.items()):
     texts = [centred.get(i, "")] + ["\n".join(col) for col in pages[i][:2]]
     for text in texts:
@@ -518,9 +570,14 @@ for lab, i in sorted(label_to_index.items()):
             if target not in label_to_index:
                 problems["office named does not exist there"].append((where, m.group(0)))
                 continue
-            bold, under = page_headings(label_to_index[target])
+            at = label_to_index[target]
+            bold, under = page_headings(at)
             if letters(name) in bold or letters(name) in under:
                 rest_ok += 1
+            elif bold and any(letters(name) in red_labels(j)
+                              for j in range(at, min(at + FAMILY_PAGES + 1, len(d))) if j in pages):
+                rest_ok += 1  # a Common within its family, which is headed there
+                rest_within += 1
             else:
                 problems["office named is not headed on that page"].append((where, m.group(0)))
 
@@ -539,7 +596,9 @@ if split_rows:
     print("A reference's row broken at a page's end (Latin and English either side): %d"
           % split_rows)
 if rest_notes:
-    print("\"Cetera ut in\" with a page: %d, the office headed there: %d" % (rest_notes, rest_ok))
+    print("\"Cetera ut in\" with a page: %d, the office headed there: %d%s" % (
+        rest_notes, rest_ok, " (%d of them a Common named within its family, headed there)" % rest_within
+        if rest_within else ""))
 print("PROBLEMS: %d" % sum(len(v) for v in problems.values()))
 for kind, items in problems.items():
     print("  %s: %d" % (kind, len(items)))

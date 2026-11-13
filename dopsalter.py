@@ -23,6 +23,7 @@ So the engine still decides every text, including each version's own psalter
 """
 
 import calendar
+import collections
 import datetime as dt
 import html
 import re
@@ -1691,6 +1692,210 @@ def prayer_offices(part, fixed, two):
     return [Office(part=part, key="prayer-" + key.lower().replace(" ", "-"), title=la, title2=en,
                    hours=[dooffice.Hour(key="", heading="", sections=[_dumped(texts[key], two)])])
             for key, la, en in PRAYERS if key in texts]
+
+
+# --------------------------------------------------------------------------
+# the Office of the Dead
+#
+# Not a file of antiphons to be dumped, like a Common: its psalms are its own
+# (no day of the Psalter has them), said with Requiem aeternam, and it has
+# its own beginning and end. So it is read as the Psalter is, from the office
+# the engine says: its votive office C9, which every version says whole, with
+# the three Nocturns and nine lessons, on any day.
+
+DEAD_DATE = dt.date(2026, 11, 9)  # a Monday with nothing kept on it
+DEAD_HOURS = (("Vespera", "Ad Vesperas", "At Vespers"), ("Matutinum", "Ad Matutinum", "At Matins"),
+              ("Laudes", "Ad Laudes", "At Lauds"))
+DEAD_FILE = "Commune/C9"  # as an office's "ex C9" names it (All Souls)
+_NUMBERED = re.compile(r"(Lectio|Lesson|Reading) (\d+)\b")
+
+
+def render_dead(engine, version, lang1, lang2, cancelled=None):
+    """{hour: the dooffice.Hour the engine says} of the Office of the Dead."""
+    reqs = [dooffice.Request(date=DEAD_DATE, hour=h, version=version, lang1=lang1, lang2=lang2,
+                             votive="C9") for h, _la, _en in DEAD_HOURS]
+    out = {}
+    for (hkey, _la, _en), day in zip(DEAD_HOURS, engine.days(reqs, cancelled=cancelled)):
+        if isinstance(day, Exception):
+            raise RuntimeError("the engine could not give the Office of the Dead: %s" % day)
+        if day.hours:
+            out[hkey] = day.hours[0]
+    return out
+
+
+def dead_offices(part, rendered):
+    """Vespers, Matins and Lauds of the Dead, each as the engine says it: without
+    what it marks as left out there ("Hymnus{omittitur}"), its notes taken off
+    the headings, and the lessons numbered as the book's are (Lectio IV)."""
+    from dobreviary import Office, roman
+
+    def numbered(section):
+        for col in section.columns:
+            for line in col:
+                if line.is_heading and line.runs and _NUMBERED.match(line.runs[0].text):
+                    line.runs[0].text = _NUMBERED.sub(lambda m: "%s %s" % (m.group(1), roman(int(m.group(2)))),
+                                                      line.runs[0].text, count=1)
+        return section
+
+    offices = []
+    for hkey, la, en in DEAD_HOURS:
+        hour = (rendered or {}).get(hkey)
+        if hour is None:
+            continue
+        secs = []
+        for sec in hour.sections:
+            said = [l for l in (sec.columns[0] if sec.columns else []) if not l.is_blank]
+            if not said or (len(said) == 1 and "{omittitur}" in said[0].text):
+                continue
+            secs.append(numbered(_strip_notes(sec)))
+        if secs:
+            offices.append(Office(part=part, key="def-" + hkey, title=la, title2=en, files=(DEAD_FILE,),
+                                  part_anchor=True,
+                                  hours=[dooffice.Hour(key=hkey, heading="", sections=secs)]))
+    return offices
+
+
+# --------------------------------------------------------------------------
+# the invitatories, in the Ordinary
+#
+# The Ordinary's Matins has the invitatory psalm with its antiphon left open
+# ("Antiphona ut in Psalterio vel in Proprio"). A table after it gives the
+# antiphons that are not a day's own: each weekday's (the Psalter), each
+# season's (the Common of the Seasons) and each Common's -- so the psalm is
+# said where it stands, without turning to the Common for one line.
+
+INVITATORIES = (
+    ("psalterium", "Per hebdomadam:", "Through the week:"),
+    ("temporis", "In Officio de Tempore:", "In the Office of the Season:"),
+    ("commune", "In Officio de Sanctis:", "In the Office of the Saints:"),
+)
+
+
+def invitatory_table(offices, commons, english, renders=None):
+    """Add the table to the Ordinary's Matins, from the book's offices and the
+    Commons (built, printed in it or not). english: (first language is
+    English, second is). renders: the days the engine was asked for, whose
+    seasons give the seasons' invitatories -- the Common of the Seasons leaves
+    out what the Proper prints (Paschaltide's, at Easter), and the table
+    wants each. Nothing if the book has no Ordinary of Matins."""
+    from dobreviary import COMMON_FAMILIES, _heading_line, _heading_text, common_family, common_heads
+
+    matins = next((o for o in offices if o.part.key == "ordinarium" and o.key == "ordo-Matutinum"), None)
+    if matins is None or not matins.hours:
+        return
+    cols = range(len(matins.hours[0].sections[0].columns)) if matins.hours[0].sections else range(1)
+    heads = common_heads(commons)[1]  # a family's head is named as its family (merge_commons)
+
+    def names(o):
+        fam = COMMON_FAMILIES.get(common_family(o.key)) if o.part.key == "commune" else None
+        if fam and heads.get(common_family(o.key)) is o:
+            return [fam[2] if english[min(c, 1)] else fam[1] for c in cols]
+        return [o.title, o.title2][:len(cols)] if len(cols) > 1 else [o.title]
+
+    def text_of(runs):
+        return "".join(x.text for x in runs).strip()
+
+    def seasonal(weekly):
+        """The seasons' rows, from each season's sampled days: an antiphon
+        that is not the weekday's own (weekly), under the season's name --
+        "Dominica" after it where only the Sunday has it."""
+        rows = []
+        for se, day, lat in getattr(renders, "seasons", None) or ():
+            days = renders.weeks.get(se.key) or [(se.date, day, lat)]
+            days = [d for d in days if not re.search(r"Mari(æ|ae) Sabbato", d[1].title or "")] or days
+            found = collections.OrderedDict()  # the antiphon -> [its runs in each column, {weekdays}]
+            for date, d_day, _lat in days:
+                sec = next((s for h in d_day.hours if h.key == "Matutinum" for s in h.sections
+                            if s.columns and s.columns[0] and s.columns[0][0].text.startswith("Invitator")
+                            and len(s.columns) >= len(cols)), None)
+                if sec is None:
+                    continue
+                runs = []
+                for c in cols:
+                    line = next((l for l in sec.columns[c][1:] if not (l.is_blank or l.is_heading or l.is_rubric)
+                                 and l.text.lstrip().startswith("Ant")), None)
+                    own = [dooffice.Run(**r.__dict__) for r in line.runs] if line else []
+                    if own and own[0].text.strip() in ("Ant.", "Ant"):
+                        own = own[1:]
+                    if own:
+                        own[0].text = re.sub(r"^\s*(Ant\.\s*)?", "", own[0].text)
+                    runs.append(own)
+                if all(runs):
+                    found.setdefault(text_of(runs[0]), [runs, set()])[1].add((date.weekday() + 1) % 7)
+            for text, (runs, on) in found.items():
+                if text in weekly:
+                    continue
+                sunday = on == {0} and len(found) > 1
+                labels = [(se.en if english[min(c, 1)] else se.la)
+                          + (", " + ("Sunday" if english[min(c, 1)] else "Dominica") if sunday else "")
+                          for c in cols]
+                same = next((r for r in rows if text_of(r[1][0]) == text), None)
+                if same:
+                    for c in cols:
+                        same[0][c].append(labels[c])
+                else:
+                    rows.append([[[x] for x in labels], runs])
+        return rows
+
+    groups = []
+    for part, la, en in INVITATORIES:
+        source = commons if part == "commune" else [o for o in offices if o.part.key == part]
+        rows = []  # [[labels of each column], [the antiphon's runs in each column]]
+        if part == "temporis" and getattr(renders, "seasons", None):
+            weekly = {text_of(r[1][0]) for _t, rs in groups for r in rs}
+            rows, source = seasonal(weekly), []
+        for o in source:
+            for hour in o.hours:
+                for sec in hour.sections:
+                    if not sec.columns or not _heading_text(sec.columns[0]).startswith(("Invitator",)):
+                        continue
+                    label = names(o)
+                    bodies = [[l for l in col if not (l.is_blank or l.is_heading)] for col in sec.columns]
+                    if len({len(b) for b in bodies}) != 1:
+                        continue  # the two languages do not go line for line
+                    days = [None] * len(bodies)
+                    for k in range(len(bodies[0])):
+                        lines = [b[k] for b in bodies]
+                        if lines[0].is_rubric:  # the days it is said on ("Dominica:")
+                            days = [l.text.strip().rstrip(":") for l in lines]
+                            continue
+                        runs = []
+                        for l in lines:
+                            own = [dooffice.Run(**r.__dict__) for r in l.runs]
+                            if own and own[0].text.strip() in ("Ant.", "Ant"):
+                                own = own[1:]
+                            if own:
+                                own[0].text = own[0].text.lstrip()
+                            runs.append(own)
+                        labels = [label[min(c, len(label) - 1)] + (", " + days[c] if days[c] else "")
+                                  for c in range(len(lines))]
+                        same = next((r for r in rows if "".join(x.text for x in r[1][0])
+                                     == "".join(x.text for x in runs[0])), None)
+                        if same:  # one antiphon for several: "Commune unius Martyris · plurium Martyrum"
+                            for c in range(len(labels)):
+                                if labels[c] not in same[0][c]:
+                                    same[0][c].append(labels[c])
+                        else:
+                            rows.append([[[x] for x in labels], runs])
+        if rows:
+            groups.append(((en if english[0] else la, en if english[min(1, len(cols) - 1)] else la), rows))
+    if not groups:
+        return
+    columns = []
+    for c in cols:
+        lines = [_heading_line("Invitatories" if english[min(c, 1)] else "Invitatoria")]
+        for title, rows in groups:
+            lines.append(_rubric(title[0] if c == 0 else title[1]))
+            for labels, runs in rows:
+                if c < len(runs):
+                    lines.append(dooffice.Line(runs=[dooffice.Run(text=" · ".join(labels[c]) + ". ", red=True)]
+                                               + runs[c]))
+        columns.append(lines)
+    table = dooffice.Section(columns=columns)
+    hour = matins.hours[0]
+    at = next((k for k, s in enumerate(hour.sections)
+               if s.columns and _heading_text(s.columns[0]).startswith(("Hymnus", "Hymn"))), len(hour.sections))
+    hour.sections = hour.sections[:at] + [table] + hour.sections[at:]
 
 
 def render_count(lang1, lang2):

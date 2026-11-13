@@ -589,9 +589,22 @@ sub load_office {
 
   my $te_deum = monastic_te_deum();
   my %inside = specials_inside($s1);
+  # A monastic file that takes the Roman one whole ("@Sancti/10-18") and cuts
+  # its lessons IV-VI anew into its own V-VIII leaves the Roman [Lectio4]
+  # behind. The engine never says it -- specmatins.pl lectio(): "accidental
+  # Lectio4 or Lectio9 from Roman version", in an office of twelve lessons a
+  # fourth lesson with no first, a ninth with no tenth -- its first Nocturn
+  # being of Scripture. The book printed it, the same text as lessons V and VI
+  # after it (St Luke; in Monastic 1963 also St James, St Bartholomew, St
+  # Matthew and St Thomas).
+  my %accidental;
+  if (($s1->{Rule} // '') =~ /12 lectiones/i && ($s1->{Rule} // '') !~ /Lectio1 (Oct|Temp)(Nat|ora)/i) {
+    $accidental{Lectio4} = 1 unless exists $s1->{Lectio1};
+    $accidental{Lectio9} = 1 unless exists $s1->{Lectio10};
+  }
   my @sections;
   for my $k (@keys) {
-    next if $META{$k} || $inside{$k} || !defined $s1->{$k} || $s1->{$k} !~ /\S/;
+    next if $META{$k} || $inside{$k} || $accidental{$k} || !defined $s1->{$k} || $s1->{$k} !~ /\S/;
     local $hora = hour_of($k);
     my $late = $k =~ /Commemoratio|Evangelium|LectioE/;
     my $t1 = $late ? late_refs($s1->{$k}, $lang1, $k) : $s1->{$k};
@@ -643,6 +656,12 @@ sub load_office {
     title => [$title1, $title2],
     rank => ($rank[1] // ''),
     rankname => ($rankname // ''),
+    # The Common the office is of, as the engine reads it (horascommon.pl:
+    # the fourth field of [Rank], "ex C1a" or "vide C5b"). A version's own
+    # file may give a [Rule] without it (SanctiM/10-18: "12 lectiones").
+    commune => (($rank[3] // '') =~ s/\s+$//r),
+    # The Roman lessons left out above, for a count (README).
+    accidental => [grep { defined $s1->{$_} && $s1->{$_} =~ /\S/ } sort keys %accidental],
     color => $color,
     rule => ($s1->{Rule} // ''),
     sections => \@sections,

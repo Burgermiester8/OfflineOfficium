@@ -284,6 +284,10 @@ def volumes_of(office, seams, modern, fallback):
             return sancti.get(day) or fallback
         part = "tempora"
     if part == "tempora":
+        # A feast printed with the Season (Christ the King): by the days it can take.
+        day = getattr(office, "day", "")
+        if day:
+            return sancti.get(day) or fallback
         # The second week of November never comes under the 1960 rubrics, but
         # its office is in the data: where the older reckoning puts it.
         return tempora.get(key) or membership(tuple(seams), not modern)[0].get(key) or fallback

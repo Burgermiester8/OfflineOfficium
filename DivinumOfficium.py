@@ -546,8 +546,11 @@ def run_selftest():
 
         dumper = need(locate_dumper(), "engine_dump.pl not found")
         out = os.path.join(tempfile.gettempdir(), "divinum-officium-selftest-breviary.pdf")
+        # As the window makes a book at first: the rule between the languages,
+        # and the first on the outside of each page (its rows measured, then set).
+        layout = dopdf.Layout(new_page_per_day=False, column_rule=True, mirror_columns=True)
         offices = dobreviary.build(["orationes", "commune"], "Rubrics 1960 - 1960", "Latin",
-                                   "English", dopdf.Layout(new_page_per_day=False), out, perl,
+                                   "English", layout, out, perl,
                                    dumper, web, typst, only=["C4"], perl_libs=libs)
         return "%d office(s), %d pages -> %s" % (len(offices), len(PdfReader(out).pages), out)
 

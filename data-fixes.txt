@@ -10035,3 +10035,40 @@ V. Pro eo quod non credidísti verbis meis, quæ implebúntur témpore suo,
 R. Ecce eris tacens, et non póteris loqui usque in diem quo hæc fiant.
 &Gloria
 R. Ecce eris tacens, et non póteris loqui usque in diem quo hæc fiant.
+
+== English/Psalterium/Psalmorum/Psalm251.txt [*]
+replaces: cf6363cc612a
+why: "Upon thy wails, O Jerusalem" for "walls" (Isaias 62:6), in the canticle of the monastic third Nocturn; found by tools/audit_psalms.py reading the canticles' English against their Latin
+source: the Douay Bible, Isaias 62:6, and the Latin beside it ("Super muros tuos, Jerusalem")
+---
+(Canticum Isaiae * Isa 62:4-7)
+62:4 Thou shalt no more be called Forsaken: and thy land shall no more be called Desolate: but thou shalt be called My pleasure in her, and thy land inhabited. Because the Lord hath been well pleased with thee: and thy land shall be inhabited.
+62:5 For the young man shall dwell with the virgin, and thy children shall dwell in thee. And the bridegroom shall rejoice over the bride, and thy God shall rejoice over thee.
+62:6 Upon thy walls, O Jerusalem, I have appointed watchmen all the day, and all the night, they shall never hold their peace. You that are mindful of the Lord, hold not your peace,
+62:7 And give him no silence till he establish, and till he make Jerusalem a praise in the earth.
+
+== English/Psalterium/Psalmorum/Psalm256.txt [*]
+replaces: f97d4c762877
+why: the canticle's first verse was numbered 4:22 for 14:22 (Ecclesiasticus 14:22; the Latin and the canticle's own title have 14:22), and the book printed it so
+source: the canticle's title in both languages, "Eccli 14:22;15:3-4;15:6", and the Latin file
+---
+(Canticum Ecclesiasticae * Eccli 14:22;15:3-4;15:6)
+14:22 Blessed is the man that shall continue in wisdom, and that shall meditate in his justice, * and in his mind shall think of the all-seeing eye of God.
+15:3 With the bread of life and understanding, * she shall feed him, and give him the water of wholesome wisdom to drink.
+15:4 And she shall be made strong in him, and he shall not be moved: And she shall hold him fast, and he shall not be confounded: * and she shall exalt him among his neighbours.
+15:6 And shall cause him to inherit an everlasting name * the Lord our God.
+
+== English/Psalterium/Psalmorum/Psalm262.txt [*]
+replaces: 1fe98c8f29cc
+why: the second line of verse 3 was numbered 4:3 for 7:3 (Jeremias 7), and the book printed it so; and verse 2 began with the half of the verse the canticle leaves out ("Stand in the gate of the house of the Lord, and proclaim there this word, and say:"), where the Latin canticle begins "Audite verbum Domini, omnis Juda"
+source: the canticle's title, "Jer 7:2-7", and the Latin file, whose 7:2 is the second half of the verse; the words kept are the Douay's own
+---
+(Canticum Jeremiae * Jer 7:2-7)
+7:2 Hear ye the word of the Lord, all ye men of Juda, that enter in at these gates, to adore the Lord.
+7:3 Thus saith the Lord of hosts the God of Israel:
+7:3 Make your ways and your doings good: and I will dwell with you in this place.
+7:4 Trust not in lying words, saying: The temple of the Lord, the temple of the Lord, it is the temple of the Lord.
+7:5 For if you will order well your ways, and your doings: if you will execute judgement between a man and his neighbor,
+7:6 If you oppress not the stranger, the fatherless, and the widow,
+7:6 and shed not innocent blood in this place, and walk not after strange gods to your own hurt,
+7:7 I will dwell with you in this place: in the land, which I gave to your fathers from the beginning and for evermore.

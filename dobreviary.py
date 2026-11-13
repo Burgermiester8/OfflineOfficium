@@ -64,6 +64,7 @@ PARTS = {
     "temporis": Part("temporis", "Commune de Tempore", "Common of the Seasons"),
     "sancti": Part("sancti", "Proprium Sanctorum", "Proper of the Saints"),
     "commune": Part("commune", "Commune Sanctorum", "Common of the Saints"),
+    "defunctorum": Part("defunctorum", "Officium Defunctorum", "Office of the Dead"),
     "missa": Part("missa", "Proprium Missarum Dominicalium", "Proper of the Sunday Masses"),
 }
 DEFAULT_ORDER = tuple(PARTS)
@@ -426,6 +427,8 @@ class Office:
     colours: tuple = ()  # the colours of the whole Calendar, for its key (on January)
     colour: str = ""  # an office of the Propers: its liturgical colour, for its heading
     file: str = ""  # the engine's file it is printed from (_norm), for the notes naming it
+    files: tuple = ()  # a family of Commons: every file it stands for (merge_commons)
+    part_anchor: bool = False  # a note naming it gives its part's first page (the Office of the Dead)
     # "Cetera ut in": (the file named, [the words in each language], the label of
     # that office's heading in this book, or "" when the book does not print it)
     rest: tuple = None
@@ -451,7 +454,7 @@ def feast_day(office, english, short=False):
     "Dominica ultima Octobris" / "Last Sunday of October". Short, for the
     running head: "10 Aug." / "10 Aug", and a Sunday's days, "25–31 Oct".
     "" for any other office."""
-    if office.part.key != "sancti":
+    if office.part.key != "sancti" and not SEASON_FEASTS.match(office.key):
         return ""
     m = re.match(r"(\d\d)-D([A-Z])", office.key)
     if m and m.group(2) in SUNDAYS_OF:
@@ -833,8 +836,12 @@ _EX = re.compile(r"^\s*(ex|vide)\s+(\S+)", re.I | re.M)
 
 
 def _source_of(office):
-    """The file an office takes "the rest" from: ([Rule] ex Sancti/05-08) -> 'Sancti/05-08'."""
-    m = _EX.search(office.get("rule") or "")
+    """The file an office takes "the rest" from: ([Rule] ex Sancti/05-08) ->
+    'Sancti/05-08'; else the Common its [Rank] names in its fourth field
+    ("ex C1a"), which is where the engine itself reads it. A version's own
+    file can replace the [Rule] and leave only that (St Luke, Sts Simon and
+    Jude in the monastic books)."""
+    m = _EX.search(office.get("rule") or "") or _EX.search(office.get("commune") or "")
     return m.group(2).rstrip(";") if m else None
 
 
@@ -1189,11 +1196,13 @@ class BookWriter(dopdf.Writer):
         top, bottom, inside, outside = margins or dopdf.standard_margins(self.layout.paper)
         inch = lambda v: ("%.3f" % v).rstrip("0").rstrip(".") + "in"
         return [
-            # The head sits between the top margin and the text: 1.9em of band
-            # above it. The bottom margin is to the text's descenders.
-            "  margin: (inside: %s, outside: %s, top: %s + 1.9em, bottom: %s + 0.4em),"
+            # The head sits between the top margin and the text: 2.2em of band
+            # above it -- its words, its rule a quarter of an em under them
+            # (dopdf.Writer.HEAD_RULE), and 0.9em from the rule to the text.
+            # The bottom margin is to the text's descenders.
+            "  margin: (inside: %s, outside: %s, top: %s + 2.2em, bottom: %s + 0.4em),"
             % (inch(inside), inch(outside), inch(top), inch(bottom)),
-            "  header-ascent: 0.8em,",
+            "  header-ascent: 0.9em,",
             "  header: context {"] + dopdf.RUNNING_HEAD_FIND + [
             "    if d != none and not quiet {",
             '      set text(size: 0.78em, fill: luma(90), hyphenate: false)',
@@ -1204,15 +1213,16 @@ class BookWriter(dopdf.Writer):
             '      let title = text(style: "italic", d.value.d + "  ·  " + d.value.t)',
             '      let hour = if h != none { h.value } else { "" }',
             "      let num = text(fill: luma(40), str(n))",
-            "      if calc.odd(n) {",
-            "        grid(columns: (1fr, auto, auto), column-gutter: 1em,",
-            "          align: (left, right, right), title, hour, num)",
-            "      } else {",
-            "        grid(columns: (auto, 1fr, auto), column-gutter: 1em,",
-            "          align: (left, left, right), num, title, hour)",
-            "      }",
-            "      v(-0.45em)",
-            "      line(length: 100%, stroke: 0.4pt + luma(170))",
+            "      stack(dir: ttb,",
+            "        if calc.odd(n) {",
+            "          grid(columns: (1fr, auto, auto), column-gutter: 1em,",
+            "            align: (left, right, right), title, hour, num)",
+            "        } else {",
+            "          grid(columns: (auto, 1fr, auto), column-gutter: 1em,",
+            "            align: (left, left, right), num, title, hour)",
+            "        },",
+            ] + dopdf.Writer.HEAD_RULE + [
+            "      )",
             "    }",
             "  },",
             "  footer: none,",
@@ -1292,7 +1302,10 @@ class BookWriter(dopdf.Writer):
             # label were lost and every reference to it failed: there it is
             # an empty box instead, on the line itself.
             hidden = "hide([#heading(level: 3)[%s%s] <%s>])" % (REF_MARK, mark, mark)
-            if getattr(self, "in_paragraph", False):
+            if self.mirrored():
+                # A row over a page turn is set twice: the marker in one only (bimk).
+                out = "#bimk(%s, %s)" % (dopdf.q(REF_MARK + mark), dopdf.q(mark)) + out
+            elif getattr(self, "in_paragraph", False):
                 out = "#box(width: 0pt, height: 0pt, %s)" % hidden + out
             else:
                 out = "#place(%s)" % hidden + out
@@ -1349,6 +1362,7 @@ class BookWriter(dopdf.Writer):
         self.last_day_line = None  # the day above the last feast (a day's next offices go without)
         self.out = []
         self.styles = set()
+        self.bi_rows = 0
         for i, office in enumerate(offices):
             self.office(office, i)
         head = [self.preamble()]
@@ -1390,7 +1404,9 @@ class BookWriter(dopdf.Writer):
                     self.emit("#set page(columns: 1)")
                     self.cols = 1
                 self.emit("#metadata(none)<nohead>")  # no running head on a part's title page
-                self.emit("#heading(level: 1)[#%s]" % q(part.la))
+                # A note naming the part's office (the Office of the Dead) gives this page.
+                self.emit("#heading(level: 1)[#%s]%s" % (
+                    q(part.la), " <%s>" % office.anchor if office.anchor and office.part_anchor else ""))
                 if two:
                     self.emit('#align(center, text(size: 1.2em, style: "italic", %s))' % q(part.en))
                 if self.two_columns():
@@ -1425,8 +1441,11 @@ class BookWriter(dopdf.Writer):
             if office.colour in COLOURS and self.layout.red_in_print \
                     and getattr(self.layout, "heading_colours", True):
                 title = 'text(fill: rgb("%s"), %s)' % (COLOURS[office.colour][1], title)
-            # A note elsewhere names this office: its page is this label's.
-            self.emit("#heading(level: 2)[#%s]%s" % (title, " <%s>" % office.anchor if office.anchor else ""))
+            # A note elsewhere names this office: its page is this label's
+            # (its part's first page instead, for an office that is its part).
+            on_part = office.part_anchor and office.part_start and not office.part.compact
+            self.emit("#heading(level: 2)[#%s]%s" % (
+                title, " <%s>" % office.anchor if office.anchor and not on_part else ""))
             if day_line:
                 self.emit("#feastday.update(none)")
         if office.note or office.rest:
@@ -1441,6 +1460,11 @@ class BookWriter(dopdf.Writer):
             if parts:
                 body += (" — " if body else "") + " · ".join(parts)
             self.emit("#officenote([%s])" % body)
+        if not (office.hours and office.hours[0].heading):
+            # An office whose hours have no headings (the Office of the Dead's
+            # Vespers, a season's page): the running head has no hour for it,
+            # not the last one of the office before ("In II Vesperis").
+            self.emit('#metadata("")<hour>')
         if office.rows is not None:
             self.calendar(office, two)
             return
@@ -1501,7 +1525,7 @@ class BookWriter(dopdf.Writer):
             self.in_paragraph = True  # each line a paragraph: markers as boxes (runs)
             halves = ["hy(%s, %s)" % (stack(s[:c]), stack(s[c:])) for (_h, s), c in zip(parts, cuts)]
             self.in_paragraph = False
-            self.emit("#bi([#%s], R[#%s])" % tuple(halves) if two else "#" + halves[0])
+            self.emit(self.bi("[#%s], R[#%s]" % tuple(halves), 1) if two else "#" + halves[0])
 
         lines([c[:s[0]] for c, s in zip(cols, spans)])  # before the hymn: a chapter, a responsory
         plain = self._captured(lambda: lines([c[s[0]:s[2]] for c, s in zip(cols, spans)]))
@@ -1574,10 +1598,13 @@ class BookWriter(dopdf.Writer):
         walk(reader.outline)
         expected, anchored = [], []
         for office in vol:
+            on_part = office.part_anchor and office.part_start and not office.part.compact
             if office.part_start:
+                if office.anchor and on_part:
+                    anchored.append((office.anchor, len(expected)))
                 expected.append((1, "", office.part.la))
             if not office.untitled:
-                if office.anchor:
+                if office.anchor and not on_part:
                     anchored.append((office.anchor, len(expected)))
                 expected.append((2, office.left, office.title))
         if len(expected) != len(pages):
@@ -1662,6 +1689,10 @@ def needed_dumps(parts):
         need.append("commune")  # offices elsewhere refer to the Common by name
     if "temporis" in parts or "psalterium" in parts:
         need.append("tempora")  # what the Proper of the Season already holds
+    if "tempora" in parts:
+        need.append("sancti")  # Christ the King, printed with the Season (season_feasts)
+    if "ordinarium" in parts:
+        need.append("commune")  # the Commons' invitatories, in the Ordinary (invitatory_table)
     if "kalendarium" in parts:
         need.append("sancti")
     if any(p in parts for p in ("orationes", "ordinarium", "psalterium", "temporis")):
@@ -1672,13 +1703,15 @@ def needed_dumps(parts):
 
 
 def assemble(parts, version, lang1, lang2, dumps, renders, alternatives=True, references=True,
-             customs=None):
+             customs=None, responsories=None):
     """The book's offices, part by part, from the dumps and the rendered sample days.
     references: print a repeated text once, later copies referring to it.
+    responsories: those of Matins in full (True) or by reference (False)
+    whatever `references` says; None as the other texts.
     customs: {"custom1": file, ...} for the custom parts among `parts`."""
     offices = gather(parts, version, lang1, lang2, dumps, renders, alternatives=alternatives,
                      customs=customs)
-    return finish(offices, parts, lang1, lang2, references)
+    return finish(offices, parts, lang1, lang2, references, responsories)
 
 
 def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, customs=None):
@@ -1702,6 +1735,11 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
                 titles.setdefault(_norm(o["file"]), t)
                 titles.setdefault(o["key"], t)
                 titles.setdefault(re.sub(r"^\w+/", "", o["file"]), t)
+    if "defunctorum" in parts:
+        # The Office of the Dead is no dumped file, but offices name it ("ex C9": All Souls).
+        dead = PARTS["defunctorum"]
+        for name in (dopsalter.DEAD_FILE, "C9"):
+            titles.setdefault(name, [dead.en if english[0] else dead.la, dead.en if english[1] else dead.la])
     # Files printed in this book (so a reference to them can just point there).
     in_book = {o["file"] for p in parts if p in DUMPED for o in dumps[p]["offices"]}
 
@@ -1731,6 +1769,8 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
             continue
         if p == "kalendarium":
             offs = dopsalter.calendar_offices(part, dumps["sancti"], two)
+        elif p == "defunctorum":
+            offs = dopsalter.dead_offices(part, dumps.get("defunctorum"))
         elif p == "orationes":
             offs = dopsalter.prayer_offices(part, dumps["fixed"], two)
         elif p == "ordinarium":
@@ -1766,6 +1806,11 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
         if offs:
             offs[0].part_start = True
         offices += offs
+    if dumps.get("sancti") and "tempora" in parts:
+        offices = season_feasts(offices, dumped_part("sancti"), "sancti" in parts, english, two)
+    if "ordinarium" in parts:
+        dopsalter.invitatory_table(offices, dumped_part("commune") if dumps.get("commune") else [], english,
+                                   renders)
     if english1:  # the hours named in English too
         for o in offices:
             for h in o.hours:
@@ -1774,12 +1819,57 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
     return offices
 
 
-def finish(offices, parts, lang1, lang2, references=True):
+# Christ the King is kept on the last Sunday of October, whatever its date
+# ("10-DU" in the transfer tables): a Sunday's office, and so printed with the
+# Sundays, in the Proper of the Season -- after the weeks of October, whose
+# Matins readings stand there, before November's. The Proper of the Saints
+# keeps its name on that Sunday, and the page.
+SEASON_FEASTS = re.compile(r"10-DU")
+
+
+def season_feasts(offices, saints, saints_printed, english, two):
+    """The book's offices with the feasts of SEASON_FEASTS moved from the
+    Proper of the Saints (saints: its offices, printed or not) into the
+    Proper of the Season."""
+    season = [o for o in offices if o.part.key == "tempora"]
+    feasts = [o for o in saints if SEASON_FEASTS.match(o.key)]
+    if not season or not feasts:
+        return offices
+    out = []
+    for o in offices:
+        if o.part.key == "sancti" and any(o is f for f in feasts):
+            if saints_printed:
+                words = ["In the Proper of the Season" if e else "In Proprio de Tempore"
+                         for e in (english if two else english[:1])]
+                out.append(Office(part=o.part, key=o.key, title=o.title, title2=o.title2, left=o.left,
+                                  note=o.title2 if two and o.title2 != o.title else "", day=o.day,
+                                  colour=o.colour, part_start=o.part_start, rest=(o.file, words)))
+        else:
+            out.append(o)
+    keys = [o.key if o.part.key == "tempora" else "" for o in out]
+    october = [k for k, key in enumerate(keys) if re.fullmatch(r"10\d-\d", key)]
+    november = [k for k, key in enumerate(keys) if re.fullmatch(r"11\d-\d", key)]
+    at = (october[-1] + 1 if october else november[0] if november
+          else max(k for k, key in enumerate(keys) if key) + 1)
+    moved = []
+    for f in feasts:
+        new = copy.copy(f)
+        new.part, new.part_start = season[0].part, False
+        moved.append(new)
+    return out[:at] + moved + out[at:]
+
+
+def finish(offices, parts, lang1, lang2, references=True, responsories=None):
     """A book's offices as printed: the usual texts by their first words,
-    repeated texts referred to (references), headings run in."""
+    repeated texts referred to (references), headings run in. responsories:
+    the responsories of Matins whatever `references` says -- True in full
+    after every lesson, False by reference to the page of the first; None as
+    the other texts."""
     shorten_offices(offices, keep_first="ordinarium" not in parts)
     if references:
-        cross_reference(offices, (lang1, lang2))
+        cross_reference(offices, (lang1, lang2), matins_responsory if responsories else None)
+    elif responsories is False:
+        cross_reference(offices, (lang1, lang2), lambda hour, section: not matins_responsory(hour, section))
     run_in_headings(offices)
     anchor_rests(offices)
     return offices
@@ -1852,19 +1942,329 @@ def book_offices(offices, book, lang1_is_english=False, lang2_is_english=False):
     return out
 
 
+# The Common of the Saints as a printed breviary has it: one Common for each
+# kind of saint. The engine's data has a file for each Mass a kind can have
+# (C2 one Martyr Bishop, Mass Statuit; C2-1 the same, Mass Sacerdotes Dei;
+# C2a not a Bishop; C2b a Pope; C2p in Paschaltide ...), most of them their
+# parent's office with another prayer, or other lessons of the third Nocturn.
+# Printed one by one they made fifty Commons, four of them the same prayer for
+# a Pope under four titles. A family: (its head, by preference; its name in
+# Latin and English, or the head's own).
+COMMON_FAMILIES = {
+    "C1p": (("C1p",), "Commune Apostolorum et Evangelistarum tempore Paschali",
+            "Common of Apostles and Evangelists in Paschaltide"),
+    "C2": (("C2",), "Commune unius Martyris", "Common of One Martyr"),
+    "pont": (("C2b", "C4b", "C3b"), "Commune unius aut plurium Summorum Pontificum",
+             "Common of One or Several Sovereign Pontiffs"),
+    "C2p": (("C2p", "C3p"), "Commune unius aut plurium Martyrum tempore Paschali",
+            "Common of One or Many Martyrs in Paschaltide"),
+    "C3": (("C3",), "Commune plurium Martyrum", "Common of Many Martyrs"),
+    "C4": (("C4",), "Commune Confessoris Pontificis", "Common of a Confessor Bishop"),
+    "doct": (("C4a", "C5a"), "Commune Doctorum", "Common of Doctors"),
+    "C5": (("C5",), "Commune Confessoris non Pontificis", "Common of a Confessor not a Bishop"),
+    "C6": (("C6",), "Commune Virginum", "Common of Virgins"),
+    "C7": (("C7",), "Commune non Virginum", "Common of Holy Women not Virgins"),
+    "C10": (("C10",), "Officium Beatæ Mariæ Virginis in Sabbato",
+            "Office of the Blessed Virgin Mary on Saturday"),
+}
+
+
+def common_family(key):
+    """The family of a Common's file, by its key: "C2a-1p" is of the Martyrs
+    in Paschaltide ("C2p"), "C4b-1" of the Popes ("pont"), "C5a" of the
+    Doctors ("doct"); a key of no known kind is a family by itself."""
+    m = re.fullmatch(r"C(\d+)(.*)", key)
+    if not m:
+        return key
+    n, rest = int(m.group(1)), m.group(2)
+    paschal = rest.endswith("p")
+    letter = rest[0] if rest[:1].isalpha() and rest[:1].islower() and rest[:1] not in "pv" else ""
+    if n == 1:
+        return "C1v" if rest == "v" else "C1p" if paschal else "C1a" if letter == "a" else "C1"
+    if n in (2, 3, 4) and letter == "b":
+        return "pont"
+    if n in (2, 3):
+        return "C2p" if paschal else "C%d" % n
+    if n == 4:
+        return "doct" if letter == "a" else "C4"
+    if n == 5:
+        return "doct" if letter == "a" else "C5b" if letter == "b" else "C5"
+    if n in (6, 7, 8, 10, 11):
+        return "C%d" % n
+    return key
+
+
+def common_heads(commons):
+    """({family: its Commons, in order}, {family: its head}): the head is the
+    first of COMMON_FAMILIES' choices the book has, else the family's first."""
+    members = collections.defaultdict(list)
+    for o in commons:
+        members[common_family(o.key)].append(o)
+    head = {}
+    for f, ms in members.items():
+        prefer = COMMON_FAMILIES.get(f, ((),))[0]
+        head[f] = next((m for k in prefer for m in ms if m.key == k), ms[0])
+    return members, head
+
+
+def merge_commons(offices, lang1, lang2):
+    """The Commons by families (COMMON_FAMILIES), as the book prints them: a
+    family is one office, its head's text, and in each hour, after it, what
+    the family's other files have of their own there -- each under its name:
+    "Commune Unius Martyris non Pontificis (Missa In virtute)", its prayer.
+
+    - A file with nothing of its own, or with the same texts and the same
+      rest as one before it, is not printed: a note naming it names that one.
+    - One with the same texts but another rest (a Pope in Paschaltide) is a
+      line: its name, "ut supra", and where the rest is.
+    - What a file takes the rest from is said after its name unless that is
+      the family's own text; with the page when it is another family.
+    - A file changes only what it has: where it changes all that the file it
+      rests on changes, the rest is that file's own rest (a Pope's prayer and
+      lessons are his own whichever Mass his Martyr's Common had).
+
+    Done on a book's own offices (after book_offices): two files that differ
+    only in their lessons are one in a Diurnal. Every note of the book that
+    names a Common is then worded by what is printed: the family's name for
+    its head, a file's own for one named within it."""
+    commons = [o for o in offices if o.part.key == "commune" and o.rows is None and not o.include]
+    if not commons:
+        return offices
+    english = _english(lang1, lang2)
+    by_file = {o.file: o for o in commons}
+    fam = {o.file: common_family(o.key) for o in commons}
+    members, head = common_heads(commons)
+
+    def pointer(o):
+        """The line that is all an office has, when it has nothing but where its texts are."""
+        lines = [l for h in o.hours for s in h.sections for l in s.columns[0]]
+        return lines[0] if len(lines) == 1 and getattr(lines[0], "rest", None) else None
+
+    def target(o):
+        p = pointer(o)
+        return o.rest[0] if o.rest else p.rest[0] if p else None
+
+    def own(o):
+        """(its hour, its section) for each section an office has of its own."""
+        return [] if pointer(o) else [(h, s) for h in o.hours for s in h.sections if s.columns]
+
+    def key_of(h, s):
+        return getattr(h, "group", h.key), _heading_text(s.columns[0])
+
+    keys = {o.file: {key_of(h, s) for h, s in own(o)} for o in commons}
+    sig = {o.file: tuple((key_of(h, s), tuple(tuple(l.text for l in c) for c in s.columns))
+                         for h, s in own(o)) for o in commons}
+    alias = {}
+
+    def resolve(f):
+        while f in alias:
+            f = alias[f]
+        return f
+
+    def effective(o):
+        """The file an office's rest is taken from in effect (see above), or None."""
+        t, seen = target(o), set()
+        while t in by_file and t not in seen and by_file[t] is not head[fam[t]] \
+                and keys[t] <= keys[o.file]:
+            seen.add(t)
+            t = target(by_file[t])
+        return t
+
+    def phrase(c):
+        return "The rest as in" if english[c] else "Cetera ut in"
+
+    cols = range(2 if lang1 != lang2 else 1)
+    merged, blocks = {}, {}
+    # A file with nothing of its own is what it rests on, if the book has that.
+    for f, ms in members.items():
+        for o in ms:
+            if o is not head[f] and not keys[o.file]:
+                eff = effective(o)
+                if eff is None or eff in by_file:
+                    alias[o.file] = eff or head[f].file
+    def rests_on(o):
+        eff = effective(o)
+        return resolve(eff) if eff else None
+
+    for f, ms in members.items():
+        h = head[f]
+        # (its texts, its effective rest, the file): the family's files printed so far
+        printed = [(set(sig[h.file]), rests_on(h), h.file)]
+        blocks[f] = []
+        done = {h.file}
+
+        def visit(o):
+            if o.file in done or o.file in alias:
+                return
+            done.add(o.file)
+            eff = rests_on(o)
+            if eff in by_file and fam[eff] == f:  # after the file it rests on
+                visit(by_file[eff])
+                eff = resolve(eff)
+            # All its texts are another's, printed before: with the same rest
+            # it is that one; with another, a line ("ut supra").
+            alike = [p for p in printed if set(sig[o.file]) <= p[0]]
+            same = next((p for p in alike if p[1] == eff), alike[0] if alike else None)
+            if same and same[1] == eff:
+                alias[o.file] = same[2]
+                return
+            printed.append((set(sig[o.file]), eff, o.file))
+            blocks[f].append((o, eff, same[2] if same else None))
+
+        for o in ms:
+            visit(o)
+
+    def note_title(f):
+        """A Common as a note names it: (first language, second)."""
+        o = by_file[resolve(f)]
+        return (merged[fam[o.file]].title, merged[fam[o.file]].title2) if o is head[fam[o.file]] \
+            else (o.title, o.title2)
+
+    for f, ms in members.items():
+        new = copy.copy(head[f])
+        new.hours = [copy.copy(hr) for hr in new.hours]
+        for hr in new.hours:
+            hr.sections = list(hr.sections)
+        names = COMMON_FAMILIES.get(f)
+        if names:
+            new.title, new.title2 = (names[2] if english[0] else names[1],
+                                     names[2] if english[1] else names[1])
+            new.note = new.title2 if len(cols) > 1 and new.title2 != new.title else ""
+        new.files = tuple(o.file for o in ms)
+        merged[f] = new
+
+    for f, ms in members.items():
+        new, h = merged[f], head[f]
+        # where the head has each heading: a file's prayer goes after the head's
+        home = {}
+        for hr in h.hours:
+            for s in hr.sections:
+                if s.columns:
+                    home.setdefault(_heading_text(s.columns[0]), getattr(hr, "group", hr.key))
+        # Where the family's files rest on Commons of different families (the
+        # Popes: a Martyr's, a Confessor's), the head's own rest is said of the
+        # head, on a line of its own like theirs, not of the whole family.
+        outside = lambda t: t is not None and (t not in by_file or fam[t] != f)
+        if new.rest and any(outside(eff) and resolve(eff) != resolve(new.rest[0])
+                            for _o, eff, _s in blocks[f]) and new.hours:
+            lines = []
+            for c in cols:
+                line = _rubric_line("%s. %s" % ((h.title, h.title2)[c], new.rest[1][min(c, len(new.rest[1]) - 1)]))
+                line.rest = (new.rest[0], c)
+                lines.append([line])
+            first = dooffice.Section(columns=lines)
+            first.collect = any(getattr(s, "collect", False) for s in new.hours[0].sections)
+            new.hours[0].sections.insert(0, first)
+            new.rest = None
+        for o, eff, same in blocks[f]:
+            titles = (o.title, o.title2)
+            after = ["" for _c in cols]
+            rest_line = None
+            if same:  # the same texts as one before it, another rest
+                above = by_file[same]
+                for c in cols:
+                    after[c] = ": %s" % ("as above" if english[c] else "ut supra")
+                    if above is not h:
+                        after[c] += " (%s)" % (above.title, above.title2)[c]
+            if eff is not None and eff != h.file:
+                rest_line = eff
+                for c in cols:
+                    name = note_title(eff)[c] if eff in by_file else None
+                    if name is None:  # an office of another part: as its own note worded it
+                        words = (o.rest[1] if o.rest else [l.text for l in [pointer(o)] if l])
+                        after[c] += ". " + (words[c] if c < len(words) else words[0])
+                    else:
+                        after[c] += ". %s: %s" % (phrase(c), name)
+
+            def label(collect):
+                lines = []
+                for c in cols:
+                    line = _rubric_line(titles[c] + (after[c] or (":" if not same else "")))
+                    if rest_line is not None and (rest_line not in by_file or fam[rest_line] != f):
+                        line.rest = (rest_line, c)
+                    lines.append([line])
+                sec = dooffice.Section(columns=lines)
+                sec.collect = collect
+                return sec
+
+            def hour_of(group, like):
+                hr = next((x for x in new.hours if getattr(x, "group", x.key) == group), None)
+                if hr is None:
+                    hr = copy.copy(like)
+                    hr.sections = []
+                    new.hours.append(hr)
+                    new.hours.sort(key=lambda x: GROUPS.get(getattr(x, "group", None), (96,))[0])
+                return hr
+
+            if same:  # a line, with the head's prayer: in both a Matins book and a Diurnal
+                like = next((x for x in h.hours for s in x.sections if getattr(s, "collect", False)),
+                            h.hours[-1] if h.hours else None)
+                if like is not None:
+                    hour_of(getattr(like, "group", like.key), like).sections.append(label(True))
+                continue
+            placed = collections.OrderedDict()  # hour group -> [(its own hour, section)]
+            for hr, s in own(o):
+                group = getattr(hr, "group", hr.key)
+                heading = _heading_text(s.columns[0])
+                if heading not in {_heading_text(x.columns[0]) for y in h.hours
+                                   if getattr(y, "group", y.key) == group for x in y.sections if x.columns}:
+                    group = home.get(heading, group)
+                placed.setdefault(group, []).append((hr, s))
+            for group, secs in placed.items():
+                hr = hour_of(group, secs[0][0])
+                hr.sections.append(label(any(getattr(s, "collect", False) for _h, s in secs)))
+                hr.sections += [s for _h, s in secs]
+
+    # The book's offices, each family where its head stood.
+    out = []
+    for o in offices:
+        if o.part.key == "commune" and o.file in fam:
+            if o is head[fam[o.file]]:
+                out.append(merged[fam[o.file]])
+        else:
+            out.append(o)
+    started = set()
+    for o in out:
+        o.part_start = o.part.key not in started
+        started.add(o.part.key)
+
+    # Every note naming a Common, by what is printed: the words after its last
+    # ": " are the name ("Cetera ut in: ...", a file's line within a family too).
+    for o in out:
+        if o.rest and o.rest[0] in by_file:
+            names = note_title(o.rest[0])
+            o.rest = (o.rest[0], ["%s: %s" % (w.rsplit(": ", 1)[0], names[min(c, 1)])
+                                  for c, w in enumerate(o.rest[1])]) + tuple(o.rest[2:])
+        for hr in o.hours:
+            for s in hr.sections:
+                for c, col in enumerate(s.columns):
+                    for k, line in enumerate(col):
+                        r = getattr(line, "rest", None)
+                        if r and r[0] in by_file and ": " in line.text:
+                            new_line = _rubric_line("%s: %s" % (line.text.rsplit(": ", 1)[0],
+                                                                note_title(r[0])[min(c, 1)]))
+                            new_line.rest = r
+                            col[k] = new_line
+    return out
+
+
 def anchor_rests(offices):
     """Give each "Cetera ut in" the page of the office it names: that office's
     heading gets a label (the first printing of its file, a label being one
     place), and each note naming it the label. A note whose office the book
-    does not print (the Common left out) keeps its words alone."""
+    does not print (the Common left out) keeps its words alone. A family of
+    Commons (merge_commons) answers for each of its files."""
     notes = [(o, None) for o in offices if o.rest] + \
         [(o, line) for o in offices for h in o.hours for s in h.sections for c in s.columns
          for line in c if getattr(line, "rest", None)]
     wanted = {(line.rest if line else o.rest)[0] for o, line in notes}
     anchors = {}
     for o in offices:
-        if o.file in wanted and o.file not in anchors and not o.untitled and o.rows is None:
-            o.anchor = anchors[o.file] = "rest-" + re.sub(r"[^A-Za-z0-9]+", "-", o.file).strip("-")
+        files = [f for f in (o.file,) + tuple(o.files) if f in wanted and f not in anchors]
+        if files and not o.untitled and o.rows is None:
+            o.anchor = o.anchor or "rest-" + re.sub(r"[^A-Za-z0-9]+", "-", o.file).strip("-")
+            for f in files:
+                anchors[f] = o.anchor
     for o, line in notes:
         if line is None:
             o.rest = (o.rest[0], o.rest[1], anchors.get(o.rest[0], ""))
@@ -1986,7 +2386,7 @@ def shorten_offices(offices, keep_first=False):
 # These parts are never replaced by references (they can be referred to).
 # The Psalter is printed in full, every day's psalms on that day, so that a
 # reader at Terce turns no pages: printed breviaries do the same.
-NEVER_REFERENCED = ("ordinarium", "orationes", "kalendarium", "psalterium")
+NEVER_REFERENCED = ("ordinarium", "orationes", "kalendarium", "psalterium", "defunctorum")
 # ...and these keep their headings on lines of their own too (run_in_headings).
 AS_THEY_ARE = ("ordinarium", "orationes", "kalendarium")
 # A bookmark title marking a first copy in a typeset volume (see BookWriter).
@@ -2016,18 +2416,29 @@ def _incipit(line):
     return " ".join(words).rstrip(",;:.·!?") + "…"
 
 
-def cross_reference(offices, langs=("Latin", "English")):
+def cross_reference(offices, langs=("Latin", "English"), keep=None):
     """Print each repeated text once; later copies refer to the first, by its
     opening words and page (which the writer fills in). First whole sections:
     one whose text, in every column, is that of an earlier section keeps its
     heading and becomes one line. Then runs of lines inside a section printed
     before (see _partial_references). Sections of one line are left alone (a
-    reference saves nothing). langs: the columns' languages. How many references."""
+    reference saves nothing). langs: the columns' languages. keep(hour,
+    section): true of a section that stays in full wherever it is said (others
+    may still refer to it). How many references."""
     langs = tuple(dooffice.family(l) for l in langs)
     _unshare(offices)
     ids = iter(range(10 ** 9))
     where = _locators(offices, langs)
-    return _whole_references(offices, ids, where) + _partial_references(offices, ids, langs, where)
+    keep = keep or (lambda hour, section: False)
+    return (_whole_references(offices, ids, where, keep)
+            + _partial_references(offices, ids, langs, where, keep))
+
+
+def matins_responsory(hour, section):
+    """Whether a section is a responsory of Matins: the one said after a
+    lesson ("Responsorium IV"), the short one after a short lesson too."""
+    return (hour_book(hour) == "matins" and bool(section.columns)
+            and _heading_text(section.columns[0]).startswith("Responsor"))
 
 
 # Where a reference sends the reader, besides the page: the heading of the text
@@ -2173,7 +2584,7 @@ def _long_lesson(head, bodies):
             and min(len(b[0].text) for b in bodies) >= LONG_LESSON)
 
 
-def _whole_references(offices, ids, where):
+def _whole_references(offices, ids, where, keep):
     first = {}  # signature -> [hour, index, [reference id of each column]]
     n = 0
     for office, hour, i in _printed_sections(offices):
@@ -2188,7 +2599,7 @@ def _whole_references(offices, ids, where):
         if sig not in first:
             first[sig] = [hour, i, None]
             continue
-        if office.part.key in NEVER_REFERENCED:
+        if office.part.key in NEVER_REFERENCED or keep(hour, section):
             continue
         src = first[sig]
         if src[2] is None:
@@ -2267,7 +2678,7 @@ def _positions(cells):
     return out
 
 
-def _partial_references(offices, ids, langs, where):
+def _partial_references(offices, ids, langs, where, keep):
     # PARTIAL_MIN_ROWS rows -> (hour, section index, column 0's head length,
     #                           each column's body index of the row, row, rows)
     index = {}
@@ -2286,7 +2697,7 @@ def _partial_references(offices, ids, langs, where):
         # A section other sections refer to as a whole stays whole: a reader
         # sent to it must find the text there, not another reference.
         first_copy = any(getattr(l, "marks", None) for col in section.columns for l in col)
-        runs = ([] if office.part.key in NEVER_REFERENCED or first_copy
+        runs = ([] if office.part.key in NEVER_REFERENCED or first_copy or keep(hour, section)
                 else _runs_printed_before(rows, index))
         for start, length, (shour, si, shead, spos, _srow, _srows), early in reversed(runs):
             ident = _mark(shour, si, shead + spos[0], ids)
@@ -2428,13 +2839,15 @@ def _run_in(heads, line):
 def build(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root, typst,
           progress=None, cancelled=None, workdir=None, keep_source=False, only=None,
           alternatives=True, perl_libs=(), references=True, customs=None, book="breviary",
-          text=None):
+          text=None, responsories=None):
     """Make a breviary PDF of `parts` (keys of PARTS, in the order given).
 
     only: restrict the dumped parts to these office keys (e.g. ["C4"]) -- for
     the app's self-test, which wants a real build in seconds.
     alternatives: False leaves out the alternative lessons.
     references: False prints every text in full, however often it recurs.
+    responsories: the responsories of Matins in full (True) or by reference
+    (False) whatever `references` says; None as the other texts.
     book: "breviary", or its "matins" or "diurnal" alone (book_offices).
     text: (dumps, renders) already read from the engine (both books from one).
     """
@@ -2450,7 +2863,8 @@ def build(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root
         offices = book_offices(gather(parts, version, lang1, lang2, dumps, renders,
                                       alternatives=alternatives, customs=customs),
                                book, *_english(lang1, lang2))
-        offices = finish(offices, parts, lang1, lang2, references)
+        offices = merge_commons(offices, lang1, lang2)
+        offices = finish(offices, parts, lang1, lang2, references, responsories)
         if not offices:
             raise RuntimeError("nothing to print for this version")
         _stage_includes(offices, workdir)
@@ -2474,7 +2888,9 @@ def gather_text(parts, version, lang1, lang2, perl, dumper, web_root, workdir, p
     horas_dir = os.path.join(os.path.abspath(web_root), "cgi-bin", "horas")
     need = needed_dumps(parts)
     rendering = any(p in RENDERED for p in parts)
-    total = len(need) + (dopsalter.render_count(lang1, lang2) if rendering else 0)
+    dead = "defunctorum" in parts  # said by the engine too, three hours (dopsalter.render_dead)
+    total = len(need) + (dopsalter.render_count(lang1, lang2) if rendering else 0) \
+        + (len(dopsalter.DEAD_HOURS) if dead else 0)
     count = {"dumps": 0, "renders": 0}
 
     def tick():
@@ -2491,14 +2907,22 @@ def gather_text(parts, version, lang1, lang2, perl, dumper, web_root, workdir, p
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(need))) as pool:
         futs = {pool.submit(dump_part, p, version, lang1, lang2, perl, dumper, horas_dir,
                             workdir, cancelled, only, perl_libs): p for p in need}
-        if rendering:
+        said = None
+        if rendering or dead:
             engine = dooffice.Engine(web_root, perl, perl_libs)
+        if rendering:
             renders = dopsalter.render(engine, version, lang1, lang2, progress=rendered,
                                        cancelled=cancelled)
+        if dead:
+            said = dopsalter.render_dead(engine, version, lang1, lang2, cancelled=cancelled)
+            count["renders"] += len(dopsalter.DEAD_HOURS)
+            tick()
         for fut in concurrent.futures.as_completed(futs):
             dumps[futs[fut]] = fut.result()
             count["dumps"] += 1
             tick()
+    if said is not None:
+        dumps["defunctorum"] = said  # not a dump: the hours as the engine says them
     # The monastic third Nocturns sing canticles no weekly Psalter holds:
     # those the offices name are set out by the engine too.
     wanted = canticle_numbers(dumps) if "psalterium" in parts and \
@@ -2569,7 +2993,7 @@ def book_path(pdf_path, book):
 def build_books(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root, typst,
                 book="breviary", seams=(), progress=None, cancelled=None, workdir=None,
                 keep_source=False, only=None, alternatives=True, perl_libs=(), references=True,
-                customs=None):
+                customs=None, responsories=None):
     """The book chosen: the whole breviary, its Matins, its Diurnal, or those
     two together (book: one of BOOKS) -- one PDF, or one per volume when
     divided at seams. The two are typeset from one reading of the engine's
@@ -2607,7 +3031,8 @@ def build_books(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, we
             sub = os.path.join(workdir, b) if len(books) > 1 else workdir
             common = dict(progress=book_progress(k), cancelled=cancelled, workdir=sub,
                           keep_source=True, only=only, alternatives=alternatives, perl_libs=perl_libs,
-                          references=references, customs=customs, book=b, text=text)
+                          references=references, customs=customs, book=b, text=text,
+                          responsories=responsories)
             if seams:
                 out += build_volumes(parts, version, lang1, lang2, layout, path, perl, dumper,
                                      web_root, typst, seams, **common)
@@ -2623,7 +3048,7 @@ def build_books(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, we
 def build_volumes(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root, typst,
                   seams, progress=None, cancelled=None, workdir=None, keep_source=False, only=None,
                   alternatives=True, perl_libs=(), references=True, customs=None, book="breviary",
-                  text=None):
+                  text=None, responsories=None):
     """Make a breviary in volumes divided at `seams` (keys of dovolumes.SEAMS,
     where the second, third ... volumes begin): one PDF each, named after
     pdf_path (volume_path). [(path, offices)] in order. book and text as
@@ -2643,12 +3068,14 @@ def build_volumes(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, 
         whole = book_offices(gather(parts, version, lang1, lang2, dumps, renders,
                                     alternatives=alternatives, customs=customs),
                              book, *_english(lang1, lang2))
+        whole = merge_commons(whole, lang1, lang2)
         names = dovolumes.names(seams)
         out = []
         for i, name in enumerate(names):
             if cancelled and cancelled():
                 raise dopdf.Cancelled()
-            offices = finish(volume_offices(whole, seams, i, version), parts, lang1, lang2, references)
+            offices = finish(volume_offices(whole, seams, i, version), parts, lang1, lang2, references,
+                             responsories)
             meta = dopdf.Meta(version=version, lang1=lang1, lang2=lang2)
             meta.parts = _book_parts(_parts_in(parts, offices), lang1, customs or {})
             meta.book = book
@@ -2887,8 +3314,17 @@ def preview_pages(day, lang1, lang2, layout, typst, workdir, ppi=60):
         if old.startswith("page-") and old.endswith(".png"):
             os.remove(os.path.join(workdir, old))
     typ = os.path.join(workdir, "preview.typ")
+
+    def make(orders):
+        w = BookWriter(layout, meta)
+        w.row_orders = orders
+        return w, w.document([office], start_page=2)
+
+    # The first language on the outside: the rows measured first, as in a book.
+    _w, source, _orders, check = dopdf.mirrored_source(
+        make, os.path.join(workdir, "preview-rows.typ"), typst, 2)
     with open(typ, "w", encoding="utf-8") as fh:
-        fh.write(BookWriter(layout, meta).document([office], start_page=2))
+        fh.write(source + check)
     dopdf._run([typst, "compile", typ, os.path.join(workdir, "page-{p}.png"),
                 "--ppi", str(int(ppi)), "--pages", "1-2"])
     return [os.path.join(workdir, f) for f in sorted(os.listdir(workdir))
@@ -2923,6 +3359,10 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
     ap.add_argument("--black", action="store_true")
     ap.add_argument("--plain-headings", action="store_true",
                     help="the Propers' office headings in the rubric colour, not the day's")
+    ap.add_argument("--no-rule", action="store_true",
+                    help="two languages: no rule between them")
+    ap.add_argument("--no-mirror", action="store_true",
+                    help="two languages: the first always at the left, not on the outside of each page")
     ap.add_argument("--new-page-per-office", action="store_true")
     ap.add_argument("--two-columns", action="store_true",
                     help="one language (--lang2 the same as --lang1): the text in two columns")
@@ -2938,6 +3378,10 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
                     help="leave out the alternative lessons (a shorter Common)")
     ap.add_argument("--full-texts", action="store_true",
                     help="print a recurring text in full each time, not by reference")
+    ap.add_argument("--responsories", choices=("full", "refer"),
+                    help="the responsories of Matins in full after every lesson, or by reference "
+                         "to the page of the first, whatever --full-texts says (default: as the "
+                         "other texts)")
     ap.add_argument("--volumes", type=int, choices=sorted(dovolumes.DIVISIONS), metavar="N",
                     help="make N volumes (2-4), divided as usual for N (see --divide)")
     ap.add_argument("--divide", metavar="KEYS",
@@ -2961,6 +3405,7 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
         sys.exit("typst.exe or engine_dump.pl not found")
     layout = dopdf.Layout(paper=args.paper, font_size=args.size, red_in_print=not args.black,
                           heading_colours=not args.plain_headings,
+                          column_rule=not args.no_rule, mirror_columns=not args.no_mirror,
                           new_page_per_day=args.new_page_per_office, two_columns=args.two_columns,
                           blank_front=args.blank_front, blank_back=args.blank_back,
                           **dopdf.type_options(args))
@@ -2976,7 +3421,8 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
                         dumper, web, typst, book=args.book, seams=seams, progress=progress,
                         workdir=args.keep_source, keep_source=bool(args.keep_source),
                         alternatives=not args.no_alternatives, perl_libs=perl_libs,
-                        references=not args.full_texts, customs=customs)
+                        references=not args.full_texts, customs=customs,
+                        responsories={"full": True, "refer": False}.get(args.responsories))
     for path, offices in books:
         sys.stderr.write("\nwrote %s (%d offices)" % (path, len(offices)))
     sys.stderr.write("\n")

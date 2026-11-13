@@ -315,7 +315,8 @@ class PdfDialog:
         for cb in (c1, c2):
             cb.bind("<<ComboboxSelected>>", lambda _e: self.update_summary())
 
-        self._build_page(outer, row=2, skip=("heading_colours",))  # a breviary's alone
+        # A breviary's alone: the day's colours, the rule, the first language outside.
+        self._build_page(outer, row=2, skip=("heading_colours", "column_rule", "mirror_columns"))
         self._build_type(outer, row=3)
         self._build_footer(self.foot_box)
 
@@ -337,6 +338,8 @@ class PdfDialog:
             "contents": tk.BooleanVar(value=True),
             "red_in_print": tk.BooleanVar(value=True),
             "heading_colours": tk.BooleanVar(value=True),
+            "column_rule": tk.BooleanVar(value=True),
+            "mirror_columns": tk.BooleanVar(value=True),
             "mark_ai": tk.BooleanVar(value=True),
             "accessible": tk.BooleanVar(value=False),
         }
@@ -349,10 +352,12 @@ class PdfDialog:
             ("contents", contents_label),
             ("red_in_print", "Rubrics in colour"),
             ("heading_colours", "Propers' headings in the day's colour"),
+            ("column_rule", "Rule between the two languages"),
+            ("mirror_columns", "First language on the outside of each page"),
             ("mark_ai", "Mark English translated by AI (“AI”)"),
             ("accessible", "Tagged for screen readers (about 3× the size)"),
         ) if k in self.opts]
-        checks = {}
+        checks = self.page_checks = {}
         for i, (key, label) in enumerate(shown):
             checks[key] = ttk.Checkbutton(page, text=label, variable=self.opts[key],
                                           command=self.update_summary)
@@ -816,12 +821,27 @@ BREVIARY_SETTINGS = os.path.join(os.path.dirname(SETTINGS_FILE), "breviary-setti
 # The Psalter is printed in full, every day (146 pages, measured on that book).
 # The Sunday Masses (not in that book): measured alone at the same settings.
 MISSA_PAGES = 79
-PART_PAGES = {"kalendarium": 10, "orationes": 1, "ordinarium": 20, "psalterium": 146,
-              "tempora": 587, "temporis": 15, "sancti": 639, "commune": 125, "missa": MISSA_PAGES}
+# Measured again in November 2026 on the 1960 book (1,560 pages), with the
+# Commons by families, the Office of the Dead and Christ the King in the
+# Proper of the Season.
+PART_PAGES = {"defunctorum": 18, "kalendarium": 10, "orationes": 1, "ordinarium": 21, "psalterium": 147,
+              "tempora": 599, "temporis": 15, "sancti": 642, "commune": 87, "missa": MISSA_PAGES}
 # The Common: 208 before each variant printed only its own texts (the same
 # Common alone, 181 pages -> 109).
 # Every text in full instead (2,089 pages): each part against PART_PAGES.
 FULL_TEXTS = {"tempora": 1.22, "sancti": 1.08, "commune": 1.29}  # the Common alone: 109 -> 141
+# The responsories of Matins in full after every lesson, against the repeated
+# ones by reference: each part's Matins, measured on the Monastic 1963 Matins
+# book (US Trade, 8 pt: 1,434 pages -> 1,628; the Proper of the Season 695 ->
+# 868, of the Saints 498 -> 513, the Common 83 -> 89).
+RESPONSORIES_FULL = {"tempora": 1.25, "sancti": 1.03, "commune": 1.07}
+# The time: reading the engine's text (about half a minute), and seconds a
+# page -- more with the first language on the outside of each page, whose
+# rows are measured first and then set (README, The two languages on the
+# page). Measured in November 2026 on the whole Monastic book (US Trade, 8 pt,
+# 1,751 pages: 90 s, and 173 s mirrored) and the 1960 book (Letter, 10 pt,
+# 1,560 pages: 82 s and 208 s after the text was read).
+SECONDS_TO_READ, SECONDS_A_PAGE, SECONDS_A_PAGE_MIRRORED = 30, 0.04, 0.10
 # One language against this estimate of two (one column, the width of the
 # page), and set in two columns against one; by paper, as a narrow page gains
 # more from one language and less from two columns. Measured on Monastic 1963
@@ -869,12 +889,13 @@ BOOK_CHOICES = (("breviary", "The whole breviary"), ("matins", "Matins alone (Ma
 # Each part's pages in a Matins book and in a Diurnal against the whole
 # breviary's (PART_PAGES): measured on the 1960 book, Latin and English,
 # Letter, 10 pt (README, Matins and the Diurnal). The Calendar and the
-# prayers are in both, whole.
+# prayers are in both, whole. The Office of the Dead: its Matins against its
+# Vespers and Lauds, on the Monastic book (22 pages: 14 and 9).
 BOOK_SHARE = {
     "matins": {"ordinarium": 0.25, "psalterium": 0.27, "tempora": 0.9, "temporis": 0.33,
-               "sancti": 0.88, "commune": 0.78, "missa": 0.0},
+               "sancti": 0.88, "commune": 0.78, "defunctorum": 0.64, "missa": 0.0},
     "diurnal": {"ordinarium": 0.8, "psalterium": 0.74, "tempora": 0.13, "temporis": 0.73,
-                "sancti": 0.21, "commune": 0.33},
+                "sancti": 0.21, "commune": 0.33, "defunctorum": 0.41},
 }
 
 
@@ -917,7 +938,7 @@ def spacing_factor(lay):
     f *= 1 + 0.6 * (per_letter / (0.45 + 0.25 / 5.5) - 1)  # lines that still fit don't grow
     if lay.margins:
         w, h = dopdf.PAPER_INCHES.get(lay.paper, (8.5, 11.0))
-        band = 2.3 * lay.font_size / 72  # the running head's band and the foot's allowance
+        band = 2.6 * lay.font_size / 72  # the running head's band and the foot's allowance
         top, bottom, inside, outside = lay.margins
         st, sb, si, so = dopdf.standard_margins(lay.paper)
         width, std_width = max(1.0, w - inside - outside), w - si - so
@@ -966,10 +987,13 @@ class BreviaryDialog(PdfDialog):
         self.lang1 = tk.StringVar(value="Latin")
         self.lang2 = tk.StringVar(value="English")
         labels = [c.label for c in self.languages]
-        ttk.Label(langs, text="Left").grid(row=0, column=0, sticky="w")
+        # "Left" and "Right", or "Outside" and "Inside" when the first language
+        # is on the outside of each page (update_summary).
+        self.side_labels = (ttk.Label(langs, text="Left", width=8), ttk.Label(langs, text="Right", width=8))
+        self.side_labels[0].grid(row=0, column=0, sticky="w")
         c1 = ttk.Combobox(langs, textvariable=self.lang1, state="readonly", width=20, values=labels)
         c1.grid(row=0, column=1, sticky="w", pady=2)
-        ttk.Label(langs, text="Right").grid(row=1, column=0, sticky="w")
+        self.side_labels[1].grid(row=1, column=0, sticky="w")
         c2 = ttk.Combobox(langs, textvariable=self.lang2, state="readonly", width=20,
                           values=[ONE_COLUMN] + labels)
         c2.grid(row=1, column=1, sticky="w", pady=2)
@@ -990,6 +1014,8 @@ class BreviaryDialog(PdfDialog):
             row["on"] = tk.BooleanVar(value=row["key"] not in self.book.DEFAULT_OFF)
         self.alternatives = tk.BooleanVar(value=True)
         self.references = tk.BooleanVar(value=True)
+        # The responsories of Matins: "refer" or "full", whatever `references` says.
+        self.responsories = tk.StringVar(value="refer")
         self._build_parts_list()
         self._render_parts()
 
@@ -1471,6 +1497,19 @@ class BreviaryDialog(PdfDialog):
         ttk.Checkbutton(below, variable=self.references, command=self.update_summary,
                         text="Print a repeated text once; later copies give its first words "
                              "and page").grid(row=1, column=0, columnspan=2, sticky="w", pady=(2, 0))
+        # The responsories after the lessons of Matins go their own way,
+        # whatever is ticked above: each in full where it is said, or the
+        # repeated ones by their first words and page.
+        resp = ttk.Frame(below)
+        resp.grid(row=2, column=0, columnspan=2, sticky="w", pady=(2, 0))
+        ttk.Label(resp, text="Responsories of Matins:").pack(side="left")
+        self.responsory_radios = [
+            ttk.Radiobutton(resp, text=text, value=value, variable=self.responsories,
+                            command=self.update_summary)
+            for value, text in (("full", "in full after each lesson"),
+                                ("refer", "repeated ones by first words and page"))]
+        for radio in self.responsory_radios:
+            radio.pack(side="left", padx=(8, 0))
 
     def _render_parts(self, show_last=False):
         inner = self.parts_inner
@@ -1630,15 +1669,35 @@ class BreviaryDialog(PdfDialog):
         kind = self.book_choice()
         kinds = ["matins", "diurnal"] if kind == "both" else [kind]
 
+        refs, full_resp = self.references.get(), self.responsories.get() == "full"
+
         def by_part(k):
-            """Each part's pages at the standard settings, in book k (BOOK_SHARE)."""
-            return {p: PART_PAGES[p] * (1 if alt else NO_ALTERNATIVES.get(p, 1))
-                    * (1 if self.references.get() else FULL_TEXTS.get(p, 1))
-                    * BOOK_SHARE.get(k, {}).get(p, 1) for p in parts}
+            """Each part's pages at the standard settings, in book k (BOOK_SHARE);
+            the responsories of Matins as chosen, whatever the other texts do."""
+            out = {}
+            for p in parts:
+                whole = PART_PAGES[p] * (1 if alt else NO_ALTERNATIVES.get(p, 1))
+                pages = whole * (1 if refs else FULL_TEXTS.get(p, 1)) * BOOK_SHARE.get(k, {}).get(p, 1)
+                if k != "diurnal" and refs == full_resp:
+                    more = (whole * BOOK_SHARE["matins"].get(p, 1)
+                            * (RESPONSORIES_FULL.get(p, 1) - 1))
+                    pages += more if refs else -more
+                out[p] = pages
+            return out
 
         factor = 1.0  # paper, type, spacing, columns
         one = self.lang2.get() == ONE_COLUMN
         self.two_columns_check.state(["!disabled"] if one else ["disabled"])
+        # The rule and the first language outside are for two languages; with
+        # the first outside, "Left" and "Right" are true of right-hand pages only.
+        for key in ("column_rule", "mirror_columns"):
+            self.page_checks[key].state(["disabled"] if one else ["!disabled"])
+        outside = not one and self.opts["mirror_columns"].get()
+        for label, text in zip(self.side_labels, ("Outside", "Inside") if outside else ("Left", "Right")):
+            label.config(text=text)
+        a_page = SECONDS_A_PAGE_MIRRORED if outside else SECONDS_A_PAGE
+        for radio in self.responsory_radios:  # a Diurnal has no Matins
+            radio.state(["disabled"] if kind == "diurnal" else ["!disabled"])
         if one:
             factor *= ONE_LANGUAGE.get(lay.paper, 0.6)
             if self.two_columns.get():
@@ -1672,7 +1731,7 @@ class BreviaryDialog(PdfDialog):
                                                                   "196" in self.version.get())]
                     for k in kinds}
             total = sum(sum(v) for v in each.values())
-            seconds = 10 + total * 0.02 + 5 * n * len(kinds)
+            seconds = SECONDS_TO_READ + total * a_page + 5 * n * len(kinds)
             when = "under a minute" if seconds < 60 else (
                 "about a minute" if seconds < 90 else "about %d minutes" % round(seconds / 60))
             mb = "{:,}".format(max(1, int(round(total * (0.021 if lay.accessible else 0.007)))))
@@ -1690,7 +1749,7 @@ class BreviaryDialog(PdfDialog):
                                 "Two books, each holding its own hours of every part chosen above.")
         pages = {k: sum(by_part(k).values()) * factor + blanks for k in kinds}
         total = sum(pages.values())
-        seconds = 10 + total * 0.02
+        seconds = SECONDS_TO_READ + total * a_page
         when = "under a minute" if seconds < 60 else (
             "about a minute" if seconds < 90 else "about %d minutes" % round(seconds / 60))
         mb = "{:,}".format(max(1, int(round(total * (0.021 if lay.accessible else 0.007)))))
@@ -1715,6 +1774,7 @@ class BreviaryDialog(PdfDialog):
                              if self.book.is_custom(r["key"])},
             "alternatives": self.alternatives.get(),
             "references": self.references.get(),
+            "responsories": self.responsories.get(),
             "spacing": {k: v.get() for k, v in self.spacing.items()},
             "margins": [v.get() for v in self.margin_vars],
             "volumes": self.volumes_wanted(),
@@ -1779,6 +1839,12 @@ class BreviaryDialog(PdfDialog):
             self.alternatives.set(s["alternatives"])
         if isinstance(s.get("references"), bool):
             self.references.set(s["references"])
+        if s.get("responsories") in ("full", "refer"):
+            self.responsories.set(s["responsories"])
+        elif isinstance(s.get("references"), bool):
+            # Choices saved before the responsories had their own: as they were
+            # printed then, with the other texts.
+            self.responsories.set("refer" if s["references"] else "full")
         for k, v in (s.get("spacing") or {}).items():
             if k in self.spacing and number(v, None) is not None:
                 self.spacing[k].set(str(v))
@@ -1835,6 +1901,7 @@ class BreviaryDialog(PdfDialog):
         layout = self.layout()
         alternatives = self.alternatives.get()
         references = self.references.get()
+        responsories = self.responsories.get() == "full"
         customs = self.customs()
         seams = self.seams_chosen() if self.volumes_wanted() > 1 else []
         kind = self.book_choice()
@@ -1855,7 +1922,8 @@ class BreviaryDialog(PdfDialog):
                     parts, version, lang1, lang2, layout, path, self.perl, self.dumper,
                     self.web_root, self.typst, book=kind, seams=seams, progress=progress,
                     cancelled=self.cancel.is_set, alternatives=alternatives,
-                    perl_libs=self.engine.perl_libs, references=references, customs=customs)
+                    perl_libs=self.engine.perl_libs, references=references, customs=customs,
+                    responsories=responsories)
                 if len(books) > 1:  # volumes, or two books
                     self.events.put(("done-volumes", [p for p, _o in books]))
                 else:

@@ -115,6 +115,12 @@ class Layout:
     # One language only: the text in two columns on the page, as printed
     # breviaries set it (the breviary; the Calendar keeps one).
     two_columns: bool = False
+    # Two languages (the breviary): a rule in the rubrics' colour between
+    # them, and the first language on the outside of each page of a bound
+    # book -- at the left of a left-hand page, the right of a right-hand one
+    # (Writer.bi_rules).
+    column_rule: bool = False
+    mirror_columns: bool = False
     # Blank pages added to each book or volume (the breviary): at the front,
     # before the title page, in pairs -- an odd number would put the title on
     # a left-hand page and every page's binding margin on the wrong side --
@@ -523,9 +529,9 @@ class Writer:
                 return
             cells = ", ".join("[%s], R[%s]" % (a, b) for a, b in chunk)
             if sticky:
-                self.emit("#block(sticky: true, width: 100%%)[#bi(%s)]" % cells)
+                self.emit("#block(sticky: true, width: 100%%)[%s]" % self.bi(cells, len(chunk)))
             else:
-                self.emit("#bi(%s)" % cells)
+                self.emit(self.bi(cells, len(chunk)))
             chunk.clear()
 
         for a, b in rows:
@@ -586,8 +592,7 @@ class Writer:
                 "#set align(end)" if align == "right" else "// text aligned to the start",
                 # Bilingual rows: left language, right language.
                 "#let R(body) = { set text(lang: \"%s\"%s); body }" % (lang2, _features(lang2, reset=True)),
-                "#let bi(..cells) = grid(columns: (1fr, 1fr), column-gutter: 1.1em, "
-                "row-gutter: %s, ..cells.pos())" % _em(row_gap),
+            ] + self.bi_rules(row_gap, par_spacing) + [
                 "#let verse(body) = par(hanging-indent: 1.1em, body)",
                 # A day: date line, title in red, commemorations beneath.
                 "#let dayhead(date, title, sub) = {",
@@ -603,6 +608,187 @@ class Writer:
             ] + self.heading_rules()
         )
 
+    def mirrored(self):
+        """Two languages with the first on the outside of each page (Layout.mirror_columns)."""
+        return bool(getattr(self.layout, "mirror_columns", False)) and self.meta.lang1 != self.meta.lang2
+
+    # Rows of the two languages set so far (mirrored), and, once they have been
+    # measured (measure_rows), each row's order: {its number: "R" or "T"}.
+    bi_rows = 0
+    row_orders = None
+
+    def bi(self, cells, rows=1):
+        """A call of bi() for these rows ("[..], R[..], ..."). When the columns
+        are mirrored the rows are numbered through the volume (c: the call's
+        first), and each has its order (o: a letter a row) once that is known:
+        L the first language at the left, R at the right, T both, the row
+        going over a page turn (bi_rules)."""
+        if not self.mirrored():
+            return "#bi(%s)" % cells
+        first = self.bi_rows + 1
+        self.bi_rows += rows
+        orders = self.row_orders or {}
+        o = "".join(orders.get(n, "L") for n in range(first, first + rows)).rstrip("L")
+        return "#bi(c: %d, %s%s)" % (first, 'o: "%s", ' % o if o else "", cells)
+
+    def bi_rules(self, row_gap, par_spacing):
+        """bi(): rows of the two languages side by side, the first at the left.
+
+        Layout.column_rule draws a rule between them in the rubrics' colour:
+        it runs through a call's rows, and a little below the last, to meet
+        the next call's across the space between them (a blank line, a
+        heading, the next section).
+
+        Layout.mirror_columns puts the first language on the outside of each
+        page of a bound book. The two columns are equally wide, so which
+        stands at the left changes no line and no page: the volume is set
+        once with the first language at the left of every row, each row's
+        page read back from its markers (measure_rows), and then set with
+        each row's order given (bi(), above). A row that goes over a page
+        turn is set in both orders at once, one upon the other, and each word
+        shown in the one its page wants, hidden in the other (turncell):
+        hidden text is not in the PDF at all. (A first version had each row
+        ask for its own page while it was set: Typst then set the book five
+        times over, 103 s for a volume that takes 12 s.)"""
+        rule = bool(getattr(self.layout, "column_rule", False))
+        if not rule and not self.mirrored():
+            return ["#let bi(..cells) = grid(columns: (1fr, 1fr), column-gutter: 1.1em, "
+                    "row-gutter: %s, ..cells.pos())" % _em(row_gap)]
+        out = [
+            "#let colgap = 1.1em",
+            "#let rowgap = %s" % _em(row_gap),
+            "#let birule = %s" % ("0.4pt + rub" if rule else "none"),
+            # Below a call's last row: as far as the next can be (the space
+            # between blocks, a blank line's, a section's).
+            "#let bitail = %s" % _em(max(0.4, row_gap, par_spacing)),
+        ]
+        if not self.mirrored():
+            return out + [
+                "#let bi(c: 0, ..cells) = {",
+                "  let rows = cells.pos().chunks(2)",
+                "  grid(columns: (1fr, 0pt, 1fr), column-gutter: colgap / 2,",
+                "    row-gutter: (rowgap,) * (rows.len() - 1) + (0pt,),",
+                "    grid.vline(x: 1, stroke: birule),",
+                "    ..rows.map(r => (r.at(0), [], r.at(1))).flatten(),",
+                "    grid.cell(x: 1, place(top + left, line(angle: 90deg, length: bitail, stroke: birule))))",
+                "}",
+            ]
+        return out + [
+            # A first copy's bookmark (BookWriter.runs): once, not again in the
+            # second setting of a row that goes over a page turn (alt, below).
+            "#let bimk(t, l) = context {",
+            "  if heading.supplement == auto {",
+            "    box(width: 0pt, height: 0pt, hide([#heading(level: 3)[#t] #label(l)]))",
+            "  }",
+            "}",
+            # A cell of such a row, in one of the two places it can stand:
+            # only its words on right-hand pages are shown (want), or only
+            # those on left-hand ones. The text is taken TURN_CHUNK words at a
+            # time, each chunk followed by a marker (l), and is where it ends
+            # -- a marker before a word that begins a line stands at the end
+            # of the line above. A chunk that ends on the page where the one
+            # before it ended is on that page, and shown or hidden whole. The
+            # one that goes over the turn is taken word by word in the same
+            # way (word, its markers lw). A word cut over the turn is shown in
+            # two pieces, cut where the piece on the new page is as wide as
+            # what stands before the word's end. (Word by word throughout, a
+            # volume of 643 pages took 137 s; by chunks 31 s.)
+            "#let bioff = %d" % (getattr(self, "start_page", 1) - 1),  # a page's number, less its place
+            "#let turncell(l, want, body) = {",
+            '  let lw = label(str(l) + "w")',
+            "  let vis(n, s) = if calc.odd(n + bioff) == want { s } else { hide(s) }",
+            "  let word(w) = {",
+            "    context {",
+            "      let me = here()",
+            "      let after = query(selector(lw).after(me))",
+            "      let before = query(selector(lw).before(me))",
+            "      if after.len() == 0 or before.len() == 0 { w } else {",
+            "        let e = after.first().location()",
+            "        let pe = e.page()",
+            "        let s = before.last().location()",
+            "        if s.page() == pe { vis(pe, w) } else {",
+            "          let tail = e.position().x - query(l).first().location().position().x",
+            "          if tail < 0.5pt or tail > measure[#w].width - 0.3pt { vis(pe, w) } else {",
+            "            let cl = w.clusters()",
+            "            let best = 0",
+            "            let err = 1000pt",
+            "            for j in range(1, cl.len()) {",
+            "              let d = calc.abs(measure[#cl.slice(j).join()].width - tail)",
+            "              if d < err { err = d; best = j }",
+            "            }",
+            "            if best == 0 or err > 1pt { vis(pe, w) } else {",
+            "              vis(s.page(), cl.slice(0, best).join()) + vis(pe, cl.slice(best).join())",
+            "            }",
+            "          }",
+            "        }",
+            "      }",
+            "    }",
+            "    [#metadata(none)#lw]",
+            "  }",
+            r'  show regex("\\S+( \\S+){0,%d}"): it => {' % (TURN_CHUNK - 1),
+            "    let chunk = it.text",
+            "    context {",
+            "      let me = here()",
+            "      let after = query(selector(l).after(me))",
+            "      if after.len() == 0 { chunk } else {",
+            "        let e = after.first().location()",
+            "        let s = query(selector(l).before(me)).last().location()",
+            "        if s.page() == e.page() { vis(e.page(), chunk) } else {",
+            "          [#metadata(none)#lw]",
+            '          chunk.split(" ").map(word).join(" ")',
+            "        }",
+            "      }",
+            "    }",
+            "    [#metadata(none)#l]",
+            "  }",
+            "  [#metadata(none)#l]",
+            "  body",
+            "}",
+            # A row (n: its number in the volume) in its order (o). Its markers:
+            # at its first line (bis) and at the end of each language (bie),
+            # by which its pages are read (measure_rows) and checked
+            # (ROWS_CHECK). The second setting of a row that goes over a page
+            # turn has them without their labels: each row is found once.
+            "#let birow(n, w, la, en, gap, o) = {",
+            "  let cells = if o == \"T\" {",
+            "    let id = str(n)",
+            "    let alt(body) = block(width: w, { set heading(supplement: [alt]); body })",
+            "    let la1 = [#metadata(n)<bis>] + la + [#metadata(n)<bie>]",
+            "    let la2 = [#metadata(n)] + la + [#metadata(n)]",
+            "    let en1 = en + [#metadata(n)<bie>]",
+            "    let en2 = en + [#metadata(n)]",
+            '    (alt(turncell(label("a" + id), true, en2)), turncell(label("b" + id), false, la1), [],',
+            '     alt(turncell(label("c" + id), true, la2)), turncell(label("d" + id), false, en1))',
+            "  } else {",
+            "    let la = [#metadata(n)<bis>] + la + [#metadata(n)<bie>]",
+            "    let en = en + [#metadata(n)<bie>]",
+            "    if o == \"R\" { ([], en, [], [], la) } else { ([], la, [], [], en) }",
+            "  }",
+            "  block(above: gap, below: rowgap, grid(",
+            "    columns: (0pt, 1fr, 0pt, 0pt, 1fr), column-gutter: (0pt, colgap / 2, colgap / 2, 0pt),",
+            "    ..if birule != none { (grid.vline(x: 2, stroke: birule),) },",
+            "    ..cells,",
+            "    ..if birule != none { (grid.cell(x: 2, y: 1,",
+            "      place(top + left, line(angle: 90deg, length: bitail, stroke: birule))),) }))",
+            "}",
+            '#let bi(c: 0, o: "", ..cells) = layout(size => {',
+            "  let w = (size.width - colgap.to-absolute()) / 2",
+            "  for (k, r) in cells.pos().chunks(2).enumerate() {",
+            "    birow(c + k, w, r.at(0), r.at(1), if k == 0 { auto } else { rowgap },",
+            '          o.at(k, default: "L"))',
+            "  }",
+            "})",
+        ]
+
+    # The running head's rule: a fixed distance under its words (a stack's, not
+    # the space between blocks, which follows the spacing chosen: the rule
+    # went through the words at a small "space between verses", and away from
+    # them at a large one).
+    HEAD_RULE = [
+        "        0.32em,",
+        "        line(length: 100%, stroke: 0.4pt + luma(170)),",
+    ]
+
     def page_furniture(self, small):
         """The page's margins, running head and foot (#set page arguments)."""
         margin = ("(inside: 0.55in, outside: 0.45in, top: 0.62in, bottom: 0.55in)" if small
@@ -610,11 +796,12 @@ class Writer:
         return ["  margin: %s," % margin, "  header: context {"] + RUNNING_HEAD_FIND + [
             "    if d != none and not quiet {",
             '      set text(size: 0.78em, fill: luma(90), hyphenate: false)',
-            "      grid(columns: (1fr, auto), column-gutter: 1em, align: (left, right),",
-            "        text(style: \"italic\", d.value.d + \"  ·  \" + d.value.t),",
-            '        if h != none { h.value } else { "" })',
-            "      v(-0.45em)",
-            "      line(length: 100%, stroke: 0.4pt + luma(170))",
+            "      stack(dir: ttb,",
+            "        grid(columns: (1fr, auto), column-gutter: 1em, align: (left, right),",
+            "          text(style: \"italic\", d.value.d + \"  ·  \" + d.value.t),",
+            '          if h != none { h.value } else { "" }),',
+            ] + self.HEAD_RULE + [
+            "      )",
             "    }",
             "  },",
             "  footer: context align(center, text(size: 0.8em, fill: luma(90), counter(page).display())),",
@@ -656,6 +843,7 @@ class Writer:
         self.start_page = start_page
         self.out = []
         self.styles = set()
+        self.bi_rows = 0
         for i, day in enumerate(days):
             self.day(day, i)
         head = [self.preamble()]
@@ -685,9 +873,12 @@ class Writer:
             # Fixed label column, so titles line up whether the day has one digit or two.
             "  grid(columns: (%s, 1fr, auto), column-gutter: 0.9em," % ("5.7em" if dated else "0em"),
             "    text(fill: luma(90), left),",
-            "    box(width: 100%, height: 1.25em, clip: true, pad(left: (lvl - 1) * 1.4em,",
+            # One line, cut at the column's edge: the inner box is wider than any
+            # title, so a long one is not broken (a second line showed under
+            # the cut at a tight line spacing, over the next row).
+            "    box(width: 100%, height: 1.25em, clip: true, pad(left: (lvl - 1) * 1.4em, box(width: 60cm,",
             "      if lvl == 1 and left == \"\" { text(fill: rub, weight: \"bold\", hyphenate: false, title) }",
-            "      else { text(hyphenate: false, title) })),",
+            "      else { text(hyphenate: false, title) }))),",
             "    [#str(page)#context [#metadata((i: i, k: 1, p: here().page(),"
             " x: here().position().x / 1pt, y: here().position().y / 1pt))<tocpos>]])",
             "  v(0.2em, weak: true)",
@@ -751,6 +942,108 @@ def query(typ_path, label, typst_exe, cancelled=None):
     out = _run([typst_exe, "query", "--root", os.path.dirname(typ_path), typ_path,
                 label, "--field", "value", "--format", "json"], cancelled)
     return json.loads(out.decode("utf-8"))
+
+
+# The first language on the outside of each page (Writer.bi_rules): where each
+# row of a volume begins and ends, read back from a setting of it with
+# `typst query` -- ([row, page] of each row's first line, [row, page] of each
+# language's end), the pages counted from the volume's first.
+ROW_PAGES = ("\n#context [#metadata((query(<bis>).map(m => (m.value, m.location().page())), "
+             "query(<bie>).map(m => (m.value, m.location().page())))) <bipages>]\n")
+# ...and the words with which a volume set with its rows' orders stops, should
+# a row begin on another page than the one it was measured on.
+ROWS_MOVED = "a row of the two languages is not on the page it was measured on"
+MIRROR_ROUNDS = 3
+# A row that goes over a page turn is looked through this many words at a
+# time for the turn (Writer.bi_rules, turncell).
+TURN_CHUNK = 16
+
+
+def measure_rows(source, typ_path, typst_exe, cancelled=None):
+    """(where each row begins, where each language of it ends) in a volume
+    set from this source: {row: page} and {row: its last page}."""
+    with open(typ_path, "w", encoding="utf-8") as fh:
+        fh.write(source + ROW_PAGES)
+    found = query(typ_path, "<bipages>", typst_exe, cancelled)
+    starts, ends = found[0] if found else ([], [])
+    first, last = {}, {}
+    for n, page in starts:
+        first.setdefault(n, page)
+    for n, page in ends:
+        last[n] = max(last.get(n, 0), page)
+    return first, last
+
+
+def row_orders(first, last, start_page):
+    """Each row's order from its pages: {row: "R"} for a row on a right-hand
+    page (an odd page number: the first language at the right, outside),
+    {row: "T"} for one that goes over a page turn; the others are left out."""
+    orders = {}
+    for n, page in first.items():
+        if last.get(n, page) != page:
+            orders[n] = "T"
+        elif (start_page + page - 1) % 2:
+            orders[n] = "R"
+    return orders
+
+
+def rows_check(first):
+    """Source that stops the typesetting (ROWS_MOVED) unless each row begins
+    on the page it was measured on. The first setting has nothing to compare
+    (no row is found yet); Typst sets the volume again until what was found
+    is what is set, so the pages printed are the pages checked."""
+    if not first:
+        return ""
+    return ("\n#let bipages = (%s,)\n#context {\n"
+            "  let got = query(<bis>).map(m => m.location().page())\n"
+            "  if got.len() > 0 and got != bipages { panic(\"%s\") }\n}\n"
+            % (",".join(str(first[n]) for n in sorted(first)), ROWS_MOVED))
+
+
+def mirrored_source(make, typ_path, typst_exe, start_page, cancelled=None, orders=None):
+    """A volume's source with the first language on the outside of each page.
+
+    make(orders) -> (writer, source) writes the volume with these orders of
+    its rows (None: the first language at the left of each). It is set once
+    to find each row's pages (measure_rows, at typ_path), and written again
+    with the orders those give. (writer, source, orders, check): the check
+    (rows_check) goes after the source; a volume with no rows of two
+    languages has its source as written, and no check."""
+    writer, source = make(orders)
+    if not writer.mirrored() or not writer.bi_rows:
+        return writer, source, None, ""
+    first, last = measure_rows(source, typ_path, typst_exe, cancelled)
+    new = row_orders(first, last, start_page)
+    if new != (orders or {}):
+        writer, source = make(new)
+    return writer, source, new, rows_check(first)
+
+
+def _set_volume(make, typ, pdf, typst_exe, start_page, cancelled, tagged, known=None):
+    """Write a volume's source (make, as for mirrored_source) and typeset it.
+    Mirrored, its rows are measured first -- unless their orders are known
+    from a setting before (known: what this returned then) -- and measured
+    again, from the volume as it was last written, if the check finds a row
+    elsewhere. (writer, (orders, check))."""
+    orders = None
+    for attempt in range(MIRROR_ROUNDS):
+        if known is not None:
+            (orders, check), known = known, None
+            w, source = make(orders)
+        else:
+            w, source, orders, check = mirrored_source(make, typ[:-4] + "-rows.typ", typst_exe,
+                                                       start_page, cancelled, orders)
+        with open(typ, "w", encoding="utf-8") as fh:
+            fh.write(source + check)
+        try:
+            compile_pdf(typ, pdf, typst_exe, cancelled, tagged=tagged)
+            return w, (orders, check)
+        except RuntimeError as exc:
+            if ROWS_MOVED not in str(exc):
+                raise
+    raise RuntimeError("The first language could not be kept on the outside of each page: the rows "
+                       "of %s did not come to rest in %d settings. Make the book without that "
+                       "option, or with other spacing." % (os.path.basename(typ), MIRROR_ROUNDS))
 
 
 def day_rows(day):
@@ -870,26 +1163,28 @@ def _typeset(days, meta, layout, pdf_path, typst_exe, workdir, progress, cancell
             progress("typeset", n, len(volumes))
         typ = os.path.join(workdir, "volume%02d.typ" % (n + 1))
         pdf = os.path.join(workdir, "volume%02d.pdf" % (n + 1))
-        w = writer(layout, meta)
-        with open(typ, "w", encoding="utf-8") as fh:
-            fh.write(w.document(vol, start_page=next_page))
-        compile_pdf(typ, pdf, typst_exe, cancelled, tagged=tagged)
+
+        def make(orders, vol=vol, start=next_page):
+            w = writer(layout, meta)
+            w.row_orders = orders
+            return w, w.document(vol, start_page=start)
+
+        w, rows = _set_volume(make, typ, pdf, typst_exe, next_page, cancelled, tagged)
         count = len(PdfReader(pdf).pages)
         entries += writer(layout, meta).volume_entries(vol, pdf, next_page)
         vol_pdfs.append(pdf)
         if getattr(w, "unresolved", False):
-            again.append((vol, typ, pdf, next_page, count))
+            again.append((make, typ, pdf, next_page, count, rows))
         next_page += count
     # A page named before it was typeset (the breviary's "Cetera ut in" from
     # the Proper of the Saints to the Common after it): those volumes set
     # again, every page now known. The number's box is of fixed width, so the
-    # pages come out the same; were they not, the book would be wrong.
-    for vol, typ, pdf, start, count in again:
+    # pages come out the same (and each row's order with them); were they
+    # not, the book would be wrong.
+    for make, typ, pdf, start, count, rows in again:
         if cancelled and cancelled():
             raise Cancelled()
-        with open(typ, "w", encoding="utf-8") as fh:
-            fh.write(writer(layout, meta).document(vol, start_page=start))
-        compile_pdf(typ, pdf, typst_exe, cancelled, tagged=tagged)
+        _set_volume(make, typ, pdf, typst_exe, start, cancelled, tagged, known=rows)
         if len(PdfReader(pdf).pages) != count:
             raise RuntimeError("%s came out %d pages, not %d, when set again with its references"
                                % (os.path.basename(pdf), len(PdfReader(pdf).pages), count))

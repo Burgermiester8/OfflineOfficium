@@ -264,6 +264,66 @@ LABELS = {
     # Latin's verse 6, printed inside its line 5 ("(6) quia in ætérnum...").
     (112, 6): "6",
     (112, 7): "7a",
+    # Places where the two translations share too few words for the lining up
+    # to see which line a verse is of, found by reading every verse that is
+    # not one beside one line against its Latin (tools/audit_psalms.py lists
+    # them; README, The psalms' verses, audited). Each was a line too low:
+    # 13:4, "Nonne cognoscent omnes qui operantur iniquitatem", was beside
+    # the last line of the Latin's long verse 3 (ADDED, below).
+    (14, 5): "4",
+    # 48:9 "Et pretium redemptionis animæ suæ" is "For it cost more to redeem
+    # their souls", and "That he shall live alway" its end (the Vulgate's 10).
+    (49, 7): "8",
+    (49, 8): "9",
+    (49, 9): "10",
+    # 51:4 "Tota die iniustitiam cogitavit lingua tua" is "Thy tongue
+    # imagineth wickedness"; "Whereas the goodness of God endureth yet daily"
+    # is between it and 3.
+    (52, 1): "3a",
+    (52, 2): "3b",
+    (52, 3): "4",
+    # 100:6 ends "ambulans in via immaculata, hic mihi ministrabat": "Whoso
+    # leadeth a godly life, he shall be my servant"; 7 is "There shall no
+    # deceitful person dwell in my house".
+    (101, 8): "6a",
+    (101, 9): "6b",
+    (101, 10): "7",
+    # 138:16 ends "dies formabuntur, et nemo in eis": "Which day by day were
+    # fashioned"; 17 "Mihi autem nimis honorificati sunt amici tui, Deus" is
+    # "How dear are thy counsels unto me, O God".
+    (139, 15): "16a",
+    (139, 16): "16b",
+    (139, 17): "17",
+    (139, 18): "18",
+    # The first lines of two verses whose second line is the Douay's (DOUAY).
+    (118, 28): "28a",
+    (145, 13): "13a",
+}
+
+# Latin lines the Prayer Book has no verse for, the Hebrew having none: (Prayer
+# Book psalm, the verse they follow) -> the Latin line. The English beside
+# them is the Douay's own line, read from the data, which follows the Latin
+# line for line: 117:28b "Confitebor tibi quoniam exaudisti me" and 144:13b
+# "Fidelis Dominus in omnibus verbis suis".
+DOUAY = {
+    (118, 28): "28b",
+    (145, 13): "13b",
+}
+
+# Verses the Latin has and the source has not: (Prayer Book psalm, the verse
+# they follow) -> [(Latin verse, text)]. Psalm 13's verse 3 goes on in the
+# Latin with the lines St Paul quotes (Rom 3:13-18). Coverdale translated them
+# and the Prayer Book of 1662 prints them as Psalm 14:5-7; the American book
+# of 1928, which the source follows, left them out. Their words are 1662's;
+# the pointing (the accents) is ours, after the verses beside them.
+ADDED = {
+    (14, 4): [
+        ("3b", "Their throat is an open sepulchre, with their tongues have théy decéived; * "
+               "the poison of asps is únder their líps."),
+        ("3c", "Their mouth is full of cúrsing and bítterness; * their feet are swíft to shed blóod."),
+        ("3d", "Destruction and unhappiness is in their ways, and the way of peace have théy not knówn; * "
+               "there is no fear of God befóre their éyes."),
+    ],
 }
 
 
@@ -400,7 +460,16 @@ def make(show=()):
                 if min(nums) < cut <= max(nums):
                     problems.append("Latin %d: its part from verse %d begins inside a Coverdale verse"
                                     % (v, cut))
-        files["Psalm%d.txt" % v] = ["%d:%s %s" % (v, lab, t) for lab, (_h, _n, t) in zip(labs, cov[v])]
+        out = []
+        for lab, (h, n, t) in zip(labs, cov[v]):
+            out.append("%d:%s %s" % (v, lab, t))
+            out += ["%d:%s %s" % (v, more, text) for more, text in ADDED.get((h, n), ())]
+            if (h, n) in DOUAY:
+                theirs = [dt for dn, dc, dt in lines if "%d%s" % (dn, dc) == DOUAY[(h, n)]]
+                if len(theirs) != 1:
+                    problems.append("Latin %d: the Douay has no one line %s" % (v, DOUAY[(h, n)]))
+                out += ["%d:%s %s" % (v, DOUAY[(h, n)], dt) for dt in theirs]
+        files["Psalm%d.txt" % v] = out
         if v in show:
             for ci, li in groups:
                 print("Latin %d %s" % (v, ["%d%s" % lines[k][:2] for k in li]))

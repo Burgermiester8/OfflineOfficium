@@ -32,8 +32,12 @@ is long, so search it rather than reading it whole.
   `data-additions/` whole files upstream lacks (the Coverdale psalter)
 - `build-exe.py`, `launcher.py`, `installer.iss`: the app, its Setup, releases
 - `tools/audit_references.py` checks every cross-reference in a breviary PDF
+- `tools/audit_sides.py` checks which side each language is on, page by page,
+  in a breviary with the first language outside (against one made `--no-mirror`)
 - `tools/audit_texts.py` audits the variable parts of every version: Latin left
   in the English column, unresolved references, engine messages, lesson cuts
+- `tools/audit_psalms.py` audits the psalms' verse numbers (skipped, repeated)
+  in the Latin, the Douay and the Coverdale psalter (`tools/make_coverdale.py`)
 
 ## Commands (from the source, on Linux or Windows)
 
@@ -56,11 +60,14 @@ URI) by themselves.
   the README. Whole new files go in `data-additions/`.
 - **Check text changes** with `tools/audit_texts.py` (all fifteen versions, about
   4 minutes): it should find nothing. **Check PDF changes** with
-  `tools/audit_references.py`, and by reading the
+  `tools/audit_references.py` (and `tools/audit_sides.py` for anything that
+  touches the two languages' columns), and by reading the
   pages. A cloud session has no Windows fonts (Cambria and the others), so its
   page counts and line breaks differ from the app's: measure those on Windows.
 - **The README** records each change in its own plain style, with numbers that
-  were measured, not estimated.
+  were measured, not estimated. **`CHANGELOG.md`** has a short entry for each
+  release, newest first, to be read at a glance; a release's notes are its
+  entry in a few lines.
 - **Never commit** `dist/`, PDFs, or anything from the signing-key folder.
 - **On the Windows PC:**
   - **Python:** use `C:\Users\jacob\AppData\Local\Programs\Python\Python314\python.exe`
