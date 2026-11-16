@@ -80,7 +80,7 @@ PERL_BIN_KEEP = (
 )
 
 APP_SOURCES = ("DivinumOfficium.py", "docgi.py", "dooffice.py", "dopdf.py", "pdfdialog.py",
-               "dobreviary.py", "dopsalter.py", "dotranslate.py", "dovolumes.py", "doui.py",
+               "dobreviary.py", "dopsalter.py", "dotables.py", "dotranslate.py", "dovolumes.py", "doui.py",
                "doupdate.py")
 # Plain files that travel beside the exe (not Python: PyInstaller would not find them).
 APP_FILES = ("engine_dump.pl", "translations-en.json")

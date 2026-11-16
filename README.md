@@ -2314,6 +2314,69 @@ Saints keeps a line in its place, at the end of October, with the page (*In
 Proprio de Tempore, pag. N*). In volumes it goes where the end of October
 goes.
 
+### The Tables
+
+A part of its own, *Tabulae — Tables*, after the Calendar and ticked at
+first; it can be unticked or moved like any part (`--parts … ,tabulae`).
+Four tables, each on a page of its own (`dotables.py`):
+
+- **The Moveable Feasts**, for 101 years from the year the book is made:
+  each year's Golden Number, Epact (\* for none, *25* in figures where the
+  Golden Number is above 11), Indiction and Dominical Letter (two in a leap
+  year), and the days of Septuagesima, Ash Wednesday, Easter, the Ascension,
+  Pentecost, Corpus Christi, the first Sunday after Pentecost and the first
+  Sunday of Advent. They are reckoned, not read: Easter by the Gregorian
+  algorithm, and again from the Calendar's column of epacts (the paschal
+  new moon the day from 8 March to 5 April bearing the year's epact). The two
+  agree for every year from 1583 to 4099 (`python dotables.py` checks).
+- **Occurrence** and **Concurrence**, as the Monastic Diurnal of 1963 prints
+  them (pp. xxvi–xxvii), number for number: the offices in rows, the
+  columns' names turned beneath them, the rules beside the names. Only in a
+  book of *Monastic - 1963*, whose tables they are; the other versions'
+  rules differ.
+- **The Calendar of Feasts, with the Epacts**: every day of each month with
+  its epacts and letter, as a Kalendarium sets them (the thirty epacts run
+  backwards from \* on 1 January, through lunations of 30 and 29 days in
+  turn; in the hollow ones *xxv* and *xxiv* share a day and *25* stands with
+  *xxvi*), and the feasts kept on it with their class (I, II, III classis; a
+  monastic IV classis is a *Memoria*; *Commemoratio*), in both languages.
+  The feasts are the version's (the engine's Proper of the Saints, as the
+  Calendar prints them); the days after the Epiphany, ferias, are left out.
+  24 feasts of the Monastic Calendar have no English title in the data;
+  their English is in `dotables.CALENDAR_EN`.
+
+Headings and keys are in the book's first language, in Latin or in English.
+A table too wide for the page is set smaller to fit, and Occurrence also to
+fit the page's height with its key: on the Pocket size, at 10 pt, the
+Moveable Feasts are set in 4.9 pt (measured), on Letter at their own 8.6. The Tables are set across the page in
+a book of one language in two columns, as the Calendar is, and go in both
+books (Matins and the Diurnal) and in every volume. Each table begins a page;
+the Calendar's months run on, one under another (and so do those of the
+Calendar part, now even with *New page for each office*). Measured on the
+Monastic book, Latin and English, Letter, 10 pt: 12 pages with the part's
+title (the Moveable Feasts 2, Occurrence 1, Concurrence 1, the Calendar 7;
+it was 12 with a page to each month).
+
+### The psalms of the seasons' antiphons
+
+The Common of the Seasons prints a season's antiphons without their psalms,
+which are the Psalter's (*Psalmi cum lectionibus*, Lauds, the Little Hours):
+they had no sign of the psalm each goes with. Each is now followed, as in the
+Psalter, by a small red *Ps. 20, 21*: the psalms whose titles follow it in the
+day the engine says, up to the next antiphon (`dopsalter._number_antiphons`).
+A psalm said in parts under one antiphon is named once (*Ps. 67*), a part
+under an antiphon of its own with its verses (*Ps. 67 (2-19)*); the canticles of the third Nocturn
+by name, *Cant. Isaiæ, Oseæ, Sophoniæ* / *Cant. of Isaias, of Osee, of
+Sophonias* (the English from `CANTICLE_EN` where the data heads an English
+column in Latin). Lamentations, whose Latin title has no name, is named in
+English only. The fingerprints the book compares texts by leave the
+reference out, as they did the Psalter's. In the Monastic book (the Psalter,
+the Proper and the Common of the Seasons, Latin and English) the seasons' pages
+gain 28 *Ps.* and 6 *Cant.* references, the two columns counted (580 *Ps.* in
+the book before, 608 now); the invitatories and the antiphon of the Benedictus,
+which go with no psalm of their own, are left as they were. References
+audited: 3,564, no problems; 856 pages, as before.
+
 ### A Roman lesson left in monastic feasts
 
 Seen while reading St Luke in a test book: his Matins had a *Lectio IV* from

@@ -3,6 +3,22 @@
 What changed in each release, newest first. The README has the details and
 the measurements.
 
+## 2026.11.16
+
+**New in the Breviary Builder**
+
+- **Tables**, a part of its own: the moveable feasts for 101 years (Golden
+  Number, Epact, Indiction, Dominical Letter and the feasts), the tables of
+  Occurrence and Concurrence (Monastic 1963), and a Calendar of the feasts
+  with their class, Dominical Letter and Epact.
+
+**Fixed**
+
+- The antiphons of the Common of the Seasons now show their psalm or
+  canticle (*Ps. 20, 21*, *Cant. Isaiæ, Oseæ, Sophoniæ*), as in the Psalter.
+- The months of the Calendar follow one another instead of each starting a
+  new page, even with *New page for each office*.
+
 ## 2026.11.13
 
 **New in the Breviary Builder**

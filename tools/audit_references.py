@@ -101,7 +101,8 @@ for i in list(label_to_index.values())[20:40]:
                 if "℟" in s["text"]:
                     colours[s["color"]] += 1
                 sizes[round(s["size"], 1)] += len(s["text"].strip())
-RUB = colours.most_common(1)[0][0]
+# (a book of no responsories -- the Calendar, the Tables: the builder's red)
+RUB = colours.most_common(1)[0][0] if colours else 0xA31621
 BODY = sizes.most_common(1)[0][0] if sizes else 10
 GREY_AI = 0x6E6E6E
 

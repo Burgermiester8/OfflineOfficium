@@ -25,7 +25,8 @@ is long, so search it rather than reading it whole.
 - `docgi.py` the local CGI server; `dooffice.py` runs the engine for a day and
   parses it; `engine_dump.pl` reads whole parts of the breviary through it
 - `dopdf.py` typesets days; `dobreviary.py` the breviary; `dopsalter.py` its
-  Ordinary, Psalter, seasons and Calendar; `dovolumes.py` the volumes;
+  Ordinary, Psalter, seasons and Calendar; `dotables.py` its Tables (the
+  moveable feasts, Occurrence, Concurrence, the epacts); `dovolumes.py` the volumes;
   `dotranslate.py` with `translations-en.json`, the English the data lacks
 - `doupdate.py` updates from the GitHub releases (Ed25519-signed)
 - `datafixes.py` with `data-fixes.txt`: corrections to the upstream texts;

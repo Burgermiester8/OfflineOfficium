@@ -39,6 +39,7 @@ import docgi
 import dooffice
 import dopdf
 import dopsalter
+import dotables
 import dotranslate
 import dovolumes
 
@@ -56,6 +57,7 @@ class Part:
 
 PARTS = {
     "kalendarium": Part("kalendarium", "Kalendarium", "Calendar"),
+    "tabulae": Part("tabulae", "Tabulae", "Tables"),  # dotables.py
     "orationes": Part("orationes", "Orationes ante et post Divinum Officium",
                       "Prayers before and after the Divine Office", compact=True),
     "ordinarium": Part("ordinarium", "Ordinarium Divini Officii", "Ordinary of the Divine Office"),
@@ -435,6 +437,7 @@ class Office:
     anchor: str = ""  # its heading's label, when a note names this office
     untitled: bool = False  # printed under its part's heading alone (the prayers)
     include: tuple = None  # a custom part's PDF: (its file, its number of pages)
+    table: tuple = None  # one of the Tables: (kind, data), set by dotables.markup
 
 
 MONTHS_LA = ("Januarii", "Februarii", "Martii", "Aprilis", "Maii", "Junii", "Julii", "Augusti",
@@ -1348,7 +1351,7 @@ class BookWriter(dopdf.Writer):
     def columns_for(self, part):
         """The columns a part's text is set in: two for one language when asked,
         but the Calendar's table, as wide as the page, keeps one."""
-        return 2 if self.two_columns() and part.key != "kalendarium" else 1
+        return 2 if self.two_columns() and part.key not in ("kalendarium", "tabulae") else 1
 
     def document(self, offices, start_page=1):
         self.start_page = start_page
@@ -1416,7 +1419,10 @@ class BookWriter(dopdf.Writer):
                     self.cols = cols
                 else:
                     self.emit("#pagebreak()")
-        elif self.layout.new_page_per_day and index:
+        elif ((self.layout.new_page_per_day and office.rows is None) or office.table is not None) \
+                and index:
+            # A table always on a page of its own; the Calendar's months one
+            # after another, whatever the offices do.
             self.emit("#pagebreak(weak: true)")
         # A feast's day: above its title (once for a day's offices), and in
         # the running head beside its name, for a reader turning the pages.
@@ -1467,6 +1473,9 @@ class BookWriter(dopdf.Writer):
             self.emit('#metadata("")<hour>')
         if office.rows is not None:
             self.calendar(office, two)
+            return
+        if office.table is not None:
+            self.emit(dotables.markup(office, self.meta.lang1))
             return
         for hour in office.hours:
             if hour.heading:
@@ -1629,6 +1638,8 @@ class BookWriter(dopdf.Writer):
 def office_rows(office):
     if office.rows is not None:
         return 20 + 2 * len(office.rows)
+    if office.table is not None:
+        return 400
     return 20 + sum(max((len(c) for c in s.columns), default=0)
                     for h in office.hours for s in h.sections)
 
@@ -1693,7 +1704,7 @@ def needed_dumps(parts):
         need.append("sancti")  # Christ the King, printed with the Season (season_feasts)
     if "ordinarium" in parts:
         need.append("commune")  # the Commons' invitatories, in the Ordinary (invitatory_table)
-    if "kalendarium" in parts:
+    if "kalendarium" in parts or "tabulae" in parts:
         need.append("sancti")
     if any(p in parts for p in ("orationes", "ordinarium", "psalterium", "temporis")):
         need.append("fixed")
@@ -1769,6 +1780,9 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
             continue
         if p == "kalendarium":
             offs = dopsalter.calendar_offices(part, dumps["sancti"], two)
+        elif p == "tabulae":
+            offs = dotables.table_offices(part, version, dumps["sancti"], lang1, lang2,
+                                          family_of(version) in ("monastic", "op"), Office)
         elif p == "defunctorum":
             offs = dopsalter.dead_offices(part, dumps.get("defunctorum"))
         elif p == "orationes":
@@ -1910,7 +1924,7 @@ def book_offices(offices, book, lang1_is_english=False, lang2_is_english=False):
     for o in copy.deepcopy(offices):
         if o.part.key == "missa" and book == "matins":
             continue
-        if o.rows is not None or o.include or is_custom(o.part.key):
+        if o.rows is not None or o.table is not None or o.include or is_custom(o.part.key):
             out.append(o)
             continue
         hours = [h for h in o.hours if hour_book(h) in (None, book)]

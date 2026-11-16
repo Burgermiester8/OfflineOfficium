@@ -21,8 +21,8 @@ Exit status 0 when every page checks out, 1 otherwise.
   4. No word is printed over another (a row that goes over a page turn is
      set in both orders, each word shown in one of them).
 
-The Calendar's pages and those before page 1 are set across the page and are
-only compared word for word (1).
+The pages of the Calendar and the Tables, and those before page 1, are set
+across the page and are only compared word for word (1).
 """
 import collections
 import re
@@ -36,7 +36,7 @@ except ImportError:
 sys.stdout.reconfigure(encoding="utf-8")
 plain, mirrored = fitz.open(sys.argv[1]), fitz.open(sys.argv[2])
 HEAD = 46  # the running head's band, in points from the top
-ACROSS = ("Kalendarium", "Calendar")
+ACROSS = ("Kalendarium", "Calendar", "Tabulae", "Tables")
 
 
 def clean(text):
@@ -72,7 +72,7 @@ def across(row, mid, em):
 
 
 def calendar_pages(doc):
-    """The pages of the Calendar, from the book's bookmarks."""
+    """The pages of the Calendar and the Tables, from the book's bookmarks."""
     tops = [(title, page) for level, title, page in doc.get_toc() if level == 1]
     out = set()
     for (title, page), (_t, nxt) in zip(tops, tops[1:] + [("", len(doc) + 1)]):
@@ -237,7 +237,7 @@ for k, (i, where) in enumerate(differ + [(None, "")]):
 
 print("%s against %s: %d pages" % (sys.argv[2].replace("\\", "/").split("/")[-1],
                                    sys.argv[1].replace("\\", "/").split("/")[-1], len(mirrored)))
-print("numbered pages checked: %d (the Calendar's %d left out); right-hand pages with their "
+print("numbered pages checked: %d (the Calendar's and the Tables' %d left out); right-hand pages with their "
       "columns exchanged: %d (a column's words %d pt from the other's)" % (checked, len(skip), exchanged, PITCH))
 if elsewhere:
     print("pages the two books break at another line (the same words between them; not compared): %d"

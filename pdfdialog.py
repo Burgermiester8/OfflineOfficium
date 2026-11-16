@@ -825,7 +825,8 @@ MISSA_PAGES = 79
 # Commons by families, the Office of the Dead and Christ the King in the
 # Proper of the Season.
 PART_PAGES = {"defunctorum": 18, "kalendarium": 10, "orationes": 1, "ordinarium": 21, "psalterium": 147,
-              "tempora": 599, "temporis": 15, "sancti": 642, "commune": 87, "missa": MISSA_PAGES}
+              "tempora": 599, "temporis": 15, "sancti": 642, "commune": 87, "missa": MISSA_PAGES,
+              "tabulae": 12}  # the Tables: measured on the Monastic book (November 2026)
 # The Common: 208 before each variant printed only its own texts (the same
 # Common alone, 181 pages -> 109).
 # Every text in full instead (2,089 pages): each part against PART_PAGES.

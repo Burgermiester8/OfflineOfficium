@@ -335,6 +335,68 @@ def _antiphon_list(item, parts):
     return dooffice.Section(columns=cols)
 
 
+# A psalm's or canticle's title line, as the engine heads it: "Psalmus 67(2-19) [5]",
+# "Psalm 59 [1]"; "Canticum Isaiae [13]", "Canticle of Moses [13]".
+_TITLE_OF_PSALM = re.compile(r"^(?:Psalm\w*|Psaume|Salmo)\s+(?P<ps>\d+(?:\([\dab-]+\))?)\s*(?:\[\d+\])?\s*$")
+_TITLE_OF_CANTICLE = re.compile(r"^(?:Canticum|Canticle|Cantique|Cantico|Cántico)\s+(?P<name>[^\[\s(][^\[]*?)\s*(?:\(Ps\.\s*\d+\))?\s*(?:\[\d+\])?\s*$")
+
+
+# A canticle's Latin name ("Canticum Isaiae"), where the data heads an English
+# column with it, as the English names it ("Canticle of Isaias").
+CANTICLE_EN = {"Isaiae": "of Isaias", "Isaiæ": "of Isaias", "eiusdem": "of the same",
+               "ejusdem": "of the same", "Ecclesiasticae": "of Ecclesiasticus",
+               "Ecclesiasticæ": "of Ecclesiasticus", "Ecclesiastici": "of Ecclesiasticus",
+               "Osee": "of Osee", "Sophonee": "of Sophonias", "Sophoniae": "of Sophonias",
+               "Jeremiae": "of Jeremias", "Ieremiae": "of Jeremias", "Jeremiæ": "of Jeremias",
+               "Moysis": "of Moses", "Habacuc": "of Habacuc", "Tobiae": "of Tobias",
+               "Tobiæ": "of Tobias", "Judith": "of Judith", "Iudith": "of Judith",
+               "Annae": "of Anna", "Annæ": "of Anna", "Ezechiae": "of Ezechias",
+               "Ezechiæ": "of Ezechias", "Ezechielis": "of Ezechiel", "David": "of David",
+               "Davidis": "of David", "Trium Puerorum": "of the Three Young Men",
+               "Threnorum": "from Lamentations", "Ecclesiastici et Sapientiæ": "of Ecclesiasticus"}
+
+
+def _number_antiphons(section, parts, english=()):
+    """Each antiphon of an antiphon list (_antiphon_list) followed by the
+    psalms it is said with, as the Psalter's are (a small red "Ps. 59, 60"),
+    and canticles by name ("Cant. of Moses"): the psalms whose titles follow
+    it in the day's hour, up to the next antiphon. A psalm said in parts under
+    one antiphon is named once ("Ps. 67"); under one of its parts, with them
+    ("Ps. 67 (2-19)")."""
+    for i, col in enumerate(section.columns):
+        found, current = {}, None
+        for sec, _ in parts:
+            for line in (sec.columns[i] if i < len(sec.columns) else []):
+                if _is_ant(line):
+                    current = (_fp(line.text) or line.text)[:16]
+                    found.setdefault(current, [])
+                elif current is not None and not line.is_blank:
+                    m = _TITLE_OF_PSALM.match(line.text.strip())
+                    c = None if m else _TITLE_OF_CANTICLE.match(line.text.strip())
+                    ref = ("ps", m.group("ps")) if m else ("cant", c.group("name")) if c else None
+                    if ref and ref not in found[current]:
+                        found[current].append(ref)
+        for line in col:
+            refs = found.get((_fp(line.text) or line.text)[:16]) if _is_ant(line) else None
+            if not refs or not line.runs:
+                continue
+            psalms = [r for k, r in refs if k == "ps"]
+            bases = collections.Counter(re.match(r"\d+", p).group(0) for p in psalms)
+            shown = []
+            for p in psalms:
+                base = re.match(r"\d+", p).group(0)
+                p = base if bases[base] > 1 else re.sub(r"\(", " (", p)
+                if p not in shown:
+                    shown.append(p)
+            text = ("Ps. " + ", ".join(shown)) if shown else ""
+            names = [CANTICLE_EN.get(n, n) if i < len(english) and english[i] else n
+                     for k, n in refs if k == "cant"]
+            if names:
+                text += ("; " if text else "") + "Cant. " + ", ".join(dict.fromkeys(names))
+            line.runs.append(dooffice.Run(text=" " + text, red=True, size="small"))
+    return section
+
+
 def _antiphon_of(item):
     """A canticle cut down to its heading and antiphon."""
     if not item.parts:
@@ -378,7 +440,8 @@ def _matins_kind(lat):
 
 _LABEL = re.compile(r"^\s*(Ant\.|℟\.\s?br\.|R\.\s?br\.|℣\.|℟\.|V\.|R\.|Benedictio\.|Absolutio\.|"
                     r"\d+\.)\s*")
-_PSREF = re.compile(r"\s+Ps\.\s[\d\s,()-]+$")  # the "Ps. 8" the book adds to an antiphon
+# the "Ps. 8" the book adds to an antiphon (_number_antiphons: "Ps. 67 (2-19b); Cant. of Moses")
+_PSREF = re.compile(r"\s+(?:Ps\.\s[\dab\s,()-]+|(?:Ps\.\s[\dab\s,()-]+;\s)?Cant\.\s[^*]+)$")
 
 
 def _fp(text):
@@ -1489,7 +1552,8 @@ def _season_day(items, year, known, langs, endings, versicles=frozenset()):
                 ants = _antiphon_list(it, psalms)
                 only = [l for l in ants.columns[0] if _is_ant(l)] if ants.columns else []
                 if psalms and _is_new(ants, known, only):
-                    secs.append(ants)
+                    secs.append(_number_antiphons(ants, psalms, tuple(
+                        dooffice.family(l) == "English" for l in langs.langs)))
                 # The versicles of the Nocturns: the season's where they are not
                 # the same weekday's through the year -- even where the text is
                 # printed elsewhere (1960, after the Ascension, the feast's own,
