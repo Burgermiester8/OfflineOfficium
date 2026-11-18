@@ -38,6 +38,10 @@ from pypdf import PdfReader
 import docgi
 import dooffice
 import dopdf
+import doindex
+import dointro
+import doindulgences
+import doordo
 import dopsalter
 import dotables
 import dotranslate
@@ -56,8 +60,10 @@ class Part:
 
 
 PARTS = {
+    "introductio": Part("introductio", dointro.TITLE[0], dointro.TITLE[1], compact=True),  # dointro.py
     "kalendarium": Part("kalendarium", "Kalendarium", "Calendar"),
     "tabulae": Part("tabulae", "Tabulae", "Tables"),  # dotables.py
+    "ordo": Part("ordo", "Ordo Divini Officii", "Ordo of the Divine Office"),  # doordo.py: one year
     "orationes": Part("orationes", "Orationes ante et post Divinum Officium",
                       "Prayers before and after the Divine Office", compact=True),
     "ordinarium": Part("ordinarium", "Ordinarium Divini Officii", "Ordinary of the Divine Office"),
@@ -68,10 +74,15 @@ PARTS = {
     "commune": Part("commune", "Commune Sanctorum", "Common of the Saints"),
     "defunctorum": Part("defunctorum", "Officium Defunctorum", "Office of the Dead"),
     "missa": Part("missa", "Proprium Missarum Dominicalium", "Proper of the Sunday Masses"),
+    "indulgentiae": Part("indulgentiae", doindulgences.TITLE[0], doindulgences.TITLE[1],
+                         compact=True),  # doindulgences.py: the rules and the documents
+    "indices": Part("indices", "Indices", "Indexes"),  # doindex.py: psalms, hymns, feasts
 }
 DEFAULT_ORDER = tuple(PARTS)
 # Parts a new list leaves unticked: an addition to the breviary, not part of it.
-DEFAULT_OFF = ("missa",)
+DEFAULT_OFF = ("missa", "ordo", "indulgentiae")  # the Ordo: of one year (ORDO_YEAR)
+# The year of the Ordo (the part "ordo"): None for doordo.default_year().
+ORDO_YEAR = None
 # Parts since merged: the prayers before and after the Office were two parts.
 FORMER = {"ante": "orationes", "post": "orationes"}
 
@@ -425,7 +436,10 @@ class Office:
     day: str = ""  # "MM-DD" a saint's office is kept on (a Sunday feast: the last it can take)
     hours: list = field(default_factory=list)  # dooffice.Hour per group
     part_start: bool = False
-    rows: list = None  # a month of the Calendar: (day, Roman date, letter, title, title2, rank, colour)
+    # A month of the Calendar: (day, Roman date, letter, title, title2, rank,
+    # colour, the saints' file) -- after anchor_calendar, the label of that
+    # file's office in this book (or "") in place of the file.
+    rows: list = None
     colours: tuple = ()  # the colours of the whole Calendar, for its key (on January)
     colour: str = ""  # an office of the Propers: its liturgical colour, for its heading
     file: str = ""  # the engine's file it is printed from (_norm), for the notes naming it
@@ -1281,10 +1295,10 @@ class BookWriter(dopdf.Writer):
             "}",
             # A month of the Calendar.
             "#let caltable(two, ..cells) = table(",
-            "  columns: if two { (1.5em, 4.2em, 1em, 1fr, 1fr, auto, auto) } else { (1.5em, 4.2em, 1em, 1fr, auto, auto) },",
+            "  columns: if two { (1.5em, 4.2em, 1em, 1fr, 1fr, auto, auto, 2.2em) } else { (1.5em, 4.2em, 1em, 1fr, auto, auto, 2.2em) },",
             "  stroke: (x, y) => if y > 0 { (top: 0.3pt + luma(210)) },",
             "  inset: (x: 0.3em, y: 0.3em),",
-            "  align: (x, y) => if x == 0 { right + top } else { left + top },",
+            "  align: (x, y) => if x == 0 or x == (if two { 7 } else { 6 }) { right + top } else { left + top },",
             "  ..cells.pos())",
             # The day's colour: a dot of it (none in a book all in black) and its name.
             "#let litcol(fill, name) = text(size: 0.84em, hyphenate: false, {",
@@ -1323,7 +1337,7 @@ class BookWriter(dopdf.Writer):
             out += self.page_ref(rest[2], rest[1], ", ")
         return out
 
-    def page_ref(self, ident, col, before="", centred=False):
+    def page_ref(self, ident, col, before="", centred=False, bare=False):
         """The page of `ident` (a first copy's label, or an office's heading
         named by a "Cetera ut in"), small and red: "pag. 56" in a Latin
         column, "p. 56" in another. The number is in a box of fixed width,
@@ -1341,8 +1355,20 @@ class BookWriter(dopdf.Writer):
             self.unresolved = True
         # In a centred line (the note under a title) the number would be
         # centred in its box too: there it keeps to the box's start.
+        if bare:  # the number alone, in a column of its own (the Calendar, an index)
+            return "text(fill: rub, size: 0.86em)[%s]" % num
         box = "#box(width: 2.2em, align(start)[%s])" % num if centred else "#box(width: 2.2em)[%s]" % num
         return "#text(fill: rub, size: 0.86em)[%s%s~%s]" % (before, "pag." if lang == "Latin" else "p.", box)
+
+    @staticmethod
+    def runs_on(office):
+        """A month of the Ordo: after the last, never on a new page."""
+        return bool(office.table) and office.table[0] == "ordo"
+
+    @staticmethod
+    def colour_names():
+        """{colour: (its dot's fill, its Latin abbreviation, its English name)}."""
+        return {k: (fill, la, en) for k, (fill, _ink, la, en) in COLOURS.items()}
 
     def two_columns(self):
         """One language set in two columns (Layout.two_columns)."""
@@ -1351,7 +1377,8 @@ class BookWriter(dopdf.Writer):
     def columns_for(self, part):
         """The columns a part's text is set in: two for one language when asked,
         but the Calendar's table, as wide as the page, keeps one."""
-        return 2 if self.two_columns() and part.key not in ("kalendarium", "tabulae") else 1
+        return 2 if self.two_columns() and part.key not in ("kalendarium", "tabulae", "ordo", "indices", "introductio",
+                                                                         "indulgentiae") else 1
 
     def document(self, offices, start_page=1):
         self.start_page = start_page
@@ -1419,10 +1446,10 @@ class BookWriter(dopdf.Writer):
                     self.cols = cols
                 else:
                     self.emit("#pagebreak()")
-        elif ((self.layout.new_page_per_day and office.rows is None) or office.table is not None) \
-                and index:
-            # A table always on a page of its own; the Calendar's months one
-            # after another, whatever the offices do.
+        elif ((self.layout.new_page_per_day and office.rows is None and not self.runs_on(office))
+              or (office.table is not None and not self.runs_on(office))) and index:
+            # A table always on a page of its own; the months of the Calendar
+            # and of the Ordo one after another, whatever the offices do.
             self.emit("#pagebreak(weak: true)")
         # A feast's day: above its title (once for a day's offices), and in
         # the running head beside its name, for a reader turning the pages.
@@ -1432,8 +1459,17 @@ class BookWriter(dopdf.Writer):
             days.append(feast_day(office, english[1]))
         day_line = " · ".join(dict.fromkeys(d for d in days if d))
         short = feast_day(office, english[0], short=True)
+        head = office.title
+        if office.part.key == "psalterium" and two and office.title2 and office.title2 != office.title:
+            # A Psalter's day in both languages, "Feria III · Tuesday": the
+            # page a reader turns to by its weekday.
+            head = "%s · %s" % (office.title, office.title2)
+        elif two and office.untitled and office.title2 and office.title == office.part.la:
+            # A part of one office (On Indulgences): the head is the part's
+            # name, and then its other language's, not the same twice.
+            head = office.title2
         self.emit("#metadata((d: %s, t: %s))<day>" % (
-            q(office.part.la), q("%s · %s" % (short, office.title) if short else office.title)))
+            q(office.part.la), q("%s · %s" % (short, head) if short else head)))
         if day_line and day_line != getattr(self, "last_day_line", None) and not office.untitled:
             self.emit("#feastday.update(%s)" % q(day_line))
         else:
@@ -1475,7 +1511,14 @@ class BookWriter(dopdf.Writer):
             self.calendar(office, two)
             return
         if office.table is not None:
-            self.emit(dotables.markup(office, self.meta.lang1))
+            if office.table[0] == "ordo":
+                self.emit(doordo.markup(office, self))
+            elif office.table[0] == "index":
+                self.emit(doindex.markup(office, self))
+            elif office.table[0] in ("intro", "indulg"):  # the same paragraphs
+                self.emit(dointro.markup(office, self))
+            else:
+                self.emit(dotables.markup(office, self.meta.lang1))
             return
         for hour in office.hours:
             if hour.heading:
@@ -1561,13 +1604,15 @@ class BookWriter(dopdf.Writer):
                 '[#%s #text(size: 0.84em, style: "italic", %s)]' % (colour(k), q(COLOURS[k][3]))
                 for k in COLOURS if k in office.colours))
         cells = []
-        for day, rdate, letter, t1, t2, rank, col in office.rows:
+        for day, rdate, letter, t1, t2, rank, col, anchor in office.rows:
             row = [q(day), "text(size: 0.84em, %s)" % q(rdate), "text(fill: rub, %s)" % q(letter),
                    q(t1)]
             if two:
                 row.append('text(style: "italic", %s)' % q(t2))
             row.append("text(size: 0.84em, hyphenate: false, %s)" % q(rank))
             row.append(colour(col) if col in COLOURS else "[]")
+            # The page of the feast's office in this book (volume), small and red.
+            row.append(self.page_ref(anchor, 0, bare=True) if anchor else "[]")
             cells.append(", ".join(row))
         if cells:
             self.emit("#caltable(%s,\n  %s)" % ("true" if two else "false", ",\n  ".join(cells)))
@@ -1654,8 +1699,10 @@ def dump_part(part, version, lang1, lang2, perl, dumper, horas_dir, workdir, can
     p = docgi.perl_path  # plain ASCII: Perl cannot open a path with an accent in it
     cmd = [p(perl)] + [a for lib in perl_libs for a in ("-I", p(lib))] +         [p(dumper), "--horas", p(horas_dir), "--version", version,
            "--lang1", lang1, "--lang2", lang2, "--part", part, "--out", p(out)]
-    if only and part != "fixed":  # the fixed texts are never restricted
+    if only and part not in ("fixed", "ordo"):  # the fixed texts are never restricted
         cmd += ["--only", ",".join(only)]
+    if part == "ordo":
+        cmd += ["--year", str(ORDO_YEAR or doordo.default_year())]
     flags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=flags)
     while True:
@@ -1710,6 +1757,8 @@ def needed_dumps(parts):
         need.append("fixed")
     if "missa" in parts:
         need.append("missa")
+    if "ordo" in parts:
+        need.append("ordo")  # the year's days, as the engine's Ordo gives them
     return list(dict.fromkeys(need))
 
 
@@ -1722,7 +1771,7 @@ def assemble(parts, version, lang1, lang2, dumps, renders, alternatives=True, re
     customs: {"custom1": file, ...} for the custom parts among `parts`."""
     offices = gather(parts, version, lang1, lang2, dumps, renders, alternatives=alternatives,
                      customs=customs)
-    return finish(offices, parts, lang1, lang2, references, responsories)
+    return finish(offices, parts, lang1, lang2, references, responsories, family_of(version))
 
 
 def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, customs=None):
@@ -1783,6 +1832,15 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
         elif p == "tabulae":
             offs = dotables.table_offices(part, version, dumps["sancti"], lang1, lang2,
                                           family_of(version) in ("monastic", "op"), Office)
+        elif p == "indices":
+            offs = doindex.placeholders(part, Office, english1)  # filled by finish()
+        elif p == "introductio":
+            offs = dointro.placeholder(part, Office, english1)  # written by finish()
+        elif p == "indulgentiae":
+            offs = doindulgences.placeholder(part, Office, english1)  # written by finish()
+        elif p == "ordo":
+            offs = doordo.ordo_offices(part, dumps.get("ordo"), lang1, lang2,
+                                       family_of(version) in ("monastic", "cist"), Office)
         elif p == "defunctorum":
             offs = dopsalter.dead_offices(part, dumps.get("defunctorum"))
         elif p == "orationes":
@@ -1812,7 +1870,7 @@ def gather(parts, version, lang1, lang2, dumps, renders, alternatives=True, cust
             offs = dopsalter.season_offices(part, renders, known, langs, extra)
         for o in offs:
             # Titled in Latin, then English: an English book's title is the English.
-            if english1 and p != "missa" and o.title2:
+            if english1 and p not in ("missa", "ordo", "indices", "introductio", "indulgentiae") and o.title2:  # these are already
                 o.title, o.title2 = o.title2, o.title
             if two and "English" in (dooffice.family(lang1), dooffice.family(lang2)) \
                     and o.title2 != o.title and not (o.untitled or o.note):
@@ -1873,7 +1931,7 @@ def season_feasts(offices, saints, saints_printed, english, two):
     return out[:at] + moved + out[at:]
 
 
-def finish(offices, parts, lang1, lang2, references=True, responsories=None):
+def finish(offices, parts, lang1, lang2, references=True, responsories=None, family="roman"):
     """A book's offices as printed: the usual texts by their first words,
     repeated texts referred to (references), headings run in. responsories:
     the responsories of Matins whatever `references` says -- True in full
@@ -1886,7 +1944,37 @@ def finish(offices, parts, lang1, lang2, references=True, responsories=None):
         cross_reference(offices, (lang1, lang2), lambda hour, section: not matins_responsory(hour, section))
     run_in_headings(offices)
     anchor_rests(offices)
+    anchor_calendar(offices)
+    doordo.anchor_ordo(offices, office_label)
+    doindex.fill(offices, _mark, office_label)  # last: the lines as printed
+    doindulgences.fill(offices, _mark, office_label)
+    dointro.fill(offices, office_label, family)
     return offices
+
+
+def office_label(o):
+    """The label of an office's heading, for a page given elsewhere (a
+    "Cetera ut in", the Calendar, an index): one per office."""
+    o.anchor = o.anchor or "rest-" + re.sub(r"[^A-Za-z0-9]+", "-", o.file or o.key).strip("-")
+    return o.anchor
+
+
+def anchor_calendar(offices):
+    """Each feast of the Calendar with the page of its office in this book or
+    volume: the row's file becomes that office's label, or "" where the book
+    (a volume, a Diurnal without it) does not print it."""
+    printed = {}
+    for o in offices:
+        if o.part.key == "sancti" and o.file and not o.untitled and o.rows is None:
+            printed.setdefault(o.file, o)
+    for o in offices:
+        if o.rows is None:
+            continue
+        rows = []
+        for row in o.rows:
+            target = printed.get(_norm(row[7])) if len(row) > 7 and row[7] else None
+            rows.append(tuple(row[:7]) + (office_label(target) if target else "",))
+        o.rows = rows
 
 
 # The books the builder makes: the whole breviary, or it as two: its Matins
@@ -2878,7 +2966,7 @@ def build(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, web_root
                                       alternatives=alternatives, customs=customs),
                                book, *_english(lang1, lang2))
         offices = merge_commons(offices, lang1, lang2)
-        offices = finish(offices, parts, lang1, lang2, references, responsories)
+        offices = finish(offices, parts, lang1, lang2, references, responsories, family_of(version))
         if not offices:
             raise RuntimeError("nothing to print for this version")
         _stage_includes(offices, workdir)
@@ -3089,7 +3177,7 @@ def build_volumes(parts, version, lang1, lang2, layout, pdf_path, perl, dumper, 
             if cancelled and cancelled():
                 raise dopdf.Cancelled()
             offices = finish(volume_offices(whole, seams, i, version), parts, lang1, lang2, references,
-                             responsories)
+                             responsories, family_of(version))
             meta = dopdf.Meta(version=version, lang1=lang1, lang2=lang2)
             meta.parts = _book_parts(_parts_in(parts, offices), lang1, customs or {})
             meta.book = book
@@ -3404,7 +3492,11 @@ def main(argv=None, web=None, perl=None, typst=None, dumper=None, perl_libs=()):
     ap.add_argument("-o", "--output", default="breviary.pdf",
                     help="the PDF, or with volumes the name each volume's is made from")
     ap.add_argument("--keep-source", metavar="DIR")
+    ap.add_argument("--ordo-year", type=int, metavar="YEAR",
+                    help="the year of the part ordo (default: this year, from November the next)")
     args = ap.parse_args(argv)
+    global ORDO_YEAR
+    ORDO_YEAR = args.ordo_year or ORDO_YEAR
     seams = args.divide.split(",") if args.divide else dovolumes.DIVISIONS.get(args.volumes or 1, [])
     customs = {"custom%d" % (i + 1): os.path.abspath(f) for i, f in enumerate(args.custom or [])}
     parts = args.parts.split(",")

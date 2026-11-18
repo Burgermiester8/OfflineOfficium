@@ -3,6 +3,28 @@
 What changed in each release, newest first. The README has the details and
 the measurements.
 
+## 2026.11.18
+
+**New in the Breviary Builder**
+
+- **How to Use This Breviary**, a first page: what the book holds, finding
+  the day's Office, saying an Hour, examples and the signs, with this book's
+  pages.
+- **An Ordo of one year** (unticked; the year beside *Responsories*): every
+  day's Office, class, colour, commemorations and page.
+- **Indexes** at the end: psalms and canticles, hymns, feasts, with pages.
+- **On Indulgences** (unticked): the teaching, the kinds and conditions, the
+  texts of the book that carry one with their pages, and the documents.
+- **Pages in the Calendar** for each feast.
+- **The Psalter's running head in both languages** (*Feria III · Tuesday*).
+- **A truer page estimate**: it now counts the version, *New page for each
+  office*, the contents and the typeface (within 2% of six measured books).
+
+**Fixed**
+
+- The Breviary Builder window could hang on opening, its scroll bars
+  appearing and disappearing in turn.
+
 ## 2026.11.16
 
 **New in the Breviary Builder**

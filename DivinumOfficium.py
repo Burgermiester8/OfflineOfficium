@@ -549,7 +549,9 @@ def run_selftest():
         # As the window makes a book at first: the rule between the languages,
         # and the first on the outside of each page (its rows measured, then set).
         layout = dopdf.Layout(new_page_per_day=False, column_rule=True, mirror_columns=True)
-        offices = dobreviary.build(["tabulae", "orationes", "commune"], "Rubrics 1960 - 1960", "Latin",
+        offices = dobreviary.build(["introductio", "tabulae", "orationes", "commune", "indulgentiae",
+                                    "indices"],
+                                   "Rubrics 1960 - 1960", "Latin",
                                    "English", layout, out, perl,
                                    dumper, web, typst, only=["C4"], perl_libs=libs)
         return "%d office(s), %d pages -> %s" % (len(offices), len(PdfReader(out).pages), out)

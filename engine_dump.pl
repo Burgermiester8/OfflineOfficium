@@ -732,6 +732,7 @@ my @items =
   : $opt{part} eq 'fixed'   ? fixed_files()
   : $opt{part} eq 'missa'   ? missa_files()
   : $opt{part} eq 'canticles' ? ()
+  : $opt{part} eq 'ordo'    ? ()
   : die "unknown part $opt{part}\n";
 if ($opt{only} && $opt{part} ne 'canticles') {
   my %only = map { $_ => 1 } split /,/, $opt{only};
@@ -753,6 +754,89 @@ if ($opt{part} eq 'canticles') {
   }
   push @offices, { key => 'canticles', file => 'Psalterium/Psalmorum', title => ['', ''],
                    sections => \@sections };
+}
+# The Ordo of a year (--year): what the engine says each day is, as its own
+# Ordo page does (kalendar/ordo.pl, ordo_entry): occurrence() for the office
+# and its commemorations, concurrence() for Vespers. The same rules, step by
+# step, but the facts rather than HTML: each office's file, so the book can
+# give its page, and its title and rank in both languages.
+sub ordo_title {
+  my ($lang, $file) = @_;
+  my %h = %{setupstring($lang, $file =~ /\.txt$/ ? $file : "$file.txt") || {}};
+  my $t = ($h{Rank} // '') =~ s/;;.*//sr;
+  $t =~ s/\s+/ /g;
+  return $t =~ s/^\s+|\s+$//gr;
+}
+
+sub ordo_day {
+  my ($date) = @_;
+  our ($day, $month, $year, %scriptura, @commemoentries, $dioecesis);
+  our ($winner, $commemoratio, $commemoratio1, $commune, $scriptura);
+  our (%winner, %commemoratio, %commemoratio1, %commune);
+  our ($C10, $rank, $hora, $dayofweek);
+  $dioecesis ||= 'Generale';
+  ($month, $day, $year) = split('-', $date);
+  $dayofweek = day_of_week($day, $month, $year);
+  @dayname = (getweek($day, $month, $year, 0, 0), '', '');
+  @commemoentries = ();
+  $C10 = 'C10';
+  occurrence($day, $month, $year, $version, $dioecesis, 0);
+  %winner = %{officestring($lang1, $winner, 0)};
+  my ($h1, $h2) = split(/\s*~\s*/, setheadline());
+  my %e = (date => sprintf('%04d-%02d-%02d', $year, $month, $day), dow => $dayofweek,
+           file => $winner =~ s/\.txt$//r, title => [$h1, ordo_title($lang2, $winner) || $h1],
+           rank => [$h2, rankname($lang2)], color => liturgical_color($h1), comms => []);
+  # The commemorations: the first as $dayname[2] names it, the others from
+  # @commemoentries, with ordo_entry's own limits.
+  my ($label, $name) = split(/: /, $dayname[2], 2);
+  if ($name) {
+    $name =~ s/\s*\(Scriptura ut in\: .*\)//;
+    $name =~ s/<br\/>.*//s;
+    my $f = ($label =~ /Scriptura/i ? $scriptura : $commemoratio) || $commemoentries[0] || '';
+    $label =~ s/\s+/ /g;
+    push @{$e{comms}}, { kind => $label, file => $f =~ s/\.txt$//r,
+                         title => [$name, ($f ? ordo_title($lang2, $f) : '') || $name] };
+  }
+  my $from = ($winner =~ /Tempora/i && ($commemoentries[0] // '') !~ /Tempora/) ? 0 : 1;
+  if ($name && @commemoentries > $from) {
+    for my $ind ($from .. @commemoentries - 1) {
+      my %com = %{setupstring('Latin', "$commemoentries[$ind].txt")};
+      my @comRank = split(';;', $com{Rank} // '');
+      last if ($version =~ /196/
+        && (($winner{Rule} =~ /Festum Domini/ && $commemoratio{Rule} =~ /Festum Domini/i)
+          || (($commemoratio =~ /06-28r?/i || $winner{Rule} =~ /No Sunday commemoratio/i) && $dayofweek == 0)));
+      next if (($comRank[2] // 0) < 2.1 && $comRank[0] =~ /Infra Octav/i && $rank >= 5 && $winner =~ /Sancti/i);
+      push @{$e{comms}}, { kind => 'Commemoratio', file => $commemoentries[$ind],
+                           title => [$comRank[0], ordo_title($lang2, $commemoentries[$ind]) || $comRank[0]] }
+        if $comRank[0] && !grep { $_->{title}[0] eq $comRank[0] } @{$e{comms}};
+      last if ($version =~ /1960/ && $rank >= 5 || ($rank >= 4 && $winner{Rank} =~ /Feria|Sabbato/i));
+    }
+  }
+  my $keep = $hora;
+  $hora = 'Vespera';
+  concurrence($day, $month, $year, $version, $dioecesis);
+  $hora = $keep;
+  my $cv = $dayname[2] // '';
+  $cv =~ s/.*?(Vespera|A capitulo|$)/$1/s;
+  $cv =~ s/<[^>]+>/ /g;
+  $e{vespers} = $cv =~ s/\s+/ /gr =~ s/^\s+|\s+$//gr;
+  return \%e;
+}
+
+if ($opt{part} eq 'ordo') {
+  my $y = $opt{year} || 2027;
+  my @days;
+  for my $m (1 .. 12) {
+    my $len = (31, ($y % 4 == 0 && ($y % 100 != 0 || $y % 400 == 0)) ? 29 : 28,
+               31, 30, 31, 30, 31, 31, 30, 31, 30, 31)[$m - 1];
+    for my $d (1 .. $len) {
+      my $e = eval { ordo_day(sprintf('%02d-%02d-%04d', $m, $d, $y)) };
+      push @days, $e ? $e : { date => sprintf('%04d-%02d-%02d', $y, $m, $d), error => "$@" };
+    }
+    printf STDERR "\rordo %d/12", $m if $opt{progress};
+  }
+  print STDERR "\n" if $opt{progress};
+  push @offices, { key => "ordo-$y", file => '', title => ['', ''], year => $y, days => \@days };
 }
 for my $item (@items) {
   my $o = eval { $opt{part} eq 'missa' ? load_missa($item) : load_office($item) };

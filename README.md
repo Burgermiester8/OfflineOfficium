@@ -848,7 +848,10 @@ Click **Make a breviary…** in the app's window:
   (The first book had 2, 21, 160, 838, 17, 779 and 547 pages for the parts
   from the prayers on, before repeated texts were printed once, headings run
   into their lines and the Commons printed by families. The Sunday Masses
-  are a part too, unticked at first: see *The Sunday Masses*.)
+  are a part too, unticked at first: see *The Sunday Masses*. So are the
+  introduction, first, and the indexes, last, both ticked, and the Ordo of
+  one year and the pages on indulgences, unticked: see *The introduction*,
+  *The indexes*, *The Ordo* and *On Indulgences*.)
 
 - **Include the alternative lessons** — on by default; off leaves out the
   Common's second and third sets of lessons (and the few "alia" forms
@@ -2376,6 +2379,154 @@ gain 28 *Ps.* and 6 *Cant.* references, the two columns counted (580 *Ps.* in
 the book before, 608 now); the invitatories and the antiphon of the Benedictus,
 which go with no psalm of their own, are left as they were. References
 audited: 3,564, no problems; 856 pages, as before.
+
+### The Ordo
+
+A part of its own, *Ordo Divini Officii — Ordo of the Divine Office*,
+unticked at first (it is of one year): every day of the year chosen beside
+the responsories (*Ordo for the year*, from November the next year;
+`--ordo-year` on the command line), a month to a table as in the Calendar,
+the months running on. Each day has its weekday, the office said, its class
+and colour, its commemorations and a note on Vespers where they are of the
+next day or carry a commemoration of it (*Vespera de sequenti*), in both
+languages, and the page where the book prints that office.
+
+Nothing in it is decided here. `engine_dump.pl --part ordo --year Y` runs,
+for each day, the steps of the engine's own Ordo page (`kalendar/ordo.pl`,
+`ordo_entry`): `occurrence()` for the office and its commemorations, with
+that page's limits (1960: one commemoration on a II class day), and
+`concurrence()` for Vespers; it returns the facts instead of HTML, among
+them each office's file. The book looks that file up among the offices it
+prints (`doordo.anchor_ordo`); a weekday with no office of its own is given
+its week's Sunday, a variant file (*Nat2-0r*, *01-14cc*) its plain one, and
+a commemoration the engine names without a file is found by its title in the
+Proper of the Saints. A volume gives the pages of its own copies. The days
+of the season are named in Latin in the engine's English too; the English
+column translates their regular forms (*Feria III infra Hebdomadam II post
+Epiphaniam* → *Tuesday of the 2nd week after Epiphany*, `doordo.season_english`),
+and a title of any other form gets none rather than a wrong one: 149 of the
+159 such titles of 2027 in the Monastic and 1960 Ordos; the other 10 are
+saints, which take the book's own English title. A monastic IV class day is
+a *Memoria* only when it is a saint's. Measured: 365 days in 48 s (the
+engine, Monastic 1963), 14 pages (Latin and English, Letter, 10 pt). In a
+whole Monastic book 281 of its rows land on a page printing their office's
+title; the Saturdays of Our Lady land on the Common's *Officium Beatæ Mariæ
+Virginis in Sabbato*, the weekdays on their Sundays, and 12 have no page
+(their office is in no part of that book). The September Ember days have no
+office of their own in the Monastic Proper of the Season, so they get the
+week's Sunday.
+
+### Pages in the Calendar
+
+Each feast of the Calendar now ends with the page of its office, small and
+red in a column of its own (`anchor_calendar`): the row carries the engine's
+file, and the volume's copy of that office gets a label. In a volume only
+the saints it prints have one. Checked on a Monastic book of the Calendar,
+Psalter and Saints: every one of 165 rows lands on a page printing its feast.
+
+### The indexes
+
+A part at the end, *Indices — Indexes*, ticked at first (`doindex.py`):
+the psalms and canticles by number with their opening words in both
+languages, the hymns by their first line in alphabetical order, and the
+feasts (the Proper of the Saints and the feasts of the Proper of the Season)
+in alphabetical order with their date, *S.* and *In* not counted. Each
+gives the page where the book first prints it, the Psalter's copy of a psalm
+first. The first line of each is given a marker as the first copy of a
+repeated text is (`_mark`), so its page is found the same way, in the volume
+or across volumes. A hymn the Common of the Seasons gives by its day
+(*Hymnus. Dominica:*, the hymn on the next line) was at first indexed by
+that label; a heading that ends in a colon is now passed over. Checked by
+reading the pages, on a whole Monastic book (the introduction, Calendar,
+Ordo, Ordinary, Psalter, both Propers, both Commons, the Office of the Dead):
+all 170 psalms and canticles and all 200 feasts land on a page printing
+them, and, on a book of the Psalter, the Common of the Seasons and the
+Common, all 56 hymns. 13 pages in the whole Monastic book, Latin and
+English, Letter, 10 pt. On that book `audit_references` verified 5,330 of
+5,330 references, and `audit_sides` (with the Ordo, the indexes and the
+introduction across the page, as the Calendar is) found both languages on
+their sides on all 746 right-hand pages: no problems.
+
+### The introduction
+
+*De Usu hujus Breviarii — How to Use This Breviary*, the first part, ticked
+at first (`dointro.py`): in English, what the book contains with each part's
+page, how to find the day's Office (the Ordo, the Calendar, the Tables), how
+an Hour is said from the Ordinary, the Psalter, the Propers and the Common,
+three examples, and the signs. The examples are offices of the book itself:
+its first Sunday of the Proper of the Season, the first saint whose office
+names a Common for the rest (*S. Titi*: its page and the Common's), and the
+Psalter's Wednesday. A sentence about a part the book leaves out is left
+out. One page in the Monastic book; every page it names was checked against
+the page printed.
+
+### On Indulgences
+
+*De Indulgentiis — On Indulgences* (`doindulgences.py`), a part of two pages,
+unticked at first and placed in the list like any other. In English: what an
+indulgence is; the teaching (Clement VI, Trent); plenary and partial, for
+oneself or for the dead; the conditions; the kinds the older books name (days
+and years, personal, real and local, *toties quoties*, apostolic, the Jubilee,
+at the hour of death, the Papal Blessing) and what became of each in 1967; the
+texts of this book that carry an indulgence, each with its page here; and the
+documents, from Boniface VIII (1300) to the Catechism, with their dates and
+Denzinger numbers.
+
+The norms are cited by the fourth edition of the *Enchiridion
+Indulgentiarum* (16 July 1999), with the canons of both Codes and the norms of
+*Indulgentiarum doctrina* (1967) beside them; the grants for texts of the
+Office (the Te Deum and the Veni Creator, conc. 26; the Magnificat and the
+Salve Regina, conc. 17; the Miserere and the De profundis, conc. 9; the Creed,
+conc. 28; Lauds and Vespers of the Dead, conc. 29) are that edition's, read
+in its English translation (*Manual of Indulgences*, 2006). The grants of
+1933 for the prayers before and after the Office are the breviary's own
+rubric. The Denzinger numbers were checked against Denzinger's text; the bull
+of 1343, whose number was not, is given without one.
+
+Each text's page is its first full printing in the book or volume, found by
+its opening words in either language (a psalm by its title) and given a
+marker, as the indexes do; a text the book does not print is named without a
+page, and one whose part is left out (the Veni Creator, without the Proper of
+the Season) is left out. Every page it named was checked against the page
+printed, in four books (1960 Latin and English, 1960 English first, Monastic
+1963, and 1960 with the Proper of the Season): 45 of 45. Two pages in each.
+The references audit found nothing in the last (2,554 of 2,554), nor the
+audit of the two sides in the first (91 right-hand pages).
+
+### The Psalter's running head in both languages
+
+The Psalter's head named the day in the first language, *Psalterium · Feria
+III*; with two languages it now gives both, *Psalterium · Feria III ·
+Tuesday*.
+
+### The estimate, measured again
+
+The page estimate counted every version as the 1960 book and left out the
+title page, the contents, the face and *New page for each office*. Each is
+now measured (November 2026, Latin and English, Letter, 10 pt):
+
+- **The version.** Whole books of four more versions, each part against the
+  1960 book's (`VERSION_PAGES`): the Monastic (1,521 pages), Divino Afflatu
+  1954 (1,673), Tridentine 1570 (1,361) and the Dominican 1962 (1,379). The
+  Monastic 1617 (1,529) goes with the Monastic 1963, the others by the
+  nearest (`version_group`).
+- **New page for each office**: each part against the same book run on
+  (`NEW_PAGE`; the 1960 book 1,560 → 1,911, the Monastic 1,521 → 1,800).
+- **The title page and contents**: a line for each office, 44 a page
+  (`CONTENTS_LINES`; 675 lines in 15 pages, 816 in 19), to an even number.
+- **The face**: the 1960 Common in each book face, against Cambria's 107
+  pages (`FONT_PAGES`): from Perpetua 0.86, Garamond 0.93 and Times New
+  Roman 0.96 to Bookman Old Style 1.18 and Lucida Bright 1.22.
+
+The estimate now gives 1,570 pages for the 1960 book (1,560 printed), 1,890
+with a new page for each office (1,911), 1,530 for the Monastic (1,521),
+1,840 (1,800), 1,680 for Divino Afflatu (1,673) and 1,370 for Tridentine
+(1,361); before, each was about 1,540 whatever the version or the setting.
+At settings far from the standard it is rougher: a Monastic book in two
+volumes, Times New Roman 9 pt, line spacing 90%, verses 80%, words 80%,
+margins 0.3 in, with the Tables, the Masses and three custom parts printed
+761 and 755 pages, against an estimate of 700 and 740 (720 and 760 before
+these changes, when its errors happened to cancel).
 
 ### A Roman lesson left in monastic feasts
 

@@ -36,7 +36,8 @@ except ImportError:
 sys.stdout.reconfigure(encoding="utf-8")
 plain, mirrored = fitz.open(sys.argv[1]), fitz.open(sys.argv[2])
 HEAD = 46  # the running head's band, in points from the top
-ACROSS = ("Kalendarium", "Calendar", "Tabulae", "Tables")
+ACROSS = ("Kalendarium", "Calendar", "Tabulae", "Tables", "Ordo", "Indices", "Indexes",
+          "De Usu", "How to Use", "De Indulgentiis", "On Indulgences")
 
 
 def clean(text):

@@ -826,7 +826,62 @@ MISSA_PAGES = 79
 # Proper of the Season.
 PART_PAGES = {"defunctorum": 18, "kalendarium": 10, "orationes": 1, "ordinarium": 21, "psalterium": 147,
               "tempora": 599, "temporis": 15, "sancti": 642, "commune": 87, "missa": MISSA_PAGES,
-              "tabulae": 12}  # the Tables: measured on the Monastic book (November 2026)
+              "tabulae": 12,  # the Tables: measured on the Monastic book (November 2026)
+              # Measured on the Monastic book too: the Ordo of 2027, the indexes
+              # and the introduction of the whole book.
+              "ordo": 14, "indices": 13, "introductio": 1,
+              "indulgentiae": 2}  # On Indulgences: measured in four books, two pages in each
+# Each version's parts against the 1960 book's (PART_PAGES), measured in
+# November 2026 on whole books (Latin and English, Letter, 10 pt). Versions
+# not measured go by the nearest (version_group).
+VERSION_PAGES = {
+    "monastic": {"kalendarium": 0.7, "ordinarium": 1.1, "psalterium": 1.14, "tempora": 1.1,
+                 "temporis": 0.87, "sancti": 0.77, "commune": 1.41, "defunctorum": 1.06},
+    "divino": {"kalendarium": 1.2, "ordinarium": 1.38, "psalterium": 1.01, "tempora": 1.06,
+               "temporis": 1.13, "sancti": 1.1, "commune": 0.98, "defunctorum": 1.11},
+    "tridentine": {"kalendarium": 0.9, "ordinarium": 1.48, "psalterium": 1.2, "tempora": 0.99,
+                   "temporis": 1.07, "sancti": 0.64, "commune": 0.99, "defunctorum": 1.17},
+    "op": {"kalendarium": 0.9, "ordinarium": 0.86, "psalterium": 0.97, "tempora": 0.92,
+           "temporis": 1.07, "sancti": 0.84, "commune": 0.71, "defunctorum": 1.11},
+}
+
+
+# Each book face against Cambria (PART_PAGES are Cambria's): the 1960 Common
+# of the Saints set in each, Latin and English, Letter, 10 pt (Cambria 107
+# pages; November 2026). A face not measured counts as Cambria.
+FONT_PAGES = {"Perpetua": 0.86, "Centaur": 0.9, "Garamond": 0.93, "Calibri": 0.94,
+              "Times New Roman": 0.96, "Baskerville Old Face": 0.97, "Libertinus Serif": 0.97,
+              "Cambria": 1.0, "Constantia": 1.03, "New Computer Modern": 1.06, "Georgia": 1.07,
+              "High Tower Text": 1.07, "Segoe UI": 1.07, "Palatino Linotype": 1.08,
+              "Sitka Text": 1.08, "Book Antiqua": 1.09, "Goudy Old Style": 1.14,
+              "Century Schoolbook": 1.16, "Bookman Old Style": 1.18, "Lucida Bright": 1.22}
+
+
+def version_group(version):
+    """Which measured book a version's parts are estimated from."""
+    v = (version or "").lower()
+    if "monastic" in v or "cist" in v:
+        return "monastic"
+    if "praedicatorum" in v:
+        return "op"
+    if "divino" in v or "1955" in v:
+        return "divino"
+    if "tridentin" in v:
+        return "tridentine"
+    return "1960"
+
+
+# Each office on a page of its own (New page for each office), against the
+# offices running on: measured on the whole 1960 and Monastic books (Letter,
+# 10 pt, November 2026; the Proper of the Season 599 -> 757 and 658 -> 817).
+NEW_PAGE = {"orationes": 5.0, "ordinarium": 1.13, "psalterium": 1.02, "tempora": 1.25,
+            "temporis": 1.15, "sancti": 1.24, "commune": 1.08, "defunctorum": 1.05}
+# The contents: a line for each part and office, about 44 a page at Letter
+# 10 pt (the Monastic book's 675 in 15 pages, the 1960 book's 816 in 19).
+CONTENTS_LINES = {"kalendarium": 13, "tabulae": 5, "ordo": 13, "orationes": 6, "ordinarium": 10,
+                  "psalterium": 9, "tempora": 422, "temporis": 7, "sancti": 265, "commune": 18,
+                  "defunctorum": 4, "missa": 60, "indices": 4, "introductio": 1, "indulgentiae": 1}
+CONTENTS_A_PAGE = 44
 # The Common: 208 before each variant printed only its own texts (the same
 # Common alone, 181 pages -> 109).
 # Every text in full instead (2,089 pages): each part against PART_PAGES.
@@ -1017,6 +1072,8 @@ class BreviaryDialog(PdfDialog):
         self.references = tk.BooleanVar(value=True)
         # The responsories of Matins: "refer" or "full", whatever `references` says.
         self.responsories = tk.StringVar(value="refer")
+        # The Ordo's year: from November the next (not saved: a new year each year).
+        self.ordo_year = tk.StringVar(value=str(self.book.doordo.default_year()))
         self._build_parts_list()
         self._render_parts()
 
@@ -1511,6 +1568,11 @@ class BreviaryDialog(PdfDialog):
                                 ("refer", "repeated ones by first words and page"))]
         for radio in self.responsory_radios:
             radio.pack(side="left", padx=(8, 0))
+        # The year of the Ordo, on the same row (the window is as tall as a
+        # small screen allows).
+        ttk.Label(resp, text="Ordo for the year").pack(side="left", padx=(24, 0))
+        ttk.Spinbox(resp, from_=1583, to=4099, width=6, textvariable=self.ordo_year).pack(
+            side="left", padx=(6, 0))
 
     def _render_parts(self, show_last=False):
         inner = self.parts_inner
@@ -1671,13 +1733,17 @@ class BreviaryDialog(PdfDialog):
         kinds = ["matins", "diurnal"] if kind == "both" else [kind]
 
         refs, full_resp = self.references.get(), self.responsories.get() == "full"
+        by_version = VERSION_PAGES.get(version_group(self.version.get()), {})
+        own_pages = bool(lay.new_page_per_day)
 
         def by_part(k):
             """Each part's pages at the standard settings, in book k (BOOK_SHARE);
             the responsories of Matins as chosen, whatever the other texts do."""
             out = {}
             for p in parts:
-                whole = PART_PAGES[p] * (1 if alt else NO_ALTERNATIVES.get(p, 1))
+                whole = PART_PAGES[p] * by_version.get(p, 1) * (1 if alt else NO_ALTERNATIVES.get(p, 1))
+                if own_pages:
+                    whole *= NEW_PAGE.get(p, 1)
                 pages = whole * (1 if refs else FULL_TEXTS.get(p, 1)) * BOOK_SHARE.get(k, {}).get(p, 1)
                 if k != "diurnal" and refs == full_resp:
                     more = (whole * BOOK_SHARE["matins"].get(p, 1)
@@ -1704,7 +1770,17 @@ class BreviaryDialog(PdfDialog):
             if self.two_columns.get():
                 factor *= TWO_COLUMNS.get(lay.paper, 0.8)
         factor *= PAPER_FACTOR.get(lay.paper, 1.0) * (lay.font_size / 10.0) ** 2 * spacing_factor(lay)
+        factor *= FONT_PAGES.get(lay.font, 1.0)
         blanks = sum(dopdf.blank_pages(lay)) + custom_pages  # in every book and volume
+        contents_lines = sum(CONTENTS_LINES.get(p, 1) for p in parts) + len(customs)
+        lines_a_page = CONTENTS_A_PAGE / (PAPER_FACTOR.get(lay.paper, 1.0) * (lay.font_size / 10.0) ** 2)
+
+        def front(share=1.0):
+            """The title page and contents of a book or volume holding `share`
+            of the offices: an even number of pages (page 1 is a right-hand one)."""
+            n = (1 if lay.title_page else 0) + (
+                -(-int(contents_lines * share) // max(1, int(lines_a_page))) if lay.contents else 0)
+            return n + n % 2
         tens = lambda pages: ", ".join("{:,}".format(int(round(v, -1))) for v in pages)
         n = self.volumes_wanted()
         self._show_volume_choices(n)
@@ -1728,9 +1804,12 @@ class BreviaryDialog(PdfDialog):
                                                        if len(whole) > 1 else whole[0])
                           if whole else "")
                 + "a saint or Sunday that can fall in two volumes is in both."))
-            each = {k: [v * factor + blanks for v in volume_pages(by_part(k), seams,
-                                                                  "196" in self.version.get())]
-                    for k in kinds}
+            each = {}
+            for k in kinds:
+                vols = [v * factor for v in volume_pages(by_part(k), seams, "196" in self.version.get())]
+                book_pages = sum(vols) or 1
+                # Each volume's contents, as its share of the book.
+                each[k] = [v + blanks + front(v / book_pages) for v in vols]
             total = sum(sum(v) for v in each.values())
             seconds = SECONDS_TO_READ + total * a_page + 5 * n * len(kinds)
             when = "under a minute" if seconds < 60 else (
@@ -1748,7 +1827,7 @@ class BreviaryDialog(PdfDialog):
         self.volume_note.config(style="Muted.TLabel", text="One book holding every part chosen above."
                                 if len(kinds) == 1 else
                                 "Two books, each holding its own hours of every part chosen above.")
-        pages = {k: sum(by_part(k).values()) * factor + blanks for k in kinds}
+        pages = {k: sum(by_part(k).values()) * factor + blanks + front() for k in kinds}
         total = sum(pages.values())
         seconds = SECONDS_TO_READ + total * a_page
         when = "under a minute" if seconds < 60 else (
@@ -1904,6 +1983,10 @@ class BreviaryDialog(PdfDialog):
         references = self.references.get()
         responsories = self.responsories.get() == "full"
         customs = self.customs()
+        try:  # the Gregorian calendar's years the engine reckons
+            self.book.ORDO_YEAR = max(1583, min(4099, int(self.ordo_year.get())))
+        except ValueError:
+            self.book.ORDO_YEAR = None  # the coming year
         seams = self.seams_chosen() if self.volumes_wanted() > 1 else []
         kind = self.book_choice()
         self.cancel.clear()

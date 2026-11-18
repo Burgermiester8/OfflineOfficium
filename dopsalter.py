@@ -1725,7 +1725,8 @@ def calendar_offices(part, sancti, two):
         colour = "" if o.get("commemoratio") else LITURGICAL_COLOURS.get(o.get("color") or "", "")
         known = (mm, dd) != (2, 29)
         months[mm].append((str(dd), roman_date(mm, dd) if known else "", dominical_letter(mm, dd),
-                           t1 or o["key"], (t2 if two and t2 != t1 else ""), rank, colour))
+                           t1 or o["key"], (t2 if two and t2 != t1 else ""), rank, colour,
+                           o.get("file") or ""))
     colours = tuple(sorted({row[6] for rows in months.values() for row in rows if row[6]}))
     offices = []
     for m in range(1, 13):

@@ -26,7 +26,9 @@ is long, so search it rather than reading it whole.
   parses it; `engine_dump.pl` reads whole parts of the breviary through it
 - `dopdf.py` typesets days; `dobreviary.py` the breviary; `dopsalter.py` its
   Ordinary, Psalter, seasons and Calendar; `dotables.py` its Tables (the
-  moveable feasts, Occurrence, Concurrence, the epacts); `dovolumes.py` the volumes;
+  moveable feasts, Occurrence, Concurrence, the epacts); `doordo.py` its Ordo of
+  one year (the engine's own, with pages); `doindex.py` its indexes (psalms,
+  hymns, feasts); `dointro.py` its introduction; `doindulgences.py` its part on indulgences; `dovolumes.py` the volumes;
   `dotranslate.py` with `translations-en.json`, the English the data lacks
 - `doupdate.py` updates from the GitHub releases (Ed25519-signed)
 - `datafixes.py` with `data-fixes.txt`: corrections to the upstream texts;

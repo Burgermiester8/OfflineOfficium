@@ -703,6 +703,17 @@ class ScrollArea:
         w, h = self.inner.winfo_reqwidth(), self.inner.winfo_reqheight()
         self.canvas.configure(width=max(1, w - self.cut[0]), height=max(1, h - self.cut[1]),
                               scrollregion=(0, 0, w, h))
+        # A bar shows exactly when limit() cut that way. Deciding it from the
+        # canvas's scroll fractions instead looped for ever: a bar shown takes
+        # room, which for a moment makes the other needed, which takes room...
+        # (the windows cannot be resized, so the cut is the whole story).
+        for bar, cut, place in ((self.vbar, self.cut[1], dict(row=0, column=1, sticky="ns")),
+                                (self.hbar, self.cut[0], dict(row=1, column=0, sticky="ew"))):
+            shown = bool(bar.winfo_manager())
+            if cut and not shown:
+                bar.grid(**place)
+            elif not cut and shown:
+                bar.grid_remove()
 
     def limit(self, over_w, over_h):
         """Fit the window to the screen: it is `over_w` pixels too wide and
@@ -719,15 +730,7 @@ class ScrollArea:
         self._size()
 
     def _bar(self, bar, lo, hi):
-        bar.set(lo, hi)
-        needed = float(lo) > 0.0 or float(hi) < 1.0
-        if needed and not bar.winfo_ismapped():
-            if bar is self.vbar:
-                bar.grid(row=0, column=1, sticky="ns")
-            else:
-                bar.grid(row=1, column=0, sticky="ew")
-        elif not needed and bar.winfo_ismapped():
-            bar.grid_remove()
+        bar.set(lo, hi)  # whether it shows is _size()'s to say
 
     def _wheel(self, e, across=False):
         bar = self.hbar if across else self.vbar
